@@ -4,8 +4,9 @@
 
 Important context:
 
-- Current date: !`date +%Y-%m-%d`
-- Timezone: !`date +%Z`
+- User use powershell terminal
+- Current date: !`date +%Y-%m-%d` or `Get-Date -Format "yyyy-MM-dd"`
+- Timezone: !`date +%Z` or `Get-Date -Format "zzz"`
 
 Github repository url : https://github.com/Conrardy/kata-meal-planner/
 
