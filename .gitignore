@@ -1,4 +1,7 @@
 .claude
+.cursor
 .vscode
 .vs
 
+node_modules/
+**/node_modules/

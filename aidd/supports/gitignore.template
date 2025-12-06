@@ -1,0 +1,10 @@
+#
+# You might want to ignore the following files and directories:
+#
+aidd* # AIDD installation folder
+aidd/
+docs/
+worktrees/
+
+.claude
+.opencode

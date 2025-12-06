@@ -1,0 +1,1 @@
+C:/dev-perso/training-kanta/kata-meal-planner/aidd/prompts/templates/code_review.md

@@ -1,0 +1,91 @@
+{
+	"LOG": true,
+	"LOG_LEVEL": "debug",
+	"CLAUDE_PATH": "",
+	"HOST": "127.0.0.1",
+	"PORT": 3456,
+	"APIKEY": "",
+	"API_TIMEOUT_MS": "5000",
+	"PROXY_URL": "",
+	"transformers": [],
+	"Providers": [
+		{
+			"name": "OpenRouter",
+			"api_base_url": "https://openrouter.ai/api/v1/chat/completions",
+			"api_key": "",
+			"models": [
+				"moonshotai/kimi-k2:free",
+				"qwen/qwen3-coder:free",
+				"deepseek/deepseek-r1:free",
+				"meta-llama/llama-3.3-70b-instruct:free",
+				"mistralai/devstral-small-2505:free"
+			],
+			"transformer": {
+				"use": ["openrouter"]
+			}
+		},
+		{
+			"name": "gemini",
+			"api_base_url": "https://generativelanguage.googleapis.com/v1beta/models/",
+			"api_key": "",
+			"models": ["gemini-2.5-pro"],
+			"transformer": {
+				"use": ["gemini"]
+			}
+		}
+	],
+	"StatusLine": {
+		"enabled": false,
+		"currentStyle": "",
+		"default": {
+			"modules": []
+		},
+		"powerline": {
+			"modules": []
+		},
+		"": {
+			"modules": [
+				{
+					"type": "workDir",
+					"icon": "󰉋",
+					"text": "{{workDirName}}",
+					"color": "bright_blue"
+				},
+				{
+					"type": "gitBranch",
+					"icon": "🌿",
+					"text": "{{gitBranch}}",
+					"color": "bright_green"
+				},
+				{
+					"type": "model",
+					"icon": "🤖",
+					"text": "{{model}}",
+					"color": "bright_yellow"
+				},
+				{
+					"type": "usage",
+					"icon": "📊",
+					"text": "{{inputTokens}} → {{outputTokens}}",
+					"color": "bright_magenta"
+				},
+				{
+					"type": "script",
+					"icon": "📜",
+					"text": "Script Module",
+					"color": "bright_cyan",
+					"scriptPath": ""
+				}
+			]
+		},
+		"fontFamily": "Hack Nerd Font Mono"
+	},
+	"Router": {
+		"default": "OpenRouter,qwen/qwen3-coder:free",
+		"background": "",
+		"think": "OpenRouter,deepseek/deepseek-r1:free",
+		"longContext": "",
+		"longContextThreshold": 60000,
+		"webSearch": "OpenRouter,meta-llama/llama-3.3-70b-instruct:free"
+	}
+}

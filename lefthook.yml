@@ -1,0 +1,9 @@
+# Lefthook configuration for AIDD
+# https://github.com/evilmartians/lefthook/blob/master/docs/configuration.md
+
+pre-commit:
+  commands:
+    aidd-refresh-docs:
+      glob: "*.{md,sh,js,ts,tsx,jsx,json,yml,yaml}"
+      run: bash aidd/supports/git-hooks/pre-commit.sh
+      stage_fixed: true

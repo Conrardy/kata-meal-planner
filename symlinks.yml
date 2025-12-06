@@ -1,0 +1,45 @@
+# Symlinks Configuration
+# This file documents all symbolic links in the repository (excluding node_modules)
+# Generated from repository analysis
+# NOTE: All target paths are RELATIVE to the source location
+
+symlinks:
+  # Root level symlinks
+  - source: CLAUDE.md
+    target: AGENTS.md
+    description: Claude configuration file pointing to AGENTS.md
+
+  # .claude directory symlinks
+  - source: .claude/agents
+    target: ../docs/agents
+    description: Claude agents directory pointing to docs/agents
+
+  - source: .claude/commands/custom
+    target: ../../docs/prompts
+    description: Claude custom commands pointing to docs/prompts
+
+  - source: .claude/commands/flows
+    target: ../../docs/flows
+    description: Claude flows commands pointing to docs/flows
+
+  - source: .claude/commands/ide
+    target: ../../aidd/prompts/ide
+    description: Claude IDE commands pointing to aidd/prompts/ide
+
+  # .github directory symlinks
+  - source: .github/commit-message-instructions.md
+    target: ../docs/COMMIT.md
+    description: GitHub commit message instructions pointing to docs/COMMIT.md
+
+  - source: .github/pull-request-description-instructions.md
+    target: ../docs/PR_TEMPLATE.md
+    description: GitHub pull request description instructions pointing to docs/PR_TEMPLATE.md
+
+  - source: .github/review-instructions.md
+    target: ../aidd/prompts/templates/code_review.md
+    description: GitHub review instructions pointing to code review template
+
+  # .cursor directory symlinks
+  - source: .cursor/commands/ide
+    target: ../../aidd/prompts/ide
+    description: Cursor IDE commands pointing to aidd/prompts/ide
