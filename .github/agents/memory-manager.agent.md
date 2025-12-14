@@ -1,6 +1,7 @@
 ---
 name: Memory Manager
 description: Invoked when Writing or Updating memory bank documentation.
+model: Claude Sonnet 4.5 (copilot)
 ---
 
 # Memory Manager Agent

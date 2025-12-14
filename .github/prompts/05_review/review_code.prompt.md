@@ -1,4 +1,5 @@
 ---
+agent: architect
 name: review_code
 description: Ensure code quality and rules compliance
 ---

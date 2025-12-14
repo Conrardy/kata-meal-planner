@@ -1,4 +1,5 @@
 ---
+agent: dev
 name: implement
 description: Implement plan following project rules with validation
 argument-hint: The technical plan to implement

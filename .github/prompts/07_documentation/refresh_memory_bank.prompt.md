@@ -1,4 +1,5 @@
 ---
+agent: Memory Manager
 name: refresh_memory_bank
 description: Refresh (aka create or update) the memory bank files to reflect the current state of the codebase
 argument-hint: <module> (optional) - default is project root

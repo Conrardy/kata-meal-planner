@@ -1,4 +1,5 @@
 ---
+agent: architect
 name: codebase-audit
 description: Perform deep codebase analysis for technical debt and improvements
 argument-hint: Scope or module to audit (optional - defaults to full codebase)
