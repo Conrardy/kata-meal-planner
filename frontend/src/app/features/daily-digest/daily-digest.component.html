@@ -1,0 +1,49 @@
+<section class="min-h-screen bg-gray-50 pb-8">
+  <!-- Header -->
+  <header class="bg-white shadow-sm sticky top-0 z-10">
+    <div class="max-w-7xl mx-auto px-4 py-4">
+      <h1 class="text-2xl font-bold text-gray-900">MealPrep</h1>
+    </div>
+  </header>
+
+  <!-- Daily Digest Content -->
+  <main class="max-w-7xl mx-auto px-4 py-6">
+    <div class="mb-6">
+      <h2 class="text-xl font-semibold text-gray-900">Daily Digest</h2>
+      <p class="text-primary font-medium" data-testid="today-date">
+        {{ today() | date : 'MMMM d, EEEE' }}
+      </p>
+    </div>
+
+    @if (isLoading()) {
+      <div class="flex justify-center items-center py-12" data-testid="loading-spinner">
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
+    } @else if (error()) {
+      <div
+        class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg"
+        data-testid="error-message"
+      >
+        {{ error() }}
+      </div>
+    } @else if (meals().length === 0) {
+      <div
+        class="bg-orange-50 border border-orange-200 text-orange-700 px-4 py-8 rounded-lg text-center"
+        data-testid="no-meals-message"
+      >
+        <p class="text-lg font-medium mb-2">No meals planned for today</p>
+        <p>Start by adding some recipes to your meal plan!</p>
+      </div>
+    } @else {
+      <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3" data-testid="meals-grid">
+        @for (meal of meals(); track meal.id) {
+          <app-meal-card
+            [meal]="meal"
+            (swapMeal)="onSwapMeal($event)"
+            (cookNow)="onCookNow($event)"
+          />
+        }
+      </div>
+    }
+  </main>
+</section>

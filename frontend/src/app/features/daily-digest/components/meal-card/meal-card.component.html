@@ -1,0 +1,48 @@
+<article class="bg-white rounded-xl shadow-md overflow-hidden" data-testid="meal-card">
+  <div class="relative h-48 bg-gray-200">
+    @if (meal().imageUrl) {
+      <img
+        [src]="meal().imageUrl"
+        [alt]="meal().recipeName"
+        class="w-full h-full object-cover"
+      />
+    } @else {
+      <div class="w-full h-full flex items-center justify-center text-gray-400">
+        <lucide-icon [img]="ChefHat" class="w-16 h-16"></lucide-icon>
+      </div>
+    }
+    <span
+      class="absolute top-3 left-3 bg-primary text-white text-xs font-semibold px-3 py-1 rounded-full"
+    >
+      {{ meal().mealType }}
+    </span>
+  </div>
+
+  <div class="p-4">
+    <h3 class="text-lg font-semibold text-gray-900 mb-4 line-clamp-2">
+      {{ meal().recipeName }}
+    </h3>
+
+    <div class="flex gap-3">
+      <button
+        type="button"
+        (click)="onSwapMeal()"
+        class="flex-1 flex items-center justify-center gap-2 px-4 py-2 border-2 border-primary-light text-primary rounded-lg hover:bg-orange-50 transition-colors"
+        data-testid="swap-meal-button"
+      >
+        <lucide-icon [img]="RefreshCw" class="w-4 h-4"></lucide-icon>
+        <span class="text-sm font-medium">Swap Meal</span>
+      </button>
+
+      <button
+        type="button"
+        (click)="onCookNow()"
+        class="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-orange-600 transition-colors"
+        data-testid="cook-now-button"
+      >
+        <lucide-icon [img]="ChefHat" class="w-4 h-4"></lucide-icon>
+        <span class="text-sm font-medium">Cook Now</span>
+      </button>
+    </div>
+  </div>
+</article>
