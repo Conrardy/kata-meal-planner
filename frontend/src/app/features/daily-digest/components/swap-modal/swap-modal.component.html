@@ -1,0 +1,77 @@
+<div
+  class="modal-backdrop fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+  (click)="onBackdropClick($event)"
+  data-testid="swap-modal"
+>
+  <div class="bg-white rounded-xl shadow-xl max-w-lg w-full max-h-[90vh] overflow-hidden">
+    <!-- Header -->
+    <div class="flex items-center justify-between p-4 border-b">
+      <div>
+        <h2 class="text-lg font-semibold text-gray-900">Swap Meal</h2>
+        <p class="text-sm text-gray-500">Choose an alternative for {{ mealType() }}</p>
+      </div>
+      <button
+        type="button"
+        (click)="onClose()"
+        class="p-2 text-gray-400 hover:text-gray-600 transition-colors"
+        data-testid="close-modal-button"
+      >
+        <lucide-icon [img]="XIcon" class="w-5 h-5"></lucide-icon>
+      </button>
+    </div>
+
+    <!-- Content -->
+    <div class="p-4 overflow-y-auto max-h-[60vh]">
+      @if (isLoading()) {
+        <div class="flex justify-center items-center py-8" data-testid="modal-loading">
+          <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        </div>
+      } @else if (error()) {
+        <div
+          class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg"
+          data-testid="modal-error"
+        >
+          {{ error() }}
+        </div>
+      } @else if (suggestions().length === 0) {
+        <div
+          class="text-center text-gray-500 py-8"
+          data-testid="no-suggestions"
+        >
+          No alternative recipes available.
+        </div>
+      } @else {
+        <div class="space-y-3" data-testid="suggestions-list">
+          @for (suggestion of suggestions(); track suggestion.id) {
+            <button
+              type="button"
+              (click)="onSelectRecipe(suggestion.id)"
+              class="w-full flex items-center gap-4 p-3 rounded-lg border border-gray-200 hover:border-primary hover:bg-orange-50 transition-colors text-left"
+              data-testid="suggestion-item"
+            >
+              <div class="w-16 h-16 rounded-lg bg-gray-200 flex-shrink-0 overflow-hidden">
+                @if (suggestion.imageUrl) {
+                  <img
+                    [src]="suggestion.imageUrl"
+                    [alt]="suggestion.name"
+                    class="w-full h-full object-cover"
+                  />
+                } @else {
+                  <div class="w-full h-full flex items-center justify-center text-gray-400">
+                    <lucide-icon [img]="ChefHat" class="w-8 h-8"></lucide-icon>
+                  </div>
+                }
+              </div>
+              <div class="flex-1 min-w-0">
+                <h3 class="font-medium text-gray-900 truncate">{{ suggestion.name }}</h3>
+                @if (suggestion.description) {
+                  <p class="text-sm text-gray-500 line-clamp-2">{{ suggestion.description }}</p>
+                }
+              </div>
+            </button>
+          }
+        </div>
+      }
+    </div>
+  </div>
+</div>

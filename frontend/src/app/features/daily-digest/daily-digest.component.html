@@ -47,3 +47,13 @@
     }
   </main>
 </section>
+
+<!-- Swap Modal -->
+@if (swappingMeal(); as meal) {
+  <app-swap-modal
+    [mealId]="meal.id"
+    [mealType]="meal.mealType"
+    (close)="onCloseSwapModal()"
+    (selectRecipe)="onSelectRecipe($event)"
+  />
+}

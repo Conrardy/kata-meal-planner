@@ -3,7 +3,7 @@ using MealPlanner.Domain.Recipes;
 
 namespace MealPlanner.Infrastructure.Persistence;
 
-public sealed class InMemoryPlannedMealRepository : IPlannedMealRepository
+public sealed class InMemoryPlannedMealRepository : IPlannedMealRepository, IRecipeRepository
 {
     private readonly List<PlannedMeal> _meals;
     private readonly List<Recipe> _recipes;
@@ -46,6 +46,39 @@ public sealed class InMemoryPlannedMealRepository : IPlannedMealRepository
         return Task.FromResult(meal);
     }
 
+    public Task UpdateAsync(PlannedMeal meal, CancellationToken cancellationToken = default)
+    {
+        var existingMeal = _meals.FirstOrDefault(m => m.Id == meal.Id);
+        if (existingMeal != null)
+        {
+            var recipe = _recipes.FirstOrDefault(r => r.Id == meal.RecipeId);
+            if (recipe != null)
+            {
+                SetRecipe(meal, recipe);
+            }
+        }
+        return Task.CompletedTask;
+    }
+
+    public Task<IReadOnlyList<Recipe>> GetAllAsync(CancellationToken cancellationToken = default)
+    {
+        return Task.FromResult<IReadOnlyList<Recipe>>(_recipes.ToList());
+    }
+
+    Task<Recipe?> IRecipeRepository.GetByIdAsync(Guid id, CancellationToken cancellationToken)
+    {
+        var recipe = _recipes.FirstOrDefault(r => r.Id == id);
+        return Task.FromResult(recipe);
+    }
+
+    public Task<IReadOnlyList<Recipe>> GetSuggestionsAsync(Guid excludeRecipeId, CancellationToken cancellationToken = default)
+    {
+        var suggestions = _recipes
+            .Where(r => r.Id != excludeRecipeId)
+            .ToList();
+        return Task.FromResult<IReadOnlyList<Recipe>>(suggestions);
+    }
+
     private static void SetRecipe(PlannedMeal meal, Recipe recipe)
     {
         var recipeProperty = typeof(PlannedMeal).GetProperty(nameof(PlannedMeal.Recipe));
@@ -71,6 +104,24 @@ public sealed class InMemoryPlannedMealRepository : IPlannedMealRepository
             "Spaghetti Bolognese",
             "https://images.unsplash.com/photo-1621996346565-e3dbc646d9a9?w=400",
             "Classic Italian pasta with meat sauce"
+        ),
+        new Recipe(
+            Guid.Parse("44444444-4444-4444-4444-444444444444"),
+            "Avocado Toast",
+            "https://images.unsplash.com/photo-1541519227354-08fa5d50c44d?w=400",
+            "Crispy toast with fresh avocado and eggs"
+        ),
+        new Recipe(
+            Guid.Parse("55555555-5555-5555-5555-555555555555"),
+            "Caesar Salad",
+            "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400",
+            "Classic Caesar salad with parmesan and croutons"
+        ),
+        new Recipe(
+            Guid.Parse("66666666-6666-6666-6666-666666666666"),
+            "Grilled Salmon",
+            "https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=400",
+            "Fresh grilled salmon with vegetables"
         )
     ];
 

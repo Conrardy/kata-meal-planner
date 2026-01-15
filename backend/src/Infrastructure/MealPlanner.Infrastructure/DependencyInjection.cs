@@ -1,4 +1,5 @@
 using MealPlanner.Domain.Meals;
+using MealPlanner.Domain.Recipes;
 using MealPlanner.Infrastructure.Persistence;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -8,7 +9,9 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddInfrastructure(this IServiceCollection services)
     {
-        services.AddSingleton<IPlannedMealRepository, InMemoryPlannedMealRepository>();
+        services.AddSingleton<InMemoryPlannedMealRepository>();
+        services.AddSingleton<IPlannedMealRepository>(sp => sp.GetRequiredService<InMemoryPlannedMealRepository>());
+        services.AddSingleton<IRecipeRepository>(sp => sp.GetRequiredService<InMemoryPlannedMealRepository>());
         return services;
     }
 }

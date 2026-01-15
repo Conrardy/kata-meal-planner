@@ -1,7 +1,11 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { DailyDigest } from '../models/daily-digest.model';
+import {
+  DailyDigest,
+  SuggestionsResponse,
+  SwapMealResponse,
+} from '../models/daily-digest.model';
 
 @Injectable({
   providedIn: 'root',
@@ -14,6 +18,19 @@ export class DailyDigestService {
     const formattedDate = this.formatDate(date);
     return this.http.get<DailyDigest>(
       `${this.baseUrl}/daily-digest/${formattedDate}`
+    );
+  }
+
+  getSuggestions(mealId: string): Observable<SuggestionsResponse> {
+    return this.http.get<SuggestionsResponse>(
+      `${this.baseUrl}/meals/${mealId}/suggestions`
+    );
+  }
+
+  swapMeal(mealId: string, newRecipeId: string): Observable<SwapMealResponse> {
+    return this.http.post<SwapMealResponse>(
+      `${this.baseUrl}/meals/${mealId}/swap`,
+      { newRecipeId }
     );
   }
 
