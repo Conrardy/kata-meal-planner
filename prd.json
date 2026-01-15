@@ -1,0 +1,132 @@
+{
+  "name": "Product Requirements Document: MealPlanner Application",
+  "description": "**Product Name:** MealPlanner (MealPrep) **Version:** 1.0 MVP **Date:** 2026-01-15 **Tech Stack:** Angular (Frontend) + .NET (Backend)",
+  "branchName": "feature/product-requirements-document-mealplanner-application",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Daily Digest - View today's meals",
+      "description": "As a user, I want to see today's meals with quick actions so that I can act quickly on my plan.",
+      "acceptanceCriteria": [],
+      "priority": 1,
+      "passes": false,
+      "labels": [],
+      "dependsOn": []
+    },
+    {
+      "id": "US-002",
+      "title": "Swap a planned meal",
+      "description": "As a user, I want to swap a planned meal so that I can replace it with a suggested alternative.",
+      "acceptanceCriteria": [],
+      "priority": 2,
+      "passes": false,
+      "labels": [],
+      "dependsOn": []
+    },
+    {
+      "id": "US-003",
+      "title": "Cook Now from Daily Digest",
+      "description": "As a user, I want to start cooking a planned meal so that I can access the recipe quickly.",
+      "acceptanceCriteria": [],
+      "priority": 3,
+      "passes": false,
+      "labels": [],
+      "dependsOn": []
+    },
+    {
+      "id": "US-004",
+      "title": "Weekly plan view (desktop)",
+      "description": "As a user, I want to see a weekly plan grid so that I can review and edit my week at a glance.",
+      "acceptanceCriteria": [],
+      "priority": 4,
+      "passes": false,
+      "labels": [],
+      "dependsOn": []
+    },
+    {
+      "id": "US-005",
+      "title": "Desktop quick actions",
+      "description": "As a user, I want quick actions (Add Recipe, Create Plan, Generate List) so that I can perform frequent tasks faster.",
+      "acceptanceCriteria": [],
+      "priority": 4,
+      "passes": false,
+      "labels": [],
+      "dependsOn": []
+    },
+    {
+      "id": "US-006",
+      "title": "Discover recipes with search and filters",
+      "description": "As a user, I want to search and filter recipes so that I can find suitable options.",
+      "acceptanceCriteria": [],
+      "priority": 4,
+      "passes": false,
+      "labels": [],
+      "dependsOn": []
+    },
+    {
+      "id": "US-007",
+      "title": "View recipe details",
+      "description": "As a user, I want to view a recipe's details so that I can decide to cook or plan it.",
+      "acceptanceCriteria": [],
+      "priority": 4,
+      "passes": false,
+      "labels": [],
+      "dependsOn": []
+    },
+    {
+      "id": "US-008",
+      "title": "Generate shopping list from meal plan",
+      "description": "As a user, I want to generate a shopping list so that I can buy what I need for my planned meals.",
+      "acceptanceCriteria": [],
+      "priority": 4,
+      "passes": false,
+      "labels": [],
+      "dependsOn": []
+    },
+    {
+      "id": "US-009",
+      "title": "Manage shopping list items",
+      "description": "As a user, I want to manage shopping list items so that I can track purchases and modify the list.",
+      "acceptanceCriteria": [],
+      "priority": 4,
+      "passes": false,
+      "labels": [],
+      "dependsOn": []
+    },
+    {
+      "id": "US-010",
+      "title": "Set dietary preferences and allergies",
+      "description": "As a user, I want to set my dietary preferences and allergies so that recommendations match my needs.",
+      "acceptanceCriteria": [],
+      "priority": 4,
+      "passes": false,
+      "labels": [],
+      "dependsOn": []
+    },
+    {
+      "id": "US-011",
+      "title": "Configure meal plan options",
+      "description": "As a user, I want to configure meals per day, plan length, leftovers, and excluded ingredients so that my plan fits my routine.",
+      "acceptanceCriteria": [],
+      "priority": 4,
+      "passes": false,
+      "labels": [],
+      "dependsOn": []
+    },
+    {
+      "id": "US-012",
+      "title": "Auto-sync shopping list on plan changes",
+      "description": "As a user, I want my shopping list to update automatically when I change the plan so that it remains accurate.",
+      "acceptanceCriteria": [],
+      "priority": 4,
+      "passes": false,
+      "labels": [],
+      "dependsOn": []
+    }
+  ],
+  "metadata": {
+    "createdAt": "2026-01-15T20:52:14.406Z",
+    "version": "1.0.0",
+    "updatedAt": "2026-01-15T21:40:35.169Z"
+  }
+}
