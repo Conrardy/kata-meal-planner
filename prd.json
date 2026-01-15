@@ -9,9 +9,10 @@
       "description": "As a user, I want to see today's meals with quick actions so that I can act quickly on my plan.",
       "acceptanceCriteria": [],
       "priority": 1,
-      "passes": false,
+      "passes": true,
       "labels": [],
-      "dependsOn": []
+      "dependsOn": [],
+      "completionNotes": "Completed by agent"
     },
     {
       "id": "US-002",
@@ -127,6 +128,6 @@
   "metadata": {
     "createdAt": "2026-01-15T20:52:14.406Z",
     "version": "1.0.0",
-    "updatedAt": "2026-01-15T21:40:35.169Z"
+    "updatedAt": "2026-01-15T21:55:57.494Z"
   }
 }
