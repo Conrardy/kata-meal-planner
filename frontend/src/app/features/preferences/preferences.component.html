@@ -1,0 +1,153 @@
+<section class="min-h-screen bg-gray-50 pb-8">
+  <!-- Header (mobile only, hidden on desktop where sidebar is visible) -->
+  <header class="bg-white shadow-sm sticky top-0 z-10 lg:hidden">
+    <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+      <h1 class="text-2xl font-bold text-gray-900">MealPrep</h1>
+      <nav class="flex gap-4">
+        <a routerLink="/" class="text-gray-500 hover:text-gray-900 transition-colors">Today</a>
+        <a routerLink="/weekly-plan" class="text-gray-500 hover:text-gray-900 transition-colors">Weekly Plan</a>
+        <span class="text-primary font-medium">Settings</span>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Preferences Content -->
+  <main class="max-w-2xl mx-auto px-4 py-6">
+    <!-- Page Header -->
+    <div class="flex items-center gap-3 mb-6">
+      <lucide-icon
+        [img]="Settings"
+        class="w-6 h-6 text-primary"
+      ></lucide-icon>
+      <h2 class="text-xl font-semibold text-gray-900">Dietary Preferences</h2>
+    </div>
+
+    @if (isLoading()) {
+      <div class="flex justify-center items-center py-12" data-testid="loading-spinner">
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
+    } @else if (error() && !preferences()) {
+      <div
+        class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg"
+        data-testid="error-message"
+      >
+        {{ error() }}
+      </div>
+    } @else if (preferences()) {
+      <!-- Success Message -->
+      @if (successMessage()) {
+        <div
+          class="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg mb-4 flex items-center gap-2"
+          data-testid="success-message"
+        >
+          <lucide-icon [img]="Check" class="w-5 h-5"></lucide-icon>
+          {{ successMessage() }}
+        </div>
+      }
+
+      <!-- Error Message (when saving) -->
+      @if (error() && preferences()) {
+        <div
+          class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4"
+          data-testid="save-error-message"
+        >
+          {{ error() }}
+        </div>
+      }
+
+      <!-- Dietary Preference Section -->
+      <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-2">Dietary Preference</h3>
+        <p class="text-sm text-gray-500 mb-4">
+          Select your dietary preference. Recipe suggestions will match this preference.
+        </p>
+
+        <div class="space-y-2" data-testid="dietary-options">
+          @for (option of preferences()!.availableDietaryPreferences; track option) {
+            <label
+              class="flex items-center p-3 rounded-lg border-2 cursor-pointer transition-colors"
+              [class.border-primary]="selectedDietaryPreference === option"
+              [class.bg-orange-50]="selectedDietaryPreference === option"
+              [class.border-gray-200]="selectedDietaryPreference !== option"
+              [attr.data-testid]="'dietary-' + option.toLowerCase().replace(' ', '-')"
+            >
+              <input
+                type="radio"
+                name="dietaryPreference"
+                [value]="option"
+                [checked]="selectedDietaryPreference === option"
+                (change)="onDietaryPreferenceChange(option)"
+                class="sr-only"
+              />
+              <div
+                class="w-4 h-4 rounded-full border-2 mr-3 flex items-center justify-center"
+                [class.border-primary]="selectedDietaryPreference === option"
+                [class.border-gray-300]="selectedDietaryPreference !== option"
+              >
+                @if (selectedDietaryPreference === option) {
+                  <div class="w-2 h-2 rounded-full bg-primary"></div>
+                }
+              </div>
+              <span
+                class="font-medium"
+                [class.text-primary]="selectedDietaryPreference === option"
+                [class.text-gray-700]="selectedDietaryPreference !== option"
+              >
+                {{ option }}
+              </span>
+            </label>
+          }
+        </div>
+      </div>
+
+      <!-- Allergies Section -->
+      <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-2">Allergies & Intolerances</h3>
+        <p class="text-sm text-gray-500 mb-4">
+          Select any allergies or intolerances. Recipes containing these ingredients will be filtered out.
+        </p>
+
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-3" data-testid="allergy-options">
+          @for (allergy of preferences()!.availableAllergies; track allergy) {
+            <button
+              type="button"
+              (click)="onAllergyToggle(allergy)"
+              class="flex items-center justify-center px-4 py-3 rounded-lg border-2 font-medium transition-colors"
+              [class.border-primary]="isAllergySelected(allergy)"
+              [class.bg-primary]="isAllergySelected(allergy)"
+              [class.text-white]="isAllergySelected(allergy)"
+              [class.border-gray-200]="!isAllergySelected(allergy)"
+              [class.text-gray-700]="!isAllergySelected(allergy)"
+              [class.hover:border-gray-300]="!isAllergySelected(allergy)"
+              [attr.data-testid]="'allergy-' + allergy.toLowerCase()"
+            >
+              @if (isAllergySelected(allergy)) {
+                <lucide-icon [img]="Check" class="w-4 h-4 mr-2"></lucide-icon>
+              }
+              {{ allergy }}
+            </button>
+          }
+        </div>
+      </div>
+
+      <!-- Save Button -->
+      <div class="flex justify-end">
+        <button
+          type="button"
+          (click)="onSavePreferences()"
+          [disabled]="isSaving()"
+          class="flex items-center gap-2 px-6 py-3 text-base font-medium text-white bg-primary rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          data-testid="save-preferences-btn"
+        >
+          @if (isSaving()) {
+            <lucide-icon [img]="Loader2" class="w-5 h-5 animate-spin"></lucide-icon>
+            Saving...
+          } @else {
+            <lucide-icon [img]="Save" class="w-5 h-5"></lucide-icon>
+            Save Preferences
+          }
+        </button>
+      </div>
+    }
+  </main>
+</section>

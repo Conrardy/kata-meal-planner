@@ -1,6 +1,6 @@
 import { Component, output } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
-import { LucideAngularModule, Plus, CalendarDays, ShoppingCart, Home, Calendar, Search } from 'lucide-angular';
+import { LucideAngularModule, Plus, CalendarDays, ShoppingCart, Home, Calendar, Search, Settings } from 'lucide-angular';
 
 @Component({
   selector: 'app-sidebar',
@@ -19,6 +19,7 @@ export class SidebarComponent {
   readonly Plus = Plus;
   readonly CalendarDays = CalendarDays;
   readonly ShoppingCart = ShoppingCart;
+  readonly Settings = Settings;
 
   onAddRecipe(): void {
     this.addRecipe.emit();

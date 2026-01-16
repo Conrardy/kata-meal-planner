@@ -1,6 +1,7 @@
 using MediatR;
 using MealPlanner.Application.DailyDigest;
 using MealPlanner.Application.Meals;
+using MealPlanner.Application.Preferences;
 using MealPlanner.Application.Recipes;
 using MealPlanner.Application.ShoppingList;
 using MealPlanner.Application.WeeklyPlan;
@@ -138,9 +139,28 @@ app.MapDelete("/api/v1/shopping-list/{startDate}/items/{itemId}", async (DateOnl
 .WithName("RemoveShoppingItem")
 .WithOpenApi();
 
+app.MapGet("/api/v1/preferences", async (IMediator mediator) =>
+{
+    var query = new GetUserPreferencesQuery();
+    var result = await mediator.Send(query);
+    return Results.Ok(result);
+})
+.WithName("GetUserPreferences")
+.WithOpenApi();
+
+app.MapPut("/api/v1/preferences", async (UpdatePreferencesRequest request, IMediator mediator) =>
+{
+    var command = new UpdateUserPreferencesCommand(request.DietaryPreference, request.Allergies);
+    var result = await mediator.Send(command);
+    return Results.Ok(result);
+})
+.WithName("UpdateUserPreferences")
+.WithOpenApi();
+
 app.Run();
 
 public record SwapMealRequest(Guid NewRecipeId);
 public record AddRecipeToMealPlanRequest(Guid RecipeId, string Date, string MealType);
 public record ToggleItemRequest(bool IsChecked);
 public record AddCustomItemRequest(string Name, string Quantity, string? Unit, string Category);
+public record UpdatePreferencesRequest(string DietaryPreference, List<string> Allergies);
