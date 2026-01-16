@@ -32,6 +32,24 @@ public sealed class InMemoryPlannedMealRepository : IPlannedMealRepository, IRec
         return Task.FromResult<IReadOnlyList<PlannedMeal>>(meals);
     }
 
+    public Task<IReadOnlyList<PlannedMeal>> GetByDateRangeAsync(DateOnly startDate, DateOnly endDate, CancellationToken cancellationToken = default)
+    {
+        var meals = _meals
+            .Where(m => m.Date >= startDate && m.Date <= endDate)
+            .ToList();
+
+        foreach (var meal in meals)
+        {
+            var recipe = _recipes.FirstOrDefault(r => r.Id == meal.RecipeId);
+            if (recipe != null)
+            {
+                SetRecipe(meal, recipe);
+            }
+        }
+
+        return Task.FromResult<IReadOnlyList<PlannedMeal>>(meals);
+    }
+
     public Task<PlannedMeal?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         var meal = _meals.FirstOrDefault(m => m.Id == id);
@@ -128,26 +146,31 @@ public sealed class InMemoryPlannedMealRepository : IPlannedMealRepository, IRec
     private static List<PlannedMeal> GenerateSampleMeals(List<Recipe> recipes)
     {
         var today = DateOnly.FromDateTime(DateTime.Today);
-        return
-        [
-            new PlannedMeal(
-                Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
-                today,
-                MealType.Breakfast,
-                recipes[0].Id
-            ),
-            new PlannedMeal(
-                Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
-                today,
-                MealType.Lunch,
-                recipes[1].Id
-            ),
-            new PlannedMeal(
-                Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
-                today,
-                MealType.Dinner,
-                recipes[2].Id
-            )
-        ];
+        var startOfWeek = today.AddDays(-(int)today.DayOfWeek);
+        var meals = new List<PlannedMeal>();
+        var mealTypes = new[] { MealType.Breakfast, MealType.Lunch, MealType.Dinner };
+
+        for (var dayOffset = 0; dayOffset < 7; dayOffset++)
+        {
+            var date = startOfWeek.AddDays(dayOffset);
+            foreach (var mealType in mealTypes)
+            {
+                var recipeIndex = (dayOffset + Array.IndexOf(mealTypes, mealType)) % recipes.Count;
+                var mealId = Guid.NewGuid();
+
+                if (date == today)
+                {
+                    mealId = mealType == MealType.Breakfast
+                        ? Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa")
+                        : mealType == MealType.Lunch
+                            ? Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb")
+                            : Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
+                }
+
+                meals.Add(new PlannedMeal(mealId, date, mealType, recipes[recipeIndex].Id));
+            }
+        }
+
+        return meals;
     }
 }

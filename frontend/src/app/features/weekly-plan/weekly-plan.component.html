@@ -1,0 +1,135 @@
+<section class="min-h-screen bg-gray-50 pb-8">
+  <!-- Header -->
+  <header class="bg-white shadow-sm sticky top-0 z-10">
+    <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+      <h1 class="text-2xl font-bold text-gray-900">MealPrep</h1>
+      <nav class="flex gap-4">
+        <a routerLink="/" class="text-gray-500 hover:text-gray-900 transition-colors">Today</a>
+        <span class="text-primary font-medium">Weekly Plan</span>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Weekly Plan Content -->
+  <main class="max-w-7xl mx-auto px-4 py-6">
+    <!-- Week Navigation -->
+    <div class="flex items-center justify-between mb-6">
+      <h2 class="text-xl font-semibold text-gray-900">Weekly Plan</h2>
+      <div class="flex items-center gap-2">
+        <button
+          type="button"
+          (click)="onPreviousWeek()"
+          class="p-2 rounded-lg border border-gray-200 hover:bg-gray-100 transition-colors"
+          data-testid="prev-week-btn"
+        >
+          <lucide-icon [img]="ChevronLeft" class="w-5 h-5 text-gray-600"></lucide-icon>
+        </button>
+        <span class="text-sm font-medium text-gray-700 min-w-32 text-center" data-testid="week-range">
+          {{ formattedDateRange() }}
+        </span>
+        <button
+          type="button"
+          (click)="onNextWeek()"
+          class="p-2 rounded-lg border border-gray-200 hover:bg-gray-100 transition-colors"
+          data-testid="next-week-btn"
+        >
+          <lucide-icon [img]="ChevronRight" class="w-5 h-5 text-gray-600"></lucide-icon>
+        </button>
+      </div>
+    </div>
+
+    @if (isLoading()) {
+      <div class="flex justify-center items-center py-12" data-testid="loading-spinner">
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
+    } @else if (error()) {
+      <div
+        class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg"
+        data-testid="error-message"
+      >
+        {{ error() }}
+      </div>
+    } @else if (weeklyPlan()) {
+      <!-- Desktop Table View -->
+      <div class="bg-white rounded-xl shadow-sm overflow-hidden" data-testid="weekly-plan-table">
+        <div class="overflow-x-auto">
+          <table class="w-full min-w-[800px]">
+            <thead>
+              <tr class="border-b border-gray-200">
+                <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600 w-24">Day</th>
+                @for (mealType of mealTypes; track mealType) {
+                  <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">{{ mealType }}</th>
+                }
+              </tr>
+            </thead>
+            <tbody>
+              @for (day of weeklyPlan()!.days; track day.date) {
+                <tr
+                  class="border-b border-gray-100 last:border-b-0"
+                  [class.bg-orange-50]="isToday(day.date)"
+                  [attr.data-testid]="'day-row-' + day.dayName.toLowerCase()"
+                >
+                  <td class="px-4 py-3">
+                    <div class="font-medium text-gray-900">{{ day.dayName.slice(0, 3) }}</div>
+                    <div class="text-xs text-gray-500">{{ day.date | date:'MMM d' }}</div>
+                  </td>
+                  @for (mealType of mealTypes; track mealType) {
+                    @let meal = getMeal(day, mealType);
+                    <td class="px-4 py-3">
+                      @if (meal) {
+                        <div
+                          class="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors group"
+                          (click)="onMealClick(meal)"
+                          [attr.data-testid]="'meal-cell-' + day.dayName.toLowerCase() + '-' + mealType.toLowerCase()"
+                        >
+                          <div class="w-12 h-12 rounded-lg bg-gray-200 flex-shrink-0 overflow-hidden">
+                            @if (meal.imageUrl) {
+                              <img
+                                [src]="meal.imageUrl"
+                                [alt]="meal.recipeName"
+                                class="w-full h-full object-cover"
+                              />
+                            } @else {
+                              <div class="w-full h-full flex items-center justify-center text-gray-400">
+                                <lucide-icon [img]="ChefHat" class="w-6 h-6"></lucide-icon>
+                              </div>
+                            }
+                          </div>
+                          <div class="flex-1 min-w-0">
+                            <p class="text-sm font-medium text-gray-900 truncate">{{ meal.recipeName }}</p>
+                          </div>
+                          <button
+                            type="button"
+                            (click)="onEditMeal(meal, mealType, $event)"
+                            class="opacity-0 group-hover:opacity-100 px-2 py-1 text-xs text-primary hover:bg-orange-100 rounded transition-all"
+                            data-testid="edit-meal-btn"
+                          >
+                            Edit
+                          </button>
+                        </div>
+                      } @else {
+                        <div class="p-2 text-sm text-gray-400 italic">
+                          No meal planned
+                        </div>
+                      }
+                    </td>
+                  }
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    }
+  </main>
+</section>
+
+<!-- Swap Modal -->
+@if (swappingMealId() && swappingMealType()) {
+  <app-swap-modal
+    [mealId]="swappingMealId()!"
+    [mealType]="swappingMealType()!"
+    (close)="onCloseSwapModal()"
+    (selectRecipe)="onSelectRecipe($event)"
+  />
+}

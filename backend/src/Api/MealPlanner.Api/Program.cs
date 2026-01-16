@@ -2,6 +2,7 @@ using MediatR;
 using MealPlanner.Application.DailyDigest;
 using MealPlanner.Application.Meals;
 using MealPlanner.Application.Recipes;
+using MealPlanner.Application.WeeklyPlan;
 using MealPlanner.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -64,6 +65,15 @@ app.MapGet("/api/v1/recipes/{recipeId}", async (Guid recipeId, IMediator mediato
     return result is null ? Results.NotFound() : Results.Ok(result);
 })
 .WithName("GetRecipeDetails")
+.WithOpenApi();
+
+app.MapGet("/api/v1/weekly-plan/{startDate}", async (DateOnly startDate, IMediator mediator) =>
+{
+    var query = new GetWeeklyPlanQuery(startDate);
+    var result = await mediator.Send(query);
+    return Results.Ok(result);
+})
+.WithName("GetWeeklyPlan")
 .WithOpenApi();
 
 app.Run();

@@ -1,6 +1,6 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { DatePipe } from '@angular/common';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { MealCardComponent } from './components/meal-card/meal-card.component';
 import { SwapModalComponent } from './components/swap-modal/swap-modal.component';
 import { DailyDigestService } from '../../core/services/daily-digest.service';
@@ -9,7 +9,7 @@ import { DailyDigest, PlannedMeal } from '../../core/models/daily-digest.model';
 @Component({
   selector: 'app-daily-digest',
   standalone: true,
-  imports: [DatePipe, MealCardComponent, SwapModalComponent],
+  imports: [DatePipe, RouterLink, MealCardComponent, SwapModalComponent],
   templateUrl: './daily-digest.component.html',
 })
 export class DailyDigestComponent implements OnInit {
