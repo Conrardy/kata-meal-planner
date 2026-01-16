@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { RecipeDetails } from '../models/recipe.model';
+import { RecipeDetails, RecipeSearchResult } from '../models/recipe.model';
 
 @Injectable({
   providedIn: 'root',
@@ -12,5 +12,16 @@ export class RecipeService {
 
   getRecipeDetails(recipeId: string): Observable<RecipeDetails> {
     return this.http.get<RecipeDetails>(`${this.baseUrl}/recipes/${recipeId}`);
+  }
+
+  searchRecipes(searchTerm?: string, tags?: string[]): Observable<RecipeSearchResult> {
+    let params = new HttpParams();
+    if (searchTerm) {
+      params = params.set('search', searchTerm);
+    }
+    if (tags && tags.length > 0) {
+      params = params.set('tags', tags.join(','));
+    }
+    return this.http.get<RecipeSearchResult>(`${this.baseUrl}/recipes`, { params });
   }
 }

@@ -1,0 +1,146 @@
+<section class="min-h-screen bg-gray-50 pb-8">
+  <!-- Header (mobile only) -->
+  <header class="bg-white shadow-sm sticky top-0 z-10 lg:hidden">
+    <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <a routerLink="/" class="text-gray-500 hover:text-gray-900 transition-colors">
+          <lucide-angular [img]="ChevronLeft" class="w-5 h-5" />
+        </a>
+        <h1 class="text-2xl font-bold text-gray-900">Discover Recipes</h1>
+      </div>
+    </div>
+  </header>
+
+  <!-- Content -->
+  <main class="max-w-7xl mx-auto px-4 py-6">
+    <!-- Search and Filter Section -->
+    <div class="mb-6">
+      <h2 class="text-xl font-semibold text-gray-900 mb-4 hidden lg:block">Discover Recipes</h2>
+
+      <!-- Search Bar -->
+      <div class="relative mb-4">
+        <lucide-angular
+          [img]="Search"
+          class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"
+        />
+        <input
+          type="text"
+          placeholder="Search recipes by name or description..."
+          [value]="searchTerm()"
+          (input)="onSearchInput($event)"
+          class="w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-colors"
+          data-testid="search-input"
+        />
+        @if (searchTerm()) {
+          <button
+            (click)="onClearFilters()"
+            class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+            aria-label="Clear search"
+          >
+            <lucide-angular [img]="X" class="w-5 h-5" />
+          </button>
+        }
+      </div>
+
+      <!-- Filter Chips -->
+      <div class="flex flex-wrap gap-2" data-testid="filter-chips">
+        @for (tag of availableTags(); track tag) {
+          <button
+            (click)="onToggleTag(tag)"
+            [class]="isTagSelected(tag)
+              ? 'px-4 py-2 rounded-full text-sm font-medium bg-primary text-white transition-colors'
+              : 'px-4 py-2 rounded-full text-sm font-medium bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors'"
+            [attr.data-testid]="getTagTestId(tag)"
+          >
+            {{ tag }}
+          </button>
+        }
+      </div>
+
+      <!-- Active Filters Summary -->
+      @if (searchTerm() || selectedTags().length > 0) {
+        <div class="mt-4 flex items-center gap-2 text-sm text-gray-600">
+          <span>{{ filteredRecipesCount() }} recipes found</span>
+          @if (selectedTags().length > 0) {
+            <span>•</span>
+            <span>{{ selectedTags().length }} filter(s) active</span>
+          }
+          <button
+            (click)="onClearFilters()"
+            class="text-primary hover:underline ml-2"
+          >
+            Clear all
+          </button>
+        </div>
+      }
+    </div>
+
+    <!-- Recipes Grid -->
+    @if (isLoading()) {
+      <div class="flex justify-center items-center py-12" data-testid="loading-spinner">
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
+    } @else if (error()) {
+      <div
+        class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg"
+        data-testid="error-message"
+      >
+        {{ error() }}
+      </div>
+    } @else if (recipes().length === 0) {
+      <div
+        class="bg-orange-50 border border-orange-200 text-orange-700 px-4 py-8 rounded-lg text-center"
+        data-testid="no-recipes-message"
+      >
+        <p class="text-lg font-medium mb-2">No recipes found</p>
+        <p>Try adjusting your search or filters</p>
+      </div>
+    } @else {
+      <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3" data-testid="recipes-grid">
+        @for (recipe of recipes(); track recipe.id) {
+          <article
+            class="bg-white rounded-xl shadow-md overflow-hidden cursor-pointer hover:shadow-lg transition-shadow"
+            (click)="onRecipeClick(recipe)"
+            [attr.data-testid]="'recipe-card-' + recipe.id"
+          >
+            <!-- Recipe Image -->
+            @if (recipe.imageUrl) {
+              <img
+                [src]="recipe.imageUrl"
+                [alt]="recipe.name"
+                class="w-full h-48 object-cover"
+              />
+            } @else {
+              <div class="w-full h-48 bg-gray-200 flex items-center justify-center">
+                <span class="text-gray-400 text-4xl">🍽️</span>
+              </div>
+            }
+
+            <!-- Recipe Content -->
+            <div class="p-4">
+              <h3 class="text-lg font-semibold text-gray-900 mb-1">
+                {{ recipe.name }}
+              </h3>
+              @if (recipe.description) {
+                <p class="text-gray-600 text-sm mb-3 line-clamp-2">
+                  {{ recipe.description }}
+                </p>
+              }
+
+              <!-- Tags -->
+              @if (recipe.tags.length > 0) {
+                <div class="flex flex-wrap gap-1">
+                  @for (tag of recipe.tags; track tag) {
+                    <span class="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-full">
+                      {{ tag }}
+                    </span>
+                  }
+                </div>
+              }
+            </div>
+          </article>
+        }
+      </div>
+    }
+  </main>
+</section>

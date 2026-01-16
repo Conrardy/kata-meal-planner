@@ -76,6 +76,18 @@ app.MapGet("/api/v1/weekly-plan/{startDate}", async (DateOnly startDate, IMediat
 .WithName("GetWeeklyPlan")
 .WithOpenApi();
 
+app.MapGet("/api/v1/recipes", async (string? search, string? tags, IMediator mediator) =>
+{
+    var tagList = string.IsNullOrWhiteSpace(tags)
+        ? null
+        : tags.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToList();
+    var query = new SearchRecipesQuery(search, tagList);
+    var result = await mediator.Send(query);
+    return Results.Ok(result);
+})
+.WithName("SearchRecipes")
+.WithOpenApi();
+
 app.Run();
 
 public record SwapMealRequest(Guid NewRecipeId);
