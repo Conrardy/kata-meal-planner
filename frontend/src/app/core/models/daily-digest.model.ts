@@ -6,6 +6,7 @@ export interface DailyDigest {
 export interface PlannedMeal {
   id: string;
   mealType: string;
+  recipeId: string;
   recipeName: string;
   imageUrl: string | null;
 }

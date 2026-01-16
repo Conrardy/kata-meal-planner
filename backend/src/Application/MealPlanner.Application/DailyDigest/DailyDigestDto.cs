@@ -8,6 +8,7 @@ public sealed record DailyDigestDto(
 public sealed record PlannedMealDto(
     Guid Id,
     string MealType,
+    Guid RecipeId,
     string RecipeName,
     string? ImageUrl
 );

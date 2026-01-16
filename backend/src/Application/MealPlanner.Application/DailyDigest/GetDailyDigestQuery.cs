@@ -23,6 +23,7 @@ public sealed class GetDailyDigestQueryHandler : IRequestHandler<GetDailyDigestQ
             .Select(m => new PlannedMealDto(
                 m.Id,
                 m.MealType.Value,
+                m.RecipeId,
                 m.Recipe?.Name ?? "No recipe assigned",
                 m.Recipe?.ImageUrl
             ))
