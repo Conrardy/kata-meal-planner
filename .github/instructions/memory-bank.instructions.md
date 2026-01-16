@@ -157,22 +157,6 @@ flowchart TD
     Sync --> Complete[Complete]
 ```
 
-### Task Management
-```mermaid
-flowchart TD
-    Start[New Task] --> NewFile[Create Task File in tasks/ folder]
-    NewFile --> Think[Document Thought Process]
-    Think --> Plan[Create Implementation Plan]
-    Plan --> Index[Update _index.md]
-    
-    Execute[Execute Task] --> Update[Add Progress Log Entry]
-    Update --> StatusChange[Update Task Status]
-    StatusChange --> IndexUpdate[Update _index.md]
-    IndexUpdate --> Complete{Completed?}
-    Complete -->|Yes| Archive[Mark as Completed]
-    Complete -->|No| Execute
-```
-
 ## Documentation Updates
 
 Memory Bank updates occur when:
@@ -201,13 +185,7 @@ When triggered by **refresh memory bank** command:
    - Backend Specific: `docs/memory-bank/backend/<file>.md`
    - Frontend Specific: `docs/memory-bank/frontend/<file>.md`
 
-5. **Spawn parallel task agents** - one per template file to:
-   - Analyze codebase for that template's scope
-   - Cross-reference existing files to avoid duplication
-   - Fill template following rules below
-   - Output to proper directory
-
-6. **Synchronize AGENTS.md** via: `sh aidd/assets/scripts/aidd-generate-docs.sh --memory-bank`
+5. **Synchronize AGENTS.md** via: `sh aidd/assets/scripts/aidd-generate-docs.sh --memory-bank`
 
 ### Template Rules
 
