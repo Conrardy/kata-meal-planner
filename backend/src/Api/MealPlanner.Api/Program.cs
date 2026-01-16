@@ -2,6 +2,7 @@ using MediatR;
 using MealPlanner.Application.DailyDigest;
 using MealPlanner.Application.Meals;
 using MealPlanner.Application.Recipes;
+using MealPlanner.Application.ShoppingList;
 using MealPlanner.Application.WeeklyPlan;
 using MealPlanner.Infrastructure;
 
@@ -99,6 +100,15 @@ app.MapPost("/api/v1/meal-plan", async (AddRecipeToMealPlanRequest request, IMed
     return Results.Created($"/api/v1/meals/{result.MealId}", result);
 })
 .WithName("AddRecipeToMealPlan")
+.WithOpenApi();
+
+app.MapGet("/api/v1/shopping-list/{startDate}", async (DateOnly startDate, IMediator mediator) =>
+{
+    var query = new GenerateShoppingListQuery(startDate);
+    var result = await mediator.Send(query);
+    return Results.Ok(result);
+})
+.WithName("GenerateShoppingList")
 .WithOpenApi();
 
 app.Run();
