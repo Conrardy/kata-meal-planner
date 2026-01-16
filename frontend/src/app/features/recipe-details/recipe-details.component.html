@@ -7,7 +7,7 @@
         (click)="goBack()"
         class="flex items-center justify-center w-10 h-10 rounded-full hover:bg-gray-100 transition-colors"
         data-testid="back-button"
-        aria-label="Back to Daily Digest"
+        aria-label="Go back"
       >
         <lucide-icon [img]="ArrowLeft" class="w-6 h-6 text-gray-700"></lucide-icon>
       </button>
@@ -47,26 +47,184 @@
 
         <!-- Recipe Info -->
         <div class="p-6">
-          <h2 class="text-2xl font-bold text-gray-900 mb-4" data-testid="recipe-name">
+          <!-- Title -->
+          <h2 class="text-2xl font-bold text-gray-900 mb-2" data-testid="recipe-name">
             {{ recipe()!.name }}
           </h2>
 
+          <!-- Meal Type Badge -->
+          <div class="mb-4">
+            <span
+              class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium bg-orange-100 text-orange-800"
+              data-testid="recipe-meal-type"
+            >
+              <lucide-icon [img]="UtensilsCrossed" class="w-4 h-4"></lucide-icon>
+              {{ recipe()!.mealType }}
+            </span>
+          </div>
+
+          <!-- Tags -->
+          @if (recipe()!.tags.length > 0) {
+            <div class="flex flex-wrap gap-2 mb-4" data-testid="recipe-tags">
+              @for (tag of recipe()!.tags; track tag) {
+                <span class="px-2 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-700">
+                  {{ tag }}
+                </span>
+              }
+            </div>
+          }
+
+          <!-- Description -->
           @if (recipe()!.description) {
             <div class="mb-6">
-              <h3 class="text-lg font-semibold text-gray-700 mb-2">Description</h3>
               <p class="text-gray-600" data-testid="recipe-description">
                 {{ recipe()!.description }}
               </p>
             </div>
           }
 
-          <div class="bg-orange-50 border border-orange-200 rounded-lg p-4 text-center">
-            <p class="text-orange-700 font-medium">
-              Ready to cook! Follow your favorite recipe instructions.
-            </p>
+          <!-- Ingredients -->
+          @if (recipe()!.ingredients.length > 0) {
+            <div class="mb-6">
+              <h3 class="text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                <lucide-icon [img]="ListChecks" class="w-5 h-5 text-orange-500"></lucide-icon>
+                Ingredients
+              </h3>
+              <ul class="space-y-2" data-testid="recipe-ingredients">
+                @for (ingredient of recipe()!.ingredients; track ingredient.name) {
+                  <li class="flex items-start gap-2 text-gray-700">
+                    <span class="w-1.5 h-1.5 bg-orange-400 rounded-full mt-2 flex-shrink-0"></span>
+                    <span>
+                      <span class="font-medium">{{ ingredient.quantity }}</span>
+                      @if (ingredient.unit) {
+                        <span>{{ ingredient.unit }}</span>
+                      }
+                      <span>{{ ingredient.name }}</span>
+                    </span>
+                  </li>
+                }
+              </ul>
+            </div>
+          }
+
+          <!-- Cooking Steps -->
+          @if (recipe()!.steps.length > 0) {
+            <div class="mb-6">
+              <h3 class="text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                <lucide-icon [img]="ChefHat" class="w-5 h-5 text-orange-500"></lucide-icon>
+                Instructions
+              </h3>
+              <ol class="space-y-4" data-testid="recipe-steps">
+                @for (step of recipe()!.steps; track step.stepNumber) {
+                  <li class="flex gap-3">
+                    <span
+                      class="flex-shrink-0 w-7 h-7 rounded-full bg-orange-500 text-white flex items-center justify-center text-sm font-semibold"
+                    >
+                      {{ step.stepNumber }}
+                    </span>
+                    <p class="text-gray-700 pt-0.5">{{ step.instruction }}</p>
+                  </li>
+                }
+              </ol>
+            </div>
+          }
+
+          <!-- Add to Meal Plan Action -->
+          <div class="border-t border-gray-200 pt-6 mt-6">
+            <button
+              type="button"
+              (click)="openAddToMealPlan()"
+              class="w-full flex items-center justify-center gap-2 px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white font-semibold rounded-lg transition-colors"
+              data-testid="add-to-meal-plan-button"
+            >
+              <lucide-icon [img]="CalendarPlus" class="w-5 h-5"></lucide-icon>
+              Add to Meal Plan
+            </button>
           </div>
         </div>
       </article>
+
+      <!-- Add to Meal Plan Modal -->
+      @if (showAddToMealPlanModal()) {
+        <div
+          class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+          (click)="closeAddToMealPlanModal()"
+          data-testid="add-to-meal-plan-modal"
+        >
+          <div
+            class="bg-white rounded-xl shadow-xl max-w-md w-full p-6"
+            (click)="$event.stopPropagation()"
+          >
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="text-lg font-semibold text-gray-900">Add to Meal Plan</h3>
+              <button
+                type="button"
+                (click)="closeAddToMealPlanModal()"
+                class="p-1 rounded-full hover:bg-gray-100 transition-colors"
+                aria-label="Close modal"
+              >
+                <lucide-icon [img]="X" class="w-5 h-5 text-gray-500"></lucide-icon>
+              </button>
+            </div>
+
+            <p class="text-gray-600 mb-4">
+              Select a day and meal slot to add <span class="font-medium">{{ recipe()!.name }}</span>:
+            </p>
+
+            <!-- Date Selection -->
+            <div class="mb-4">
+              <label class="block text-sm font-medium text-gray-700 mb-2">Date</label>
+              <input
+                type="date"
+                [value]="selectedDate()"
+                (change)="onDateChange($event)"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                data-testid="date-input"
+              />
+            </div>
+
+            <!-- Meal Slot Selection -->
+            <div class="mb-6">
+              <label class="block text-sm font-medium text-gray-700 mb-2">Meal</label>
+              <div class="grid grid-cols-3 gap-2" data-testid="meal-slot-selection">
+                @for (slot of mealSlots; track slot) {
+                  <button
+                    type="button"
+                    (click)="selectMealSlot(slot)"
+                    [class]="
+                      selectedMealSlot() === slot
+                        ? 'px-4 py-2 rounded-lg text-sm font-medium border-2 border-orange-500 bg-orange-50 text-orange-700'
+                        : 'px-4 py-2 rounded-lg text-sm font-medium border border-gray-300 hover:border-orange-300 text-gray-700'
+                    "
+                  >
+                    {{ slot }}
+                  </button>
+                }
+              </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="flex gap-3">
+              <button
+                type="button"
+                (click)="closeAddToMealPlanModal()"
+                class="flex-1 px-4 py-2 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                (click)="confirmAddToMealPlan()"
+                [disabled]="!selectedMealSlot()"
+                class="flex-1 px-4 py-2 bg-orange-500 text-white font-medium rounded-lg hover:bg-orange-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                data-testid="confirm-add-button"
+              >
+                Add
+              </button>
+            </div>
+          </div>
+        </div>
+      }
     }
   </main>
 </section>

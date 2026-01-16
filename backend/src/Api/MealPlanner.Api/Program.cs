@@ -88,6 +88,20 @@ app.MapGet("/api/v1/recipes", async (string? search, string? tags, IMediator med
 .WithName("SearchRecipes")
 .WithOpenApi();
 
+app.MapPost("/api/v1/meal-plan", async (AddRecipeToMealPlanRequest request, IMediator mediator) =>
+{
+    var command = new AddRecipeToMealPlanCommand(
+        request.RecipeId,
+        DateOnly.Parse(request.Date),
+        request.MealType
+    );
+    var result = await mediator.Send(command);
+    return Results.Created($"/api/v1/meals/{result.MealId}", result);
+})
+.WithName("AddRecipeToMealPlan")
+.WithOpenApi();
+
 app.Run();
 
 public record SwapMealRequest(Guid NewRecipeId);
+public record AddRecipeToMealPlanRequest(Guid RecipeId, string Date, string MealType);
