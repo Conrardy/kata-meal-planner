@@ -1,1 +1,10 @@
-<router-outlet />
+<div class="flex min-h-screen bg-gray-50">
+  <app-sidebar
+    (addRecipe)="onAddRecipe()"
+    (createPlan)="onCreatePlan()"
+    (generateList)="onGenerateList()"
+  />
+  <main class="flex-1">
+    <router-outlet />
+  </main>
+</div>
