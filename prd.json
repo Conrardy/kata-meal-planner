@@ -7,7 +7,11 @@
       "id": "US-001",
       "title": "Daily Digest - View today's meals",
       "description": "As a user, I want to see today's meals with quick actions so that I can act quickly on my plan.",
-      "acceptanceCriteria": [],
+      "acceptanceCriteria": [
+        "Displays Breakfast, Lunch, Dinner with image, name, and actions",
+        "Includes \"Swap Meal\" and \"Cook Now\" actions on each card",
+        "Mobile-first layout with vertical scrolling"
+      ],
       "priority": 1,
       "passes": true,
       "labels": [],
@@ -18,7 +22,11 @@
       "id": "US-002",
       "title": "Swap a planned meal",
       "description": "As a user, I want to swap a planned meal so that I can replace it with a suggested alternative.",
-      "acceptanceCriteria": [],
+      "acceptanceCriteria": [
+        "Clicking \"Swap Meal\" shows suggested alternatives",
+        "Selecting an alternative updates the plan for that meal and date",
+        "Shopping list is updated accordingly"
+      ],
       "priority": 2,
       "passes": true,
       "labels": [],
@@ -29,97 +37,144 @@
       "id": "US-003",
       "title": "Cook Now from Daily Digest",
       "description": "As a user, I want to start cooking a planned meal so that I can access the recipe quickly.",
-      "acceptanceCriteria": [],
+      "acceptanceCriteria": [
+        "\"Cook Now\" navigates to the recipe details page",
+        "Preserves navigation state to return to Daily Digest"
+      ],
       "priority": 3,
-      "passes": false,
+      "passes": true,
       "labels": [],
-      "dependsOn": []
+      "dependsOn": [],
+      "completionNotes": "Completed by agent"
     },
     {
       "id": "US-004",
       "title": "Weekly plan view (desktop)",
       "description": "As a user, I want to see a weekly plan grid so that I can review and edit my week at a glance.",
-      "acceptanceCriteria": [],
+      "acceptanceCriteria": [
+        "Desktop shows a table Day × (Breakfast, Lunch, Dinner)",
+        "Meal names are clickable to open details",
+        "Supports quick replace/edit from the grid"
+      ],
       "priority": 4,
-      "passes": false,
+      "passes": true,
       "labels": [],
-      "dependsOn": []
+      "dependsOn": [],
+      "completionNotes": "Completed by agent"
     },
     {
       "id": "US-005",
       "title": "Desktop quick actions",
       "description": "As a user, I want quick actions (Add Recipe, Create Plan, Generate List) so that I can perform frequent tasks faster.",
-      "acceptanceCriteria": [],
+      "acceptanceCriteria": [
+        "Visible in the desktop sidebar",
+        "Each action triggers the corresponding flow"
+      ],
       "priority": 4,
-      "passes": false,
+      "passes": true,
       "labels": [],
-      "dependsOn": []
+      "dependsOn": [],
+      "completionNotes": "Completed by agent"
     },
     {
       "id": "US-006",
       "title": "Discover recipes with search and filters",
       "description": "As a user, I want to search and filter recipes so that I can find suitable options.",
-      "acceptanceCriteria": [],
+      "acceptanceCriteria": [
+        "Search bar filters by title/description",
+        "Multi-select filter chips (e.g., Quick & Easy, Vegetarian, Gluten-Free)",
+        "Results update in real-time"
+      ],
       "priority": 4,
-      "passes": false,
+      "passes": true,
       "labels": [],
-      "dependsOn": []
+      "dependsOn": [],
+      "completionNotes": "Completed by agent"
     },
     {
       "id": "US-007",
       "title": "View recipe details",
       "description": "As a user, I want to view a recipe's details so that I can decide to cook or plan it.",
-      "acceptanceCriteria": [],
+      "acceptanceCriteria": [
+        "Shows title, image, description, ingredients, and steps",
+        "Displays tags and meal type",
+        "Action to add to a specific day/meal slot"
+      ],
       "priority": 4,
-      "passes": false,
+      "passes": true,
       "labels": [],
-      "dependsOn": []
+      "dependsOn": [],
+      "completionNotes": "Completed by agent"
     },
     {
       "id": "US-008",
       "title": "Generate shopping list from meal plan",
       "description": "As a user, I want to generate a shopping list so that I can buy what I need for my planned meals.",
-      "acceptanceCriteria": [],
+      "acceptanceCriteria": [
+        "Generates categorized items from the current meal plan",
+        "Groups by Produce, Dairy, Meat, Pantry",
+        "Deduplicates and sums quantities when possible"
+      ],
       "priority": 4,
-      "passes": false,
+      "passes": true,
       "labels": [],
-      "dependsOn": []
+      "dependsOn": [],
+      "completionNotes": "Completed by agent"
     },
     {
       "id": "US-009",
       "title": "Manage shopping list items",
       "description": "As a user, I want to manage shopping list items so that I can track purchases and modify the list.",
-      "acceptanceCriteria": [],
+      "acceptanceCriteria": [
+        "Check/uncheck items with visual feedback",
+        "Add custom items (quantity, unit, name)",
+        "Remove items and print the list"
+      ],
       "priority": 4,
-      "passes": false,
+      "passes": true,
       "labels": [],
-      "dependsOn": []
+      "dependsOn": [],
+      "completionNotes": "Completed by agent"
     },
     {
       "id": "US-010",
       "title": "Set dietary preferences and allergies",
       "description": "As a user, I want to set my dietary preferences and allergies so that recommendations match my needs.",
-      "acceptanceCriteria": [],
+      "acceptanceCriteria": [
+        "Single-select dietary preference (e.g., Vegetarian, Keto)",
+        "Multi-select allergies (e.g., gluten, nuts, dairy)",
+        "Preferences affect recipe suggestions and planning"
+      ],
       "priority": 4,
-      "passes": false,
+      "passes": true,
       "labels": [],
-      "dependsOn": []
+      "dependsOn": [],
+      "completionNotes": "Completed by agent"
     },
     {
       "id": "US-011",
       "title": "Configure meal plan options",
       "description": "As a user, I want to configure meals per day, plan length, leftovers, and excluded ingredients so that my plan fits my routine.",
-      "acceptanceCriteria": [],
+      "acceptanceCriteria": [
+        "Select 2/3/4 meals per day",
+        "Set plan length (1 or 2 weeks)",
+        "Toggle leftovers and auto-generate shopping list",
+        "Exclude ingredients from suggestions"
+      ],
       "priority": 4,
-      "passes": false,
+      "passes": true,
       "labels": [],
-      "dependsOn": []
+      "dependsOn": [],
+      "completionNotes": "Completed by agent"
     },
     {
       "id": "US-012",
       "title": "Auto-sync shopping list on plan changes",
       "description": "As a user, I want my shopping list to update automatically when I change the plan so that it remains accurate.",
-      "acceptanceCriteria": [],
+      "acceptanceCriteria": [
+        "Any plan change reflects in the shopping list",
+        "Badge/notice indicates updates applied"
+      ],
       "priority": 4,
       "passes": false,
       "labels": [],
@@ -129,6 +184,6 @@
   "metadata": {
     "createdAt": "2026-01-15T20:52:14.406Z",
     "version": "1.0.0",
-    "updatedAt": "2026-01-15T22:07:01.949Z"
+    "updatedAt": "2026-01-16T20:29:25.991Z"
   }
 }
