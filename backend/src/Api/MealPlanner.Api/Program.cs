@@ -111,7 +111,36 @@ app.MapGet("/api/v1/shopping-list/{startDate}", async (DateOnly startDate, IMedi
 .WithName("GenerateShoppingList")
 .WithOpenApi();
 
+app.MapPatch("/api/v1/shopping-list/{startDate}/items/{itemId}", async (DateOnly startDate, string itemId, ToggleItemRequest request, IMediator mediator) =>
+{
+    var command = new ToggleShoppingItemCommand(startDate, itemId, request.IsChecked);
+    await mediator.Send(command);
+    return Results.NoContent();
+})
+.WithName("ToggleShoppingItem")
+.WithOpenApi();
+
+app.MapPost("/api/v1/shopping-list/{startDate}/items", async (DateOnly startDate, AddCustomItemRequest request, IMediator mediator) =>
+{
+    var command = new AddCustomItemCommand(startDate, request.Name, request.Quantity, request.Unit, request.Category);
+    var result = await mediator.Send(command);
+    return Results.Created($"/api/v1/shopping-list/{startDate}/items/{result.Id}", result);
+})
+.WithName("AddCustomItem")
+.WithOpenApi();
+
+app.MapDelete("/api/v1/shopping-list/{startDate}/items/{itemId}", async (DateOnly startDate, string itemId, IMediator mediator) =>
+{
+    var command = new RemoveShoppingItemCommand(startDate, itemId);
+    var removed = await mediator.Send(command);
+    return removed ? Results.NoContent() : Results.NotFound();
+})
+.WithName("RemoveShoppingItem")
+.WithOpenApi();
+
 app.Run();
 
 public record SwapMealRequest(Guid NewRecipeId);
 public record AddRecipeToMealPlanRequest(Guid RecipeId, string Date, string MealType);
+public record ToggleItemRequest(bool IsChecked);
+public record AddCustomItemRequest(string Name, string Quantity, string? Unit, string Category);

@@ -1,5 +1,6 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 import {
   LucideAngularModule,
   ChevronLeft,
@@ -10,17 +11,22 @@ import {
   Beef,
   Package,
   Printer,
+  Plus,
+  Trash2,
+  Check,
+  X,
 } from 'lucide-angular';
 import { ShoppingListService } from '../../core/services/shopping-list.service';
 import {
   ShoppingList,
   ShoppingItem,
+  AddCustomItemRequest,
 } from '../../core/models/shopping-list.model';
 
 @Component({
   selector: 'app-shopping-list',
   standalone: true,
-  imports: [RouterLink, LucideAngularModule],
+  imports: [RouterLink, LucideAngularModule, FormsModule],
   templateUrl: './shopping-list.component.html',
 })
 export class ShoppingListComponent implements OnInit {
@@ -30,6 +36,14 @@ export class ShoppingListComponent implements OnInit {
   readonly shoppingList = signal<ShoppingList | null>(null);
   readonly isLoading = signal(true);
   readonly error = signal<string | null>(null);
+  readonly showAddForm = signal(false);
+
+  newItemName = '';
+  newItemQuantity = '1';
+  newItemUnit = '';
+  newItemCategory = 'Pantry';
+
+  readonly categories = ['Produce', 'Dairy', 'Meat', 'Pantry'];
 
   readonly ChevronLeft = ChevronLeft;
   readonly ChevronRight = ChevronRight;
@@ -39,6 +53,10 @@ export class ShoppingListComponent implements OnInit {
   readonly Beef = Beef;
   readonly Package = Package;
   readonly Printer = Printer;
+  readonly Plus = Plus;
+  readonly Trash2 = Trash2;
+  readonly Check = Check;
+  readonly X = X;
 
   readonly formattedDateRange = computed(() => {
     const list = this.shoppingList();
@@ -91,6 +109,88 @@ export class ShoppingListComponent implements OnInit {
 
   onPrint(): void {
     window.print();
+  }
+
+  onToggleItem(item: ShoppingItem): void {
+    const newCheckedState = !item.isChecked;
+    this.updateItemInState(item.id, { isChecked: newCheckedState });
+
+    this.shoppingListService
+      .toggleItem(this.startDate(), item.id, newCheckedState)
+      .subscribe({
+        error: () => {
+          this.updateItemInState(item.id, { isChecked: !newCheckedState });
+        },
+      });
+  }
+
+  onShowAddForm(): void {
+    this.showAddForm.set(true);
+  }
+
+  onCancelAddForm(): void {
+    this.showAddForm.set(false);
+    this.resetAddForm();
+  }
+
+  onAddCustomItem(): void {
+    if (!this.newItemName.trim()) return;
+
+    const request: AddCustomItemRequest = {
+      name: this.newItemName.trim(),
+      quantity: this.newItemQuantity || '1',
+      unit: this.newItemUnit.trim() || null,
+      category: this.newItemCategory,
+    };
+
+    this.shoppingListService.addCustomItem(this.startDate(), request).subscribe({
+      next: () => {
+        this.showAddForm.set(false);
+        this.resetAddForm();
+        this.loadShoppingList();
+      },
+      error: (err) => {
+        console.error('Failed to add custom item:', err);
+      },
+    });
+  }
+
+  onRemoveItem(item: ShoppingItem): void {
+    this.shoppingListService.removeItem(this.startDate(), item.id).subscribe({
+      next: () => {
+        this.loadShoppingList();
+      },
+      error: (err) => {
+        console.error('Failed to remove item:', err);
+      },
+    });
+  }
+
+  private updateItemInState(
+    itemId: string,
+    updates: Partial<ShoppingItem>
+  ): void {
+    const list = this.shoppingList();
+    if (!list) return;
+
+    const updatedCategories = list.categories.map((cat) => ({
+      ...cat,
+      items: cat.items.map((i) =>
+        i.id === itemId ? { ...i, ...updates } : i
+      ),
+    }));
+
+    this.shoppingList.set({
+      ...list,
+      categories: updatedCategories,
+    });
+  }
+
+  private resetAddForm(): void {
+    this.newItemName = '';
+    this.newItemQuantity = '1';
+    this.newItemUnit = '';
+    this.newItemCategory = 'Pantry';
   }
 
   getCategoryIcon(category: string): typeof Apple {

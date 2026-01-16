@@ -12,7 +12,21 @@ public sealed record ShoppingCategoryDto(
 );
 
 public sealed record ShoppingItemDto(
+    string Id,
     string Name,
     string Quantity,
-    string? Unit
+    string? Unit,
+    bool IsChecked,
+    bool IsCustom
+);
+
+public sealed record AddCustomItemDto(
+    string Name,
+    string Quantity,
+    string? Unit,
+    string Category
+);
+
+public sealed record ToggleItemDto(
+    bool IsChecked
 );

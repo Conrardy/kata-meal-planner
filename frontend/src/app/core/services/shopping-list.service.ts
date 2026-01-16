@@ -1,7 +1,12 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { ShoppingList } from '../models/shopping-list.model';
+import {
+  ShoppingList,
+  ShoppingItem,
+  AddCustomItemRequest,
+  ToggleItemRequest,
+} from '../models/shopping-list.model';
 
 @Injectable({
   providedIn: 'root',
@@ -14,6 +19,37 @@ export class ShoppingListService {
     const formattedDate = this.formatDate(startDate);
     return this.http.get<ShoppingList>(
       `${this.baseUrl}/shopping-list/${formattedDate}`
+    );
+  }
+
+  toggleItem(
+    startDate: Date,
+    itemId: string,
+    isChecked: boolean
+  ): Observable<void> {
+    const formattedDate = this.formatDate(startDate);
+    const request: ToggleItemRequest = { isChecked };
+    return this.http.patch<void>(
+      `${this.baseUrl}/shopping-list/${formattedDate}/items/${encodeURIComponent(itemId)}`,
+      request
+    );
+  }
+
+  addCustomItem(
+    startDate: Date,
+    request: AddCustomItemRequest
+  ): Observable<ShoppingItem> {
+    const formattedDate = this.formatDate(startDate);
+    return this.http.post<ShoppingItem>(
+      `${this.baseUrl}/shopping-list/${formattedDate}/items`,
+      request
+    );
+  }
+
+  removeItem(startDate: Date, itemId: string): Observable<void> {
+    const formattedDate = this.formatDate(startDate);
+    return this.http.delete<void>(
+      `${this.baseUrl}/shopping-list/${formattedDate}/items/${encodeURIComponent(itemId)}`
     );
   }
 

@@ -8,20 +8,25 @@ public sealed record GenerateShoppingListQuery(DateOnly StartDate) : IRequest<Sh
 
 public sealed class GenerateShoppingListQueryHandler : IRequestHandler<GenerateShoppingListQuery, ShoppingListDto>
 {
-    private readonly IPlannedMealRepository _repository;
+    private readonly IPlannedMealRepository _mealRepository;
+    private readonly IShoppingListStateRepository _stateRepository;
 
-    public GenerateShoppingListQueryHandler(IPlannedMealRepository repository)
+    public GenerateShoppingListQueryHandler(
+        IPlannedMealRepository mealRepository,
+        IShoppingListStateRepository stateRepository)
     {
-        _repository = repository;
+        _mealRepository = mealRepository;
+        _stateRepository = stateRepository;
     }
 
     public async Task<ShoppingListDto> Handle(GenerateShoppingListQuery request, CancellationToken cancellationToken)
     {
         var endDate = request.StartDate.AddDays(6);
-        var meals = await _repository.GetByDateRangeAsync(request.StartDate, endDate, cancellationToken);
+        var meals = await _mealRepository.GetByDateRangeAsync(request.StartDate, endDate, cancellationToken);
+        var state = await _stateRepository.GetOrCreateAsync(request.StartDate, cancellationToken);
 
         var aggregatedItems = AggregateIngredients(meals);
-        var categorizedItems = CategorizeItems(aggregatedItems);
+        var categorizedItems = CategorizeItems(aggregatedItems, state);
 
         return new ShoppingListDto(request.StartDate, endDate, categorizedItems);
     }
@@ -111,24 +116,50 @@ public sealed class GenerateShoppingListQueryHandler : IRequestHandler<GenerateS
         return quantity.ToString("0.##");
     }
 
-    private static IReadOnlyList<ShoppingCategoryDto> CategorizeItems(Dictionary<string, AggregatedIngredient> items)
+    private static IReadOnlyList<ShoppingCategoryDto> CategorizeItems(
+        Dictionary<string, AggregatedIngredient> items,
+        ShoppingListState state)
     {
         var categoryOrder = new[] { ItemCategory.Produce, ItemCategory.Dairy, ItemCategory.Meat, ItemCategory.Pantry };
 
         return categoryOrder
             .Select(category =>
             {
-                var categoryItems = items.Values
+                var mealPlanItems = items.Values
                     .Where(i => i.Category == category)
-                    .Select(i => new ShoppingItemDto(i.Name, i.Quantity, i.Unit))
+                    .Select(i => new ShoppingItemDto(
+                        Id: GenerateItemId(i.Name),
+                        Name: i.Name,
+                        Quantity: i.Quantity,
+                        Unit: i.Unit,
+                        IsChecked: state.IsItemChecked(GenerateItemId(i.Name)),
+                        IsCustom: false))
+                    .ToList();
+
+                var customItems = state.CustomItems
+                    .Where(i => i.Category == category)
+                    .Select(i => new ShoppingItemDto(
+                        Id: i.Id,
+                        Name: i.Name,
+                        Quantity: i.Quantity,
+                        Unit: i.Unit,
+                        IsChecked: state.IsItemChecked(i.Id),
+                        IsCustom: true))
+                    .ToList();
+
+                var allItems = mealPlanItems
+                    .Concat(customItems)
                     .OrderBy(i => i.Name)
                     .ToList();
 
-                return new ShoppingCategoryDto(category.Value, categoryItems);
+                return new ShoppingCategoryDto(category.Value, allItems);
             })
             .Where(c => c.Items.Count > 0)
             .ToList();
     }
+
+    private static string GenerateItemId(string name) =>
+        $"item-{name.ToLowerInvariant().Replace(" ", "-")}";
 
     private sealed record AggregatedIngredient(string Name, string Quantity, string? Unit, ItemCategory Category);
 }
