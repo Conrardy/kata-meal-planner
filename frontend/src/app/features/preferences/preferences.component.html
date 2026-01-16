@@ -19,7 +19,7 @@
         [img]="Settings"
         class="w-6 h-6 text-primary"
       ></lucide-icon>
-      <h2 class="text-xl font-semibold text-gray-900">Dietary Preferences</h2>
+      <h2 class="text-xl font-semibold text-gray-900">Preferences</h2>
     </div>
 
     @if (isLoading()) {
@@ -128,6 +128,161 @@
             </button>
           }
         </div>
+      </div>
+
+      <!-- Meals Per Day Section -->
+      <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-2">Meals Per Day</h3>
+        <p class="text-sm text-gray-500 mb-4">
+          Select how many meals per day you want to plan.
+        </p>
+
+        <div class="flex gap-3" data-testid="meals-per-day-options">
+          @for (option of preferences()!.availableMealsPerDay; track option) {
+            <button
+              type="button"
+              (click)="onMealsPerDayChange(option)"
+              class="flex-1 flex items-center justify-center px-4 py-3 rounded-lg border-2 font-medium transition-colors"
+              [class.border-primary]="selectedMealsPerDay === option"
+              [class.bg-primary]="selectedMealsPerDay === option"
+              [class.text-white]="selectedMealsPerDay === option"
+              [class.border-gray-200]="selectedMealsPerDay !== option"
+              [class.text-gray-700]="selectedMealsPerDay !== option"
+              [class.hover:border-gray-300]="selectedMealsPerDay !== option"
+              [attr.data-testid]="'meals-per-day-' + option"
+            >
+              {{ option }} meals
+            </button>
+          }
+        </div>
+      </div>
+
+      <!-- Plan Length Section -->
+      <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-2">Plan Length</h3>
+        <p class="text-sm text-gray-500 mb-4">
+          Choose how long your meal plan should be.
+        </p>
+
+        <div class="flex gap-3" data-testid="plan-length-options">
+          @for (option of preferences()!.availablePlanLengths; track option) {
+            <button
+              type="button"
+              (click)="onPlanLengthChange(option)"
+              class="flex-1 flex items-center justify-center px-4 py-3 rounded-lg border-2 font-medium transition-colors"
+              [class.border-primary]="selectedPlanLength === option"
+              [class.bg-primary]="selectedPlanLength === option"
+              [class.text-white]="selectedPlanLength === option"
+              [class.border-gray-200]="selectedPlanLength !== option"
+              [class.text-gray-700]="selectedPlanLength !== option"
+              [class.hover:border-gray-300]="selectedPlanLength !== option"
+              [attr.data-testid]="'plan-length-' + option"
+            >
+              {{ option === 1 ? '1 week' : '2 weeks' }}
+            </button>
+          }
+        </div>
+      </div>
+
+      <!-- Toggles Section -->
+      <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Additional Options</h3>
+
+        <!-- Leftovers Toggle -->
+        <div class="flex items-center justify-between py-3 border-b border-gray-100">
+          <div>
+            <p class="font-medium text-gray-900">Include Leftovers</p>
+            <p class="text-sm text-gray-500">Plan meals that use leftovers from previous days</p>
+          </div>
+          <button
+            type="button"
+            (click)="onLeftoversToggle()"
+            class="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none"
+            [class.bg-primary]="selectedIncludeLeftovers"
+            [class.bg-gray-200]="!selectedIncludeLeftovers"
+            data-testid="leftovers-toggle"
+          >
+            <span
+              class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"
+              [class.translate-x-5]="selectedIncludeLeftovers"
+              [class.translate-x-0]="!selectedIncludeLeftovers"
+            ></span>
+          </button>
+        </div>
+
+        <!-- Auto-generate Shopping List Toggle -->
+        <div class="flex items-center justify-between py-3">
+          <div>
+            <p class="font-medium text-gray-900">Auto-generate Shopping List</p>
+            <p class="text-sm text-gray-500">Automatically create a shopping list when you plan meals</p>
+          </div>
+          <button
+            type="button"
+            (click)="onAutoGenerateShoppingListToggle()"
+            class="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none"
+            [class.bg-primary]="selectedAutoGenerateShoppingList"
+            [class.bg-gray-200]="!selectedAutoGenerateShoppingList"
+            data-testid="auto-shopping-list-toggle"
+          >
+            <span
+              class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"
+              [class.translate-x-5]="selectedAutoGenerateShoppingList"
+              [class.translate-x-0]="!selectedAutoGenerateShoppingList"
+            ></span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Excluded Ingredients Section -->
+      <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-2">Excluded Ingredients</h3>
+        <p class="text-sm text-gray-500 mb-4">
+          Add ingredients you want to exclude from recipe suggestions.
+        </p>
+
+        <!-- Add Ingredient Input -->
+        <div class="flex gap-2 mb-4">
+          <input
+            type="text"
+            [(ngModel)]="newExcludedIngredient"
+            (keyup.enter)="addExcludedIngredient()"
+            placeholder="Enter an ingredient..."
+            class="flex-1 px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary"
+            data-testid="excluded-ingredient-input"
+          />
+          <button
+            type="button"
+            (click)="addExcludedIngredient()"
+            class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors flex items-center gap-2"
+            data-testid="add-excluded-ingredient-btn"
+          >
+            <lucide-icon [img]="Plus" class="w-4 h-4"></lucide-icon>
+            Add
+          </button>
+        </div>
+
+        <!-- Excluded Ingredients List -->
+        @if (excludedIngredients.length > 0) {
+          <div class="flex flex-wrap gap-2" data-testid="excluded-ingredients-list">
+            @for (ingredient of excludedIngredients; track ingredient) {
+              <span
+                class="inline-flex items-center gap-1 px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm"
+                [attr.data-testid]="'excluded-' + ingredient.toLowerCase().replace(' ', '-')"
+              >
+                {{ ingredient }}
+                <button
+                  type="button"
+                  (click)="removeExcludedIngredient(ingredient)"
+                  class="ml-1 text-gray-500 hover:text-gray-700"
+                >
+                  <lucide-icon [img]="X" class="w-3 h-3"></lucide-icon>
+                </button>
+              </span>
+            }
+          </div>
+        } @else {
+          <p class="text-sm text-gray-400 italic">No ingredients excluded yet.</p>
+        }
       </div>
 
       <!-- Save Button -->

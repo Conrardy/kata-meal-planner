@@ -22,7 +22,14 @@ public sealed class GetUserPreferencesQueryHandler : IRequestHandler<GetUserPref
             preferences.DietaryPreference.Value,
             preferences.Allergies.Select(a => a.Value).ToList(),
             DietaryPreference.All.Select(d => d.Value).ToList(),
-            Allergy.All.Select(a => a.Value).ToList()
+            Allergy.All.Select(a => a.Value).ToList(),
+            preferences.MealsPerDay.Value,
+            preferences.PlanLength.Value,
+            preferences.IncludeLeftovers,
+            preferences.AutoGenerateShoppingList,
+            preferences.ExcludedIngredients.ToList(),
+            MealsPerDay.All.Select(m => m.Value).ToList(),
+            PlanLength.All.Select(p => p.Value).ToList()
         );
     }
 }

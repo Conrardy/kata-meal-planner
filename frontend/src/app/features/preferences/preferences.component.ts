@@ -7,6 +7,8 @@ import {
   Save,
   Loader2,
   Check,
+  X,
+  Plus,
 } from 'lucide-angular';
 import { PreferencesService } from '../../core/services/preferences.service';
 import { UserPreferences } from '../../core/models/preferences.model';
@@ -28,11 +30,19 @@ export class PreferencesComponent implements OnInit {
 
   selectedDietaryPreference = 'None';
   selectedAllergies: string[] = [];
+  selectedMealsPerDay = 3;
+  selectedPlanLength = 1;
+  selectedIncludeLeftovers = false;
+  selectedAutoGenerateShoppingList = true;
+  excludedIngredients: string[] = [];
+  newExcludedIngredient = '';
 
   readonly Settings = Settings;
   readonly Save = Save;
   readonly Loader2 = Loader2;
   readonly Check = Check;
+  readonly X = X;
+  readonly Plus = Plus;
 
   ngOnInit(): void {
     this.loadPreferences();
@@ -47,6 +57,11 @@ export class PreferencesComponent implements OnInit {
         this.preferences.set(prefs);
         this.selectedDietaryPreference = prefs.dietaryPreference;
         this.selectedAllergies = [...prefs.allergies];
+        this.selectedMealsPerDay = prefs.mealsPerDay;
+        this.selectedPlanLength = prefs.planLength;
+        this.selectedIncludeLeftovers = prefs.includeLeftovers;
+        this.selectedAutoGenerateShoppingList = prefs.autoGenerateShoppingList;
+        this.excludedIngredients = [...prefs.excludedIngredients];
         this.isLoading.set(false);
       },
       error: (err) => {
@@ -75,6 +90,40 @@ export class PreferencesComponent implements OnInit {
     return this.selectedAllergies.includes(allergy);
   }
 
+  onMealsPerDayChange(value: number): void {
+    this.selectedMealsPerDay = value;
+    this.successMessage.set(null);
+  }
+
+  onPlanLengthChange(value: number): void {
+    this.selectedPlanLength = value;
+    this.successMessage.set(null);
+  }
+
+  onLeftoversToggle(): void {
+    this.selectedIncludeLeftovers = !this.selectedIncludeLeftovers;
+    this.successMessage.set(null);
+  }
+
+  onAutoGenerateShoppingListToggle(): void {
+    this.selectedAutoGenerateShoppingList = !this.selectedAutoGenerateShoppingList;
+    this.successMessage.set(null);
+  }
+
+  addExcludedIngredient(): void {
+    const ingredient = this.newExcludedIngredient.trim();
+    if (ingredient && !this.excludedIngredients.includes(ingredient)) {
+      this.excludedIngredients = [...this.excludedIngredients, ingredient];
+      this.newExcludedIngredient = '';
+      this.successMessage.set(null);
+    }
+  }
+
+  removeExcludedIngredient(ingredient: string): void {
+    this.excludedIngredients = this.excludedIngredients.filter((i) => i !== ingredient);
+    this.successMessage.set(null);
+  }
+
   onSavePreferences(): void {
     this.isSaving.set(true);
     this.error.set(null);
@@ -84,6 +133,11 @@ export class PreferencesComponent implements OnInit {
       .updatePreferences({
         dietaryPreference: this.selectedDietaryPreference,
         allergies: this.selectedAllergies,
+        mealsPerDay: this.selectedMealsPerDay,
+        planLength: this.selectedPlanLength,
+        includeLeftovers: this.selectedIncludeLeftovers,
+        autoGenerateShoppingList: this.selectedAutoGenerateShoppingList,
+        excludedIngredients: this.excludedIngredients,
       })
       .subscribe({
         next: (prefs: UserPreferences) => {

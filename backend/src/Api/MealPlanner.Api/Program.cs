@@ -150,7 +150,15 @@ app.MapGet("/api/v1/preferences", async (IMediator mediator) =>
 
 app.MapPut("/api/v1/preferences", async (UpdatePreferencesRequest request, IMediator mediator) =>
 {
-    var command = new UpdateUserPreferencesCommand(request.DietaryPreference, request.Allergies);
+    var command = new UpdateUserPreferencesCommand(
+        request.DietaryPreference,
+        request.Allergies,
+        request.MealsPerDay,
+        request.PlanLength,
+        request.IncludeLeftovers,
+        request.AutoGenerateShoppingList,
+        request.ExcludedIngredients
+    );
     var result = await mediator.Send(command);
     return Results.Ok(result);
 })
@@ -163,4 +171,12 @@ public record SwapMealRequest(Guid NewRecipeId);
 public record AddRecipeToMealPlanRequest(Guid RecipeId, string Date, string MealType);
 public record ToggleItemRequest(bool IsChecked);
 public record AddCustomItemRequest(string Name, string Quantity, string? Unit, string Category);
-public record UpdatePreferencesRequest(string DietaryPreference, List<string> Allergies);
+public record UpdatePreferencesRequest(
+    string DietaryPreference,
+    List<string> Allergies,
+    int? MealsPerDay = null,
+    int? PlanLength = null,
+    bool? IncludeLeftovers = null,
+    bool? AutoGenerateShoppingList = null,
+    List<string>? ExcludedIngredients = null
+);
