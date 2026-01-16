@@ -1,6 +1,7 @@
 using MediatR;
 using MealPlanner.Application.DailyDigest;
 using MealPlanner.Application.Meals;
+using MealPlanner.Application.Recipes;
 using MealPlanner.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -54,6 +55,15 @@ app.MapPost("/api/v1/meals/{mealId}/swap", async (Guid mealId, SwapMealRequest r
     return Results.Ok(result);
 })
 .WithName("SwapMeal")
+.WithOpenApi();
+
+app.MapGet("/api/v1/recipes/{recipeId}", async (Guid recipeId, IMediator mediator) =>
+{
+    var query = new GetRecipeDetailsQuery(recipeId);
+    var result = await mediator.Send(query);
+    return result is null ? Results.NotFound() : Results.Ok(result);
+})
+.WithName("GetRecipeDetails")
 .WithOpenApi();
 
 app.Run();

@@ -1,5 +1,6 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { DatePipe } from '@angular/common';
+import { Router } from '@angular/router';
 import { MealCardComponent } from './components/meal-card/meal-card.component';
 import { SwapModalComponent } from './components/swap-modal/swap-modal.component';
 import { DailyDigestService } from '../../core/services/daily-digest.service';
@@ -13,6 +14,7 @@ import { DailyDigest, PlannedMeal } from '../../core/models/daily-digest.model';
 })
 export class DailyDigestComponent implements OnInit {
   private readonly dailyDigestService = inject(DailyDigestService);
+  private readonly router = inject(Router);
 
   readonly today = signal(new Date());
   readonly meals = signal<PlannedMeal[]>([]);
@@ -80,7 +82,7 @@ export class DailyDigestComponent implements OnInit {
     });
   }
 
-  onCookNow(mealId: string): void {
-    console.log('Cook now:', mealId);
+  onCookNow(recipeId: string): void {
+    this.router.navigate(['/recipe', recipeId]);
   }
 }

@@ -22,6 +22,6 @@ export class MealCardComponent {
   }
 
   onCookNow(): void {
-    this.cookNow.emit(this.meal().id);
+    this.cookNow.emit(this.meal().recipeId);
   }
 }
