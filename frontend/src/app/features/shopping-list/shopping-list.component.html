@@ -62,6 +62,27 @@
         {{ error() }}
       </div>
     } @else if (shoppingList()) {
+      <!-- Update Notice Banner -->
+      @if (showUpdateNotice() && shoppingList()?.updateNotice) {
+        <div
+          class="flex items-center justify-between bg-blue-50 border border-blue-200 text-blue-700 px-4 py-3 rounded-lg mb-4 print:hidden"
+          data-testid="update-notice"
+        >
+          <div class="flex items-center gap-2">
+            <lucide-icon [img]="RefreshCw" class="w-4 h-4"></lucide-icon>
+            <span>{{ shoppingList()?.updateNotice }}</span>
+          </div>
+          <button
+            type="button"
+            (click)="dismissUpdateNotice()"
+            class="text-blue-500 hover:text-blue-700"
+            data-testid="dismiss-notice-btn"
+          >
+            <lucide-icon [img]="X" class="w-4 h-4"></lucide-icon>
+          </button>
+        </div>
+      }
+
       <!-- Actions Bar -->
       <div class="flex items-center justify-between mb-4 print:hidden">
         <p class="text-sm text-gray-600" data-testid="total-items">

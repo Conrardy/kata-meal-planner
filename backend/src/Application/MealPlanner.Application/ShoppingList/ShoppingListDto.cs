@@ -3,7 +3,9 @@ namespace MealPlanner.Application.ShoppingList;
 public sealed record ShoppingListDto(
     DateOnly StartDate,
     DateOnly EndDate,
-    IReadOnlyList<ShoppingCategoryDto> Categories
+    IReadOnlyList<ShoppingCategoryDto> Categories,
+    bool WasUpdated = false,
+    string? UpdateNotice = null
 );
 
 public sealed record ShoppingCategoryDto(

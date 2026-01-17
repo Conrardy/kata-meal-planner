@@ -15,6 +15,7 @@ import {
   Trash2,
   Check,
   X,
+  RefreshCw,
 } from 'lucide-angular';
 import { ShoppingListService } from '../../core/services/shopping-list.service';
 import {
@@ -37,6 +38,7 @@ export class ShoppingListComponent implements OnInit {
   readonly isLoading = signal(true);
   readonly error = signal<string | null>(null);
   readonly showAddForm = signal(false);
+  readonly showUpdateNotice = signal(false);
 
   newItemName = '';
   newItemQuantity = '1';
@@ -57,6 +59,7 @@ export class ShoppingListComponent implements OnInit {
   readonly Trash2 = Trash2;
   readonly Check = Check;
   readonly X = X;
+  readonly RefreshCw = RefreshCw;
 
   readonly formattedDateRange = computed(() => {
     const list = this.shoppingList();
@@ -82,6 +85,10 @@ export class ShoppingListComponent implements OnInit {
       next: (list: ShoppingList) => {
         this.shoppingList.set(list);
         this.isLoading.set(false);
+        if (list.wasUpdated) {
+          this.showUpdateNotice.set(true);
+          setTimeout(() => this.showUpdateNotice.set(false), 5000);
+        }
       },
       error: (err) => {
         console.error('Failed to generate shopping list:', err);
@@ -91,6 +98,10 @@ export class ShoppingListComponent implements OnInit {
         this.isLoading.set(false);
       },
     });
+  }
+
+  dismissUpdateNotice(): void {
+    this.showUpdateNotice.set(false);
   }
 
   onPreviousWeek(): void {

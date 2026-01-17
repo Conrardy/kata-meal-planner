@@ -16,6 +16,8 @@ export interface ShoppingList {
   startDate: string;
   endDate: string;
   categories: ShoppingCategory[];
+  wasUpdated?: boolean;
+  updateNotice?: string | null;
 }
 
 export interface AddCustomItemRequest {

@@ -10,13 +10,16 @@ public sealed class GenerateShoppingListQueryHandler : IRequestHandler<GenerateS
 {
     private readonly IPlannedMealRepository _mealRepository;
     private readonly IShoppingListStateRepository _stateRepository;
+    private readonly IShoppingListSyncService _syncService;
 
     public GenerateShoppingListQueryHandler(
         IPlannedMealRepository mealRepository,
-        IShoppingListStateRepository stateRepository)
+        IShoppingListStateRepository stateRepository,
+        IShoppingListSyncService syncService)
     {
         _mealRepository = mealRepository;
         _stateRepository = stateRepository;
+        _syncService = syncService;
     }
 
     public async Task<ShoppingListDto> Handle(GenerateShoppingListQuery request, CancellationToken cancellationToken)
@@ -25,10 +28,24 @@ public sealed class GenerateShoppingListQueryHandler : IRequestHandler<GenerateS
         var meals = await _mealRepository.GetByDateRangeAsync(request.StartDate, endDate, cancellationToken);
         var state = await _stateRepository.GetOrCreateAsync(request.StartDate, cancellationToken);
 
+        var hadPendingChanges = _syncService.HasPendingChanges(request.StartDate);
+        var pendingChangeCount = _syncService.GetPendingChangeCount(request.StartDate);
+
         var aggregatedItems = AggregateIngredients(meals);
         var categorizedItems = CategorizeItems(aggregatedItems, state);
 
-        return new ShoppingListDto(request.StartDate, endDate, categorizedItems);
+        _syncService.MarkSynced(request.StartDate);
+
+        var updateNotice = hadPendingChanges
+            ? $"Shopping list updated with {pendingChangeCount} meal plan change{(pendingChangeCount > 1 ? "s" : "")}"
+            : null;
+
+        return new ShoppingListDto(
+            request.StartDate,
+            endDate,
+            categorizedItems,
+            WasUpdated: hadPendingChanges,
+            UpdateNotice: updateNotice);
     }
 
     private static Dictionary<string, AggregatedIngredient> AggregateIngredients(IReadOnlyList<PlannedMeal> meals)
