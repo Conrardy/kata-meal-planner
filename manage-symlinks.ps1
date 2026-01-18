@@ -12,8 +12,15 @@ function Write-Warn($msg) { Write-Host $msg -ForegroundColor Yellow }
 function Write-Err($msg)  { Write-Host $msg -ForegroundColor Red }
 
 # Repository root (script location)
-$RepoRoot = $PSScriptRoot
-if (-not $RepoRoot) { $RepoRoot = (Get-Location).Path }
+
+# Force RepoRoot to workspace root, not just script location
+$RepoRoot = (Resolve-Path "$PSScriptRoot")
+if ($RepoRoot -notlike "*kata-meal-planner*") {
+    $RepoRoot = (Resolve-Path ".")
+    if ($RepoRoot -notlike "*kata-meal-planner*") {
+        throw "Could not determine workspace root. Please run from kata-meal-planner directory."
+    }
+}
 
 # Validate config
 $cfgPath = Join-Path $RepoRoot $ConfigFile
@@ -102,7 +109,7 @@ function Create-Link([string]$SourceAbs, [string]$TargetRel) {
     # Remove existing if present
     if (Test-Path -LiteralPath $SourceAbs -PathType Any) {
         if (Is-Symlink $SourceAbs) {
-            Remove-Item -LiteralPath $SourceAbs -Force
+            Remove-Item -LiteralPath $SourceAbs -Force -Recurse
         } else {
             # Skip replacing real files
             return $false
@@ -132,16 +139,21 @@ foreach ($e in $entries) {
     $desc = $e.description
 
     $sourceAbs = Join-Path $RepoRoot $sourceRel
+    try {
+        $targetAbs = (Resolve-Path -Path (Join-Path $RepoRoot $targetRel) -ErrorAction Stop).Path
+    } catch {
+        $targetAbs = $null
+    }
     $sourceDir = Split-Path -Parent $sourceAbs
-    $targetAbs = Join-Path $sourceDir $targetRel
 
-    Write-Info ("[{0}] {1}" -f $total, $sourceRel)
-    if ($desc) { Write-Warn ("    → {0}" -f $desc) }
+    Write-Info ([string]::Format('[{0}] {1}', $total, $sourceRel))
+    if ($desc) { Write-Warn ([string]::Format('    -> {0}', $desc)) }
 
     Ensure-Dir $sourceDir
 
-    if (-not (Test-Path -LiteralPath $targetAbs)) {
-        Write-Warn ("    ⚠ Target missing: {0}" -f $targetAbs)
+    if (-not $targetAbs -or -not (Test-Path -LiteralPath $targetAbs)) {
+        $targetDisplay = if ($targetAbs) { $targetAbs } else { $targetRel }
+        Write-Warn ([string]::Format('    [!] Target missing: {0}', $targetDisplay))
         $errors++
         Write-Host
         continue
@@ -149,7 +161,7 @@ foreach ($e in $entries) {
 
     if (Is-Symlink $sourceAbs) {
         $currentTarget = Get-LinkTarget $sourceAbs
-        Write-Ok ("    ✓ Symlink exists: {0} → {1}" -f $sourceRel, $currentTarget)
+        Write-Ok ([string]::Format('    [OK] Symlink exists: {0} -> {1}', $sourceRel, $currentTarget))
         $match = $false
         if ($currentTarget) {
             # Accept relative or absolute match
@@ -159,29 +171,29 @@ foreach ($e in $entries) {
             if ($currentTarget -eq $targetRel -or ($fullCurrent -and $fullCurrent -eq $fullTarget)) { $match = $true }
         }
         if ($match) {
-            Write-Ok "    ✓ Target matches configuration"
+            Write-Ok '    [OK] Target matches configuration'
             $existing++
         } else {
-            Write-Info "    → Updating symlink to match config"
+            Write-Info '    [*] Updating symlink to match config'
             if (Create-Link -SourceAbs $sourceAbs -TargetRel $targetRel) {
                 $updated++
-                Write-Ok "    ✓ Symlink updated"
+                Write-Ok '    [OK] Symlink updated'
             } else {
                 $errors++
-                Write-Err "    ✗ Failed to update symlink"
+                Write-Err '    [ERR] Failed to update symlink'
             }
         }
     } elseif (Test-Path -LiteralPath $sourceAbs) {
-        Write-Warn "    ⚠ File exists but is not a symlink; skipping"
+        Write-Warn '    [!] File exists but is not a symlink; skipping'
         $skipped++
     } else {
-        Write-Info "    → Creating symlink..."
+        Write-Info '    [*] Creating symlink...'
         if (Create-Link -SourceAbs $sourceAbs -TargetRel $targetRel) {
             $created++
-            Write-Ok ("    ✓ Created: {0} → {1}" -f $sourceRel, $targetRel)
+            Write-Ok ([string]::Format('    [OK] Created: {0} -> {1}', $sourceRel, $targetRel))
         } else {
             $errors++
-            Write-Err "    ✗ Failed to create symlink"
+            Write-Err '    [ERR] Failed to create symlink'
         }
     }
     Write-Host

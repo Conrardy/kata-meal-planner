@@ -34,8 +34,8 @@ L'application opère dans le domaine de la **gestion alimentaire personnelle**. 
 | Daily Digest | Vue synthétique des repas planifiés pour la journée en cours | Résumé Quotidien |
 | Swap Meal | Action de remplacer un repas planifié par une alternative suggérée | Échanger un Repas |
 | Cook Now | Action d'accéder directement aux instructions de préparation d'un repas | Cuisiner Maintenant |
-| Dietary Preferences | Choix de régime : Omnivore, Vegetarian, Vegan, Pescatarian, Keto, Paleo, Low Carb, Mediterranean | Préférences Alimentaires, Régime |
-| Allergies | Restrictions alimentaires liées à des intolérances (gluten, nuts, dairy) | Intolérances |
+| Dietary Preferences | Choix de régime : None, Vegetarian, Vegan, Pescatarian, Keto, Paleo, Low Carb, Mediterranean | Préférences Alimentaires, Régime |
+| Allergies | Restrictions alimentaires liées à des intolérances (gluten, nuts, dairy, eggs, shellfish, soy) | Intolérances |
 | Exclude Ingredients | Liste d'ingrédients que l'utilisateur ne souhaite pas dans ses recettes | Ingrédients Exclus |
 | Meal Plan Length | Période couverte par le plan de repas (1 week, 2 weeks) | Durée du Plan |
 | Leftovers | Option pour inclure les restes de repas dans la planification | Restes |

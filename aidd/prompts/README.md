@@ -72,7 +72,7 @@ No files found.
 | `memory-bank` | [AGENTS_COORDINATION.md](templates/memory-bank/AGENTS_COORDINATION.md) |
 | `memory-bank` | [AGENTS.md](templates/memory-bank/AGENTS.md) |
 | `memory-bank` | [CODEBASE_STRUCTURE.md](templates/memory-bank/CODEBASE_STRUCTURE.md) |
-| `memory-bank` | [DEPLOYMENT.md](templates/memory-bank/DEPLOYMENT.md) |
+| `memory-bank` | [DEPLOYMENT.md](templates/memory-bank/infra/DEPLOYMENT.md) |
 | `memory-bank` | [PR_TEMPLATE.md](templates/memory-bank/PR_TEMPLATE.md) |
 | `memory-bank` | [PROJECT_BRIEF.md](templates/memory-bank/PROJECT_BRIEF.md) |
 | `memory-bank` | [STACK.md](templates/memory-bank/STACK.md) |

@@ -39,7 +39,7 @@ Used for each module! (Backend, Frontend, etc...)
 ### Documentation Root
 
 - aidd/prompts/templates/memory-bank/PROJECT_BRIEF.md
-- aidd/prompts/templates/memory-bank/DEPLOYMENT.md
+- aidd/prompts/templates/memory-bank/infra/DEPLOYMENT.md
 - aidd/prompts/templates/memory-bank/STACK.md
 - aidd/prompts/templates/memory-bank/CODEBASE_STRUCTURE.md
 
