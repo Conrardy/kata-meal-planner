@@ -9,6 +9,7 @@ import {
   RegisterRequest,
   RegisterResponse,
 } from '../models/auth.model';
+import { ApiConfigService } from './api-config.service';
 
 const TOKEN_KEY = 'mealplanner_access_token';
 const REFRESH_TOKEN_KEY = 'mealplanner_refresh_token';
@@ -19,7 +20,8 @@ const USER_KEY = 'mealplanner_user';
 })
 export class AuthService {
   private readonly http = inject(HttpClient);
-  private readonly baseUrl = 'http://localhost:5000/api/v1/auth';
+  private readonly apiConfig = inject(ApiConfigService);
+  private readonly baseUrl = `${this.apiConfig.apiBaseUrl}/auth`;
 
   private readonly authState = signal<AuthState>(this.loadStoredState());
 

@@ -7,13 +7,15 @@ import {
   AddCustomItemRequest,
   ToggleItemRequest,
 } from '../models/shopping-list.model';
+import { ApiConfigService } from './api-config.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ShoppingListService {
   private readonly http = inject(HttpClient);
-  private readonly baseUrl = 'http://localhost:5000/api/v1';
+  private readonly apiConfig = inject(ApiConfigService);
+  private readonly baseUrl = this.apiConfig.apiBaseUrl;
 
   generateShoppingList(startDate: Date): Observable<ShoppingList> {
     const formattedDate = this.formatDate(startDate);

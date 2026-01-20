@@ -2,13 +2,15 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { RecipeDetails, RecipeSearchResult } from '../models/recipe.model';
+import { ApiConfigService } from './api-config.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class RecipeService {
   private readonly http = inject(HttpClient);
-  private readonly baseUrl = 'http://localhost:5000/api/v1';
+  private readonly apiConfig = inject(ApiConfigService);
+  private readonly baseUrl = this.apiConfig.apiBaseUrl;
 
   getRecipeDetails(recipeId: string): Observable<RecipeDetails> {
     return this.http.get<RecipeDetails>(`${this.baseUrl}/recipes/${recipeId}`);

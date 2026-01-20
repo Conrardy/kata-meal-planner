@@ -6,13 +6,15 @@ import {
   SuggestionsResponse,
   SwapMealResponse,
 } from '../models/daily-digest.model';
+import { ApiConfigService } from './api-config.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class DailyDigestService {
   private readonly http = inject(HttpClient);
-  private readonly baseUrl = 'http://localhost:5000/api/v1';
+  private readonly apiConfig = inject(ApiConfigService);
+  private readonly baseUrl = this.apiConfig.apiBaseUrl;
 
   getDailyDigest(date: Date): Observable<DailyDigest> {
     const formattedDate = this.formatDate(date);

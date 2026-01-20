@@ -2,13 +2,15 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { WeeklyPlan } from '../models/weekly-plan.model';
+import { ApiConfigService } from './api-config.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class WeeklyPlanService {
   private readonly http = inject(HttpClient);
-  private readonly baseUrl = 'http://localhost:5000/api/v1';
+  private readonly apiConfig = inject(ApiConfigService);
+  private readonly baseUrl = this.apiConfig.apiBaseUrl;
 
   getWeeklyPlan(startDate: Date): Observable<WeeklyPlan> {
     const formattedDate = this.formatDate(startDate);

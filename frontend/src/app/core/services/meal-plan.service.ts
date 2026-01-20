@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { ApiConfigService } from './api-config.service';
 
 export interface AddRecipeToMealPlanResult {
   mealId: string;
@@ -14,7 +15,8 @@ export interface AddRecipeToMealPlanResult {
 })
 export class MealPlanService {
   private readonly http = inject(HttpClient);
-  private readonly baseUrl = 'http://localhost:5000/api/v1';
+  private readonly apiConfig = inject(ApiConfigService);
+  private readonly baseUrl = this.apiConfig.apiBaseUrl;
 
   addRecipeToMealPlan(
     recipeId: string,

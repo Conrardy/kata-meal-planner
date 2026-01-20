@@ -82,3 +82,52 @@ frontend/
 - Contract-first API design
 - Generate TypeScript client from OpenAPI spec
 - Shared validation rules concept (not code)
+
+## Environment Configuration
+
+### Environment Files
+
+| File | Purpose |
+|------|---------|
+| `src/environments/environment.ts` | Development configuration (default) |
+| `src/environments/environment.prod.ts` | Production configuration |
+
+### Environment Variables
+
+| Variable | Type | Development | Production | Description |
+|----------|------|-------------|------------|-------------|
+| `production` | `boolean` | `false` | `true` | Indicates production mode |
+| `apiUrl` | `string` | `http://localhost:5000` | Configurable via build | Base URL for API requests |
+
+### ApiConfigService
+
+Centralized service for API URL access:
+
+```typescript
+import { ApiConfigService } from './api-config.service';
+
+// In your service
+private readonly apiConfig = inject(ApiConfigService);
+private readonly baseUrl = this.apiConfig.apiBaseUrl;
+
+// Properties available:
+// - apiConfig.apiUrl        // Raw API URL (e.g., http://localhost:5000)
+// - apiConfig.apiBaseUrl    // API URL with version (e.g., http://localhost:5000/api/v1)
+// - apiConfig.getEndpoint('/recipes')  // Helper to build full endpoints
+```
+
+### Build Commands
+
+```bash
+# Development (uses environment.ts)
+npm start
+npm run build -- --configuration development
+
+# Production (uses environment.prod.ts)
+npm run build
+npm run build -- --configuration production
+```
+
+### Production Deployment
+
+For production, set the `API_URL` placeholder in `environment.prod.ts` before building, or use a build-time environment variable replacement strategy.
