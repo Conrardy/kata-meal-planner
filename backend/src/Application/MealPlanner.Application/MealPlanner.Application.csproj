@@ -5,6 +5,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="ErrorOr" Version="2.1.0" />
     <PackageReference Include="MediatR" Version="14.0.0" />
   </ItemGroup>
 

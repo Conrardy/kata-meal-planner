@@ -1,12 +1,15 @@
 using System.Text.Json;
 using MealPlanner.Domain.Meals;
 using MealPlanner.Domain.Recipes;
+using MealPlanner.Infrastructure.Identity;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace MealPlanner.Infrastructure.Persistence;
 
-public sealed class MealPlannerDbContext : DbContext
+public sealed class MealPlannerDbContext : IdentityDbContext<ApplicationUser, IdentityRole<Guid>, Guid>
 {
     private static readonly JsonSerializerOptions JsonOptions = new();
 
@@ -14,6 +17,7 @@ public sealed class MealPlannerDbContext : DbContext
     public DbSet<PlannedMeal> PlannedMeals => Set<PlannedMeal>();
     public DbSet<UserPreferencesEntity> UserPreferences => Set<UserPreferencesEntity>();
     public DbSet<ShoppingListStateEntity> ShoppingListStates => Set<ShoppingListStateEntity>();
+    public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
 
     public MealPlannerDbContext(DbContextOptions<MealPlannerDbContext> options)
         : base(options)
@@ -28,6 +32,8 @@ public sealed class MealPlannerDbContext : DbContext
         ConfigurePlannedMeal(modelBuilder);
         ConfigureUserPreferences(modelBuilder);
         ConfigureShoppingListState(modelBuilder);
+        ConfigureRefreshToken(modelBuilder);
+        ConfigureIdentityTables(modelBuilder);
     }
 
     private static void ConfigureRecipe(ModelBuilder modelBuilder)
@@ -193,6 +199,41 @@ public sealed class MealPlannerDbContext : DbContext
 
             entity.HasIndex(s => s.StartDate).IsUnique();
         });
+    }
+
+    private static void ConfigureRefreshToken(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<RefreshToken>(entity =>
+        {
+            entity.ToTable("refresh_tokens");
+            entity.HasKey(t => t.Id);
+
+            entity.Property(t => t.Id).HasColumnName("id");
+            entity.Property(t => t.Token).HasColumnName("token").HasMaxLength(500).IsRequired();
+            entity.Property(t => t.UserId).HasColumnName("user_id");
+            entity.Property(t => t.ExpiresAt).HasColumnName("expires_at");
+            entity.Property(t => t.CreatedAt).HasColumnName("created_at");
+            entity.Property(t => t.RevokedAt).HasColumnName("revoked_at");
+
+            entity.HasIndex(t => t.Token).IsUnique();
+            entity.HasIndex(t => t.UserId);
+        });
+    }
+
+    private static void ConfigureIdentityTables(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<ApplicationUser>(entity =>
+        {
+            entity.ToTable("users");
+            entity.Property(u => u.CreatedAt).HasColumnName("created_at");
+        });
+
+        modelBuilder.Entity<IdentityRole<Guid>>(entity => entity.ToTable("roles"));
+        modelBuilder.Entity<IdentityUserRole<Guid>>(entity => entity.ToTable("user_roles"));
+        modelBuilder.Entity<IdentityUserClaim<Guid>>(entity => entity.ToTable("user_claims"));
+        modelBuilder.Entity<IdentityUserLogin<Guid>>(entity => entity.ToTable("user_logins"));
+        modelBuilder.Entity<IdentityUserToken<Guid>>(entity => entity.ToTable("user_tokens"));
+        modelBuilder.Entity<IdentityRoleClaim<Guid>>(entity => entity.ToTable("role_claims"));
     }
 
     private static string SerializeJson<T>(T value) => JsonSerializer.Serialize(value, JsonOptions);
