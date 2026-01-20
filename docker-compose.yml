@@ -1,0 +1,22 @@
+services:
+  postgres:
+    image: postgres:17
+    container_name: mealplanner-postgres
+    environment:
+      POSTGRES_USER: mealplanner
+      POSTGRES_PASSWORD: mealplanner_dev
+      POSTGRES_DB: mealplanner
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mealplanner -d mealplanner"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+
+volumes:
+  postgres_data:

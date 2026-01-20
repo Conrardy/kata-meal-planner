@@ -35,6 +35,11 @@ public sealed class ShoppingListState
     public ShoppingItem AddCustomItem(string name, string quantity, string? unit, ItemCategory category)
     {
         var id = $"custom-{Guid.NewGuid():N}";
+        return AddCustomItemWithId(id, name, quantity, unit, category);
+    }
+
+    public ShoppingItem AddCustomItemWithId(string id, string name, string quantity, string? unit, ItemCategory category)
+    {
         var item = new ShoppingItem(id, name, quantity, unit, category, IsChecked: false, IsCustom: true);
         _customItems.Add(item);
         return item;

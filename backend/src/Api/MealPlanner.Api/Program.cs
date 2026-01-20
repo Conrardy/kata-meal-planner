@@ -6,11 +6,13 @@ using MealPlanner.Application.Recipes;
 using MealPlanner.Application.ShoppingList;
 using MealPlanner.Application.WeeklyPlan;
 using MealPlanner.Infrastructure;
+using MealPlanner.Infrastructure.Persistence;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddOpenApi();
-builder.Services.AddInfrastructure();
+builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(GetDailyDigestQuery).Assembly));
 
 builder.Services.AddCors(options =>
@@ -28,6 +30,13 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+
+    using var scope = app.Services.CreateScope();
+    var dbContext = scope.ServiceProvider.GetRequiredService<MealPlannerDbContext>();
+    await dbContext.Database.MigrateAsync();
+
+    var seeder = scope.ServiceProvider.GetRequiredService<DatabaseSeeder>();
+    await seeder.SeedAsync();
 }
 
 app.UseCors();
