@@ -42,7 +42,7 @@ Located in `docs/memory-bank/`:
    - References to package manifests (@package.json, @composer.json)
    - No minor versions (e.g., React 18, not 18.3.1)
 
-3. **`DEPLOYMENT.md`** (Template: `aidd/prompts/templates/memory-bank/DEPLOYMENT.md`)
+3. **`DEPLOYMENT.md`** (Template: `aidd/prompts/templates/memory-bank/infra/DEPLOYMENT.md`)
    - Deployment configuration and procedures
    - Environment setup and CI/CD pipelines
    - Infrastructure and hosting details
