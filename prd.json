@@ -1,190 +1,475 @@
 {
-  "name": "Product Requirements Document: MealPlanner Application",
-  "description": "**Product Name:** MealPlanner (MealPrep) **Version:** 1.0 MVP **Date:** 2026-01-15 **Tech Stack:** Angular (Frontend) + .NET (Backend)",
-  "branchName": "feature/product-requirements-document-mealplanner-application",
+  "name": "Product Requirements Document: MealPlanner Application - Production Readiness",
+  "description": "**Product Name:** MealPlanner (MealPrep) **Version:** 2.0 Production Readiness **Date:** 2026-01-20 **Tech Stack:** Angular 19 (Frontend) + .NET 9 (Backend) + PostgreSQL",
+  "branchName": "feature/production-readiness",
   "userStories": [
     {
       "id": "US-001",
-      "title": "Daily Digest - View today's meals",
-      "description": "As a user, I want to see today's meals with quick actions so that I can act quickly on my plan.",
+      "title": "Configuration de la base de données PostgreSQL",
+      "description": "En tant que développeur, je veux configurer une base de données PostgreSQL pour l'application afin de persister les données et éviter leur perte lors du redémarrage de l'application.",
       "acceptanceCriteria": [
-        "Displays Breakfast, Lunch, Dinner with image, name, and actions",
-        "Includes \"Swap Meal\" and \"Cook Now\" actions on each card",
-        "Mobile-first layout with vertical scrolling"
+        "PostgreSQL 17 est configuré via Docker Compose pour le développement local",
+        "La chaîne de connexion est externalisée dans appsettings.json et appsettings.Development.json",
+        "EF Core 9 est configuré avec le provider Npgsql",
+        "Le DbContext est enregistré avec le bon lifetime (Scoped)",
+        "Les repositories InMemory existants sont remplacés par des implémentations EF Core",
+        "La configuration supporte les variables d'environnement pour la production"
       ],
       "priority": 1,
       "passes": true,
-      "labels": [],
+      "labels": [
+        "infrastructure",
+        "database"
+      ],
       "dependsOn": [],
       "completionNotes": "Completed by agent"
     },
     {
       "id": "US-002",
-      "title": "Swap a planned meal",
-      "description": "As a user, I want to swap a planned meal so that I can replace it with a suggested alternative.",
+      "title": "Authentification JWT",
+      "description": "En tant qu'utilisateur, je veux pouvoir me connecter à l'application afin de sécuriser mes données personnelles et d'accéder à des fonctionnalités personnalisées.",
       "acceptanceCriteria": [
-        "Clicking \"Swap Meal\" shows suggested alternatives",
-        "Selecting an alternative updates the plan for that meal and date",
-        "Shopping list is updated accordingly"
+        "Endpoint POST /api/v1/auth/register pour créer un compte (email, password)",
+        "Endpoint POST /api/v1/auth/login retourne un access token JWT et un refresh token",
+        "Endpoint POST /api/v1/auth/refresh permet de renouveler l'access token",
+        "Les tokens JWT ont une durée de vie courte (15 min) avec refresh token (7 jours)",
+        "ASP.NET Identity est configuré pour la gestion des utilisateurs",
+        "Les mots de passe sont hashés avec les paramètres par défaut d'Identity",
+        "Les endpoints protégés retournent 401 sans token valide",
+        "Le frontend stocke les tokens de manière sécurisée (httpOnly cookies ou secure storage)"
       ],
-      "priority": 2,
+      "priority": 1,
       "passes": true,
-      "labels": [],
-      "dependsOn": [],
+      "labels": [
+        "security",
+        "authentication"
+      ],
+      "dependsOn": [
+        "US-001"
+      ],
       "completionNotes": "Completed by agent"
     },
     {
       "id": "US-003",
-      "title": "Cook Now from Daily Digest",
-      "description": "As a user, I want to start cooking a planned meal so that I can access the recipe quickly.",
+      "title": "Configuration de l'environnement frontend",
+      "description": "En tant que développeur, je veux configurer l'environnement frontend pour gérer les URL de l'API afin de faciliter le déploiement dans différents environnements (développement, staging, production).",
       "acceptanceCriteria": [
-        "\"Cook Now\" navigates to the recipe details page",
-        "Preserves navigation state to return to Daily Digest"
+        "Fichier environment.ts créé pour le développement (API: http://localhost:5000)",
+        "Fichier environment.prod.ts créé pour la production (API configurable)",
+        "angular.json configuré pour le remplacement de fichiers d'environnement",
+        "Un service ApiConfigService centralise l'accès aux URLs",
+        "Les services HTTP existants utilisent la configuration d'environnement",
+        "Documentation des variables d'environnement disponibles"
       ],
-      "priority": 3,
+      "priority": 1,
       "passes": true,
-      "labels": [],
+      "labels": [
+        "frontend",
+        "configuration"
+      ],
       "dependsOn": [],
       "completionNotes": "Completed by agent"
     },
     {
       "id": "US-004",
-      "title": "Weekly plan view (desktop)",
-      "description": "As a user, I want to see a weekly plan grid so that I can review and edit my week at a glance.",
+      "title": "Intercepteur HTTP",
+      "description": "En tant qu'utilisateur, je veux que l'application gère les erreurs HTTP et les tentatives de reconnexion afin d'améliorer la robustesse et la fiabilité de l'application.",
       "acceptanceCriteria": [
-        "Desktop shows a table Day × (Breakfast, Lunch, Dinner)",
-        "Meal names are clickable to open details",
-        "Supports quick replace/edit from the grid"
+        "HttpInterceptor configuré pour ajouter le token JWT aux requêtes",
+        "Retry automatique avec backoff exponentiel pour les erreurs 5xx (max 3 tentatives)",
+        "Gestion centralisée des erreurs 401 avec redirection vers login",
+        "Gestion des erreurs 403 avec message approprié",
+        "Correlation ID ajouté à chaque requête via header X-Correlation-ID",
+        "Les erreurs réseau affichent un message utilisateur friendly",
+        "Logging des erreurs HTTP pour debugging"
       ],
-      "priority": 4,
-      "passes": true,
-      "labels": [],
-      "dependsOn": [],
-      "completionNotes": "Completed by agent"
+      "priority": 1,
+      "passes": false,
+      "labels": [
+        "frontend",
+        "error-handling"
+      ],
+      "dependsOn": [
+        "US-003"
+      ],
+      "completionNotes": ""
     },
     {
       "id": "US-005",
-      "title": "Desktop quick actions",
-      "description": "As a user, I want quick actions (Add Recipe, Create Plan, Generate List) so that I can perform frequent tasks faster.",
+      "title": "Gestion des erreurs backend",
+      "description": "En tant que développeur, je veux mettre en place une gestion des erreurs robuste afin de fournir des messages d'erreur clairs et de prévenir les plantages de l'application.",
       "acceptanceCriteria": [
-        "Visible in the desktop sidebar",
-        "Each action triggers the corresponding flow"
+        "Middleware global d'exception handler configuré",
+        "Toutes les erreurs retournent un Problem Details (RFC 9457)",
+        "Les erreurs de validation retournent 400 avec détails des champs",
+        "Les erreurs métier (ErrorOr) sont mappées vers les codes HTTP appropriés",
+        "Les exceptions non gérées retournent 500 sans exposer les détails internes",
+        "Correlation ID inclus dans toutes les réponses d'erreur",
+        "Les erreurs sont loggées avec contexte suffisant pour debugging"
       ],
-      "priority": 4,
-      "passes": true,
-      "labels": [],
+      "priority": 1,
+      "passes": false,
+      "labels": [
+        "backend",
+        "error-handling"
+      ],
       "dependsOn": [],
-      "completionNotes": "Completed by agent"
+      "completionNotes": ""
     },
     {
       "id": "US-006",
-      "title": "Discover recipes with search and filters",
-      "description": "As a user, I want to search and filter recipes so that I can find suitable options.",
+      "title": "Validation des données avec FluentValidation",
+      "description": "En tant que développeur, je veux utiliser FluentValidation pour valider les données afin d'assurer l'intégrité et la cohérence des données dans l'application.",
       "acceptanceCriteria": [
-        "Search bar filters by title/description",
-        "Multi-select filter chips (e.g., Quick & Easy, Vegetarian, Gluten-Free)",
-        "Results update in real-time"
+        "FluentValidation est configuré comme pipeline behavior MediatR",
+        "Chaque Command/Query a son Validator associé",
+        "Les règles de validation sont explicites et testables",
+        "Les erreurs de validation retournent un Problem Details avec tous les champs invalides",
+        "Les validateurs sont enregistrés automatiquement via assembly scanning",
+        "Tests unitaires pour chaque validateur"
       ],
-      "priority": 4,
-      "passes": true,
-      "labels": [],
-      "dependsOn": [],
-      "completionNotes": "Completed by agent"
+      "priority": 1,
+      "passes": false,
+      "labels": [
+        "backend",
+        "validation"
+      ],
+      "dependsOn": [
+        "US-005"
+      ],
+      "completionNotes": ""
     },
     {
       "id": "US-007",
-      "title": "View recipe details",
-      "description": "As a user, I want to view a recipe's details so that I can decide to cook or plan it.",
+      "title": "Création des Dockerfiles",
+      "description": "En tant que développeur, je veux créer des Dockerfiles pour le backend et le frontend afin de faciliter le déploiement et la mise à l'échelle de l'application.",
       "acceptanceCriteria": [
-        "Shows title, image, description, ingredients, and steps",
-        "Displays tags and meal type",
-        "Action to add to a specific day/meal slot"
+        "Dockerfile backend avec multi-stage build (restore, build, publish, runtime)",
+        "Image backend basée sur mcr.microsoft.com/dotnet/aspnet:9.0-alpine",
+        "Dockerfile frontend avec multi-stage build (install, build, nginx)",
+        "Image frontend basée sur nginx:alpine",
+        "Les images sont optimisées pour la taille (< 200MB backend, < 50MB frontend)",
+        "Les Dockerfiles supportent les build args pour la configuration",
+        "Documentation des commandes de build"
       ],
-      "priority": 4,
-      "passes": true,
-      "labels": [],
+      "priority": 1,
+      "passes": false,
+      "labels": [
+        "devops",
+        "docker"
+      ],
       "dependsOn": [],
-      "completionNotes": "Completed by agent"
+      "completionNotes": ""
     },
     {
       "id": "US-008",
-      "title": "Generate shopping list from meal plan",
-      "description": "As a user, I want to generate a shopping list so that I can buy what I need for my planned meals.",
+      "title": "Configuration de Docker Compose",
+      "description": "En tant que développeur, je veux configurer un fichier docker-compose.yml afin de simplifier le déploiement et la gestion des conteneurs Docker.",
       "acceptanceCriteria": [
-        "Generates categorized items from the current meal plan",
-        "Groups by Produce, Dairy, Meat, Pantry",
-        "Deduplicates and sums quantities when possible"
+        "docker-compose.yml configure tous les services (api, frontend, postgres, redis)",
+        "Les volumes sont configurés pour la persistance des données",
+        "Les réseaux sont configurés pour l'isolation des services",
+        "Les variables d'environnement sont externalisées dans .env",
+        "Health checks configurés pour chaque service",
+        "docker-compose.override.yml pour les configurations de développement",
+        "Documentation des commandes docker-compose"
       ],
-      "priority": 4,
-      "passes": true,
-      "labels": [],
-      "dependsOn": [],
-      "completionNotes": "Completed by agent"
+      "priority": 1,
+      "passes": false,
+      "labels": [
+        "devops",
+        "docker"
+      ],
+      "dependsOn": [
+        "US-007"
+      ],
+      "completionNotes": ""
     },
     {
       "id": "US-009",
-      "title": "Manage shopping list items",
-      "description": "As a user, I want to manage shopping list items so that I can track purchases and modify the list.",
+      "title": "Configuration de CI/CD avec GitHub Actions",
+      "description": "En tant que développeur, je veux configurer des pipelines CI/CD avec GitHub Actions afin d'automatiser les tests et les déploiements de l'application.",
       "acceptanceCriteria": [
-        "Check/uncheck items with visual feedback",
-        "Add custom items (quantity, unit, name)",
-        "Remove items and print the list"
+        "Workflow CI déclenché sur push/PR vers main",
+        "Job backend: restore, build, test, publish",
+        "Job frontend: install, lint, test, build",
+        "Les tests sont exécutés en parallèle",
+        "Le build échoue si les tests échouent",
+        "Les artefacts de build sont uploadés",
+        "Badge de statut CI ajouté au README",
+        "Cache configuré pour npm et NuGet"
       ],
-      "priority": 4,
-      "passes": true,
-      "labels": [],
-      "dependsOn": [],
-      "completionNotes": "Completed by agent"
+      "priority": 1,
+      "passes": false,
+      "labels": [
+        "devops",
+        "ci-cd"
+      ],
+      "dependsOn": [
+        "US-013",
+        "US-014"
+      ],
+      "completionNotes": ""
     },
     {
       "id": "US-010",
-      "title": "Set dietary preferences and allergies",
-      "description": "As a user, I want to set my dietary preferences and allergies so that recommendations match my needs.",
+      "title": "Configuration des vérifications de santé",
+      "description": "En tant que développeur, je veux ajouter des endpoints de vérification de santé afin de surveiller l'état de l'application et de détecter rapidement les problèmes.",
       "acceptanceCriteria": [
-        "Single-select dietary preference (e.g., Vegetarian, Keto)",
-        "Multi-select allergies (e.g., gluten, nuts, dairy)",
-        "Preferences affect recipe suggestions and planning"
+        "Endpoint GET /health/live retourne 200 si l'application répond",
+        "Endpoint GET /health/ready vérifie la connexion à PostgreSQL et Redis",
+        "Les health checks sont configurés avec ASP.NET Health Checks",
+        "Timeout de 5 secondes pour chaque check",
+        "Format de réponse JSON avec détails de chaque check",
+        "Les endpoints sont exclus de l'authentification",
+        "Documentation des endpoints de santé"
       ],
-      "priority": 4,
-      "passes": true,
-      "labels": [],
-      "dependsOn": [],
-      "completionNotes": "Completed by agent"
+      "priority": 1,
+      "passes": false,
+      "labels": [
+        "backend",
+        "observability"
+      ],
+      "dependsOn": [
+        "US-001"
+      ],
+      "completionNotes": ""
     },
     {
       "id": "US-011",
-      "title": "Configure meal plan options",
-      "description": "As a user, I want to configure meals per day, plan length, leftovers, and excluded ingredients so that my plan fits my routine.",
+      "title": "Journalisation avec Serilog",
+      "description": "En tant que développeur, je veux configurer Serilog pour la journalisation afin de faciliter le débogage et le suivi des problèmes en production.",
       "acceptanceCriteria": [
-        "Select 2/3/4 meals per day",
-        "Set plan length (1 or 2 weeks)",
-        "Toggle leftovers and auto-generate shopping list",
-        "Exclude ingredients from suggestions"
+        "Serilog configuré comme provider de logging",
+        "Logs structurés en JSON pour la production",
+        "Logs formatés pour la console en développement",
+        "Enrichissement automatique avec Correlation ID, Machine Name, Environment",
+        "Niveaux de log configurables par namespace",
+        "Sink vers fichier avec rotation quotidienne",
+        "Request logging middleware avec durée et status code",
+        "Les données sensibles sont masquées (passwords, tokens)"
       ],
-      "priority": 4,
-      "passes": true,
-      "labels": [],
+      "priority": 1,
+      "passes": false,
+      "labels": [
+        "backend",
+        "observability"
+      ],
       "dependsOn": [],
-      "completionNotes": "Completed by agent"
+      "completionNotes": ""
     },
     {
       "id": "US-012",
-      "title": "Auto-sync shopping list on plan changes",
-      "description": "As a user, I want my shopping list to update automatically when I change the plan so that it remains accurate.",
+      "title": "Chargement paresseux des routes frontend",
+      "description": "En tant qu'utilisateur, je veux que l'application charge les routes de manière paresseuse afin d'améliorer les performances et le temps de chargement initial.",
       "acceptanceCriteria": [
-        "Any plan change reflects in the shopping list",
-        "Badge/notice indicates updates applied"
+        "Chaque feature module est lazy loaded",
+        "Le bundle initial contient uniquement le core et le shell",
+        "Les routes utilisent loadComponent() pour les standalone components",
+        "Preloading strategy configuré (PreloadAllModules ou custom)",
+        "Le temps de chargement initial est réduit de > 30%",
+        "Les chunks sont nommés pour faciliter le debugging",
+        "Analyse du bundle avec source-map-explorer documentée"
       ],
-      "priority": 4,
-      "passes": true,
-      "labels": [],
+      "priority": 1,
+      "passes": false,
+      "labels": [
+        "frontend",
+        "performance"
+      ],
       "dependsOn": [],
-      "completionNotes": "Completed by agent"
+      "completionNotes": ""
+    },
+    {
+      "id": "US-013",
+      "title": "Tests unitaires backend",
+      "description": "En tant que développeur, je veux écrire des tests unitaires pour le backend afin de garantir la qualité du code et de prévenir les régressions.",
+      "acceptanceCriteria": [
+        "Projet de tests MealPlanner.Domain.Tests créé",
+        "Projet de tests MealPlanner.Application.Tests créé",
+        "xUnit configuré comme framework de test",
+        "FluentAssertions utilisé pour les assertions",
+        "Bogus configuré pour la génération de données de test",
+        "Couverture de code > 80% pour Domain et Application",
+        "Tests suivent le pattern Arrange-Act-Assert",
+        "Chaque handler MediatR a au moins un test de succès et un test d'erreur"
+      ],
+      "priority": 1,
+      "passes": false,
+      "labels": [
+        "backend",
+        "testing"
+      ],
+      "dependsOn": [],
+      "completionNotes": ""
+    },
+    {
+      "id": "US-014",
+      "title": "Tests de composants frontend",
+      "description": "En tant que développeur, je veux écrire des tests de composants pour le frontend afin de garantir la qualité du code et de prévenir les régressions.",
+      "acceptanceCriteria": [
+        "Karma et Jasmine configurés et fonctionnels",
+        "Chaque composant de feature a au moins un fichier .spec.ts",
+        "Les services sont testés avec HttpTestingController",
+        "Les composants sont testés avec TestBed",
+        "Couverture de code > 70% pour les features",
+        "Les tests utilisent data-testid pour les sélecteurs",
+        "Configuration de coverage reporting"
+      ],
+      "priority": 1,
+      "passes": false,
+      "labels": [
+        "frontend",
+        "testing"
+      ],
+      "dependsOn": [],
+      "completionNotes": ""
+    },
+    {
+      "id": "US-015",
+      "title": "Corrections d'accessibilité",
+      "description": "En tant qu'utilisateur, je veux que l'application soit accessible afin de pouvoir l'utiliser facilement, quelle que soit ma situation ou mon handicap.",
+      "acceptanceCriteria": [
+        "Tous les éléments interactifs sont accessibles au clavier",
+        "Les images ont des attributs alt appropriés",
+        "Les formulaires ont des labels associés",
+        "Le contraste des couleurs respecte WCAG 2.1 AA",
+        "Les rôles ARIA sont utilisés correctement",
+        "La navigation est possible avec un lecteur d'écran",
+        "Focus visible sur tous les éléments interactifs",
+        "Audit Lighthouse accessibility > 90"
+      ],
+      "priority": 1,
+      "passes": false,
+      "labels": [
+        "frontend",
+        "accessibility"
+      ],
+      "dependsOn": [],
+      "completionNotes": ""
+    },
+    {
+      "id": "US-016",
+      "title": "Limitation du débit backend",
+      "description": "En tant que développeur, je veux mettre en place une limitation du débit afin de protéger l'application contre les abus et les attaques par déni de service.",
+      "acceptanceCriteria": [
+        "Rate limiting configuré avec ASP.NET Rate Limiting middleware",
+        "Limite par défaut: 100 requêtes/minute par IP",
+        "Limite réduite pour les endpoints sensibles (auth): 10 requêtes/minute",
+        "Header Retry-After inclus dans les réponses 429",
+        "Les réponses 429 utilisent Problem Details",
+        "Configuration externalisée dans appsettings.json",
+        "Logging des violations de rate limit"
+      ],
+      "priority": 1,
+      "passes": false,
+      "labels": [
+        "backend",
+        "security"
+      ],
+      "dependsOn": [],
+      "completionNotes": ""
+    },
+    {
+      "id": "US-017",
+      "title": "Configuration de CORS",
+      "description": "En tant que développeur, je veux configurer CORS pour permettre les requêtes depuis différentes origines afin de faciliter l'intégration avec d'autres services et applications.",
+      "acceptanceCriteria": [
+        "CORS configuré avec policy nommée",
+        "Origines autorisées configurables par environnement",
+        "Développement: http://localhost:4200",
+        "Production: domaine de production uniquement",
+        "Headers autorisés: Content-Type, Authorization, X-Correlation-ID",
+        "Méthodes autorisées: GET, POST, PUT, DELETE, OPTIONS",
+        "Credentials autorisés pour les cookies",
+        "Preflight cache: 600 secondes"
+      ],
+      "priority": 1,
+      "passes": false,
+      "labels": [
+        "backend",
+        "security"
+      ],
+      "dependsOn": [],
+      "completionNotes": ""
+    },
+    {
+      "id": "US-018",
+      "title": "Configuration des environnements de production",
+      "description": "En tant que développeur, je veux configurer les fichiers de production afin de préparer l'application pour le déploiement en environnement de production.",
+      "acceptanceCriteria": [
+        "appsettings.Production.json créé avec valeurs par défaut sécurisées",
+        "Les secrets sont lus depuis les variables d'environnement",
+        "environment.prod.ts frontend configuré",
+        "Les logs de production sont en JSON",
+        "Le mode développement est désactivé en production",
+        "Les erreurs détaillées sont masquées en production",
+        "Documentation des variables d'environnement requises"
+      ],
+      "priority": 1,
+      "passes": false,
+      "labels": [
+        "configuration",
+        "production"
+      ],
+      "dependsOn": [
+        "US-003",
+        "US-011"
+      ],
+      "completionNotes": ""
+    },
+    {
+      "id": "US-019",
+      "title": "Migration de la base de données",
+      "description": "En tant que développeur, je veux créer et appliquer des migrations de base de données afin de gérer les changements de schéma de manière contrôlée et reproductible.",
+      "acceptanceCriteria": [
+        "Migration initiale créée avec tout le schéma actuel",
+        "Les migrations sont versionnées et reproductibles",
+        "Commande dotnet ef migrations add fonctionne",
+        "Commande dotnet ef database update fonctionne",
+        "Les migrations sont appliquées automatiquement au démarrage (dev uniquement)",
+        "Script SQL générable pour la production",
+        "Seed data pour les données de référence (dietary preferences, allergies)"
+      ],
+      "priority": 1,
+      "passes": false,
+      "labels": [
+        "backend",
+        "database"
+      ],
+      "dependsOn": [
+        "US-001"
+      ],
+      "completionNotes": ""
+    },
+    {
+      "id": "US-020",
+      "title": "Renforcement de la sécurité avec HTTPS",
+      "description": "En tant qu'utilisateur, je veux que l'application utilise HTTPS afin de sécuriser les communications et de protéger mes données sensibles.",
+      "acceptanceCriteria": [
+        "HTTPS configuré pour le backend en production",
+        "Redirection HTTP vers HTTPS activée",
+        "HSTS header configuré (max-age: 1 an)",
+        "Certificat SSL/TLS configuré via variable d'environnement",
+        "Le frontend est servi via HTTPS en production",
+        "Les cookies sont marqués Secure et SameSite",
+        "Documentation de la configuration SSL"
+      ],
+      "priority": 1,
+      "passes": false,
+      "labels": [
+        "security",
+        "production"
+      ],
+      "dependsOn": [
+        "US-018"
+      ],
+      "completionNotes": ""
     }
   ],
   "metadata": {
-    "createdAt": "2026-01-15T20:52:14.406Z",
-    "version": "1.0.0",
-    "updatedAt": "2026-01-17T14:11:38.269Z"
+    "createdAt": "2026-01-20T10:00:00.000Z",
+    "version": "2.0.0",
+    "updatedAt": "2026-01-21T12:12:53.587Z"
   }
 }
