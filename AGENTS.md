@@ -197,8 +197,8 @@ journey
 | Validation | Zod | - | Runtime schema validation |
 | HTTP | HttpClient | - | HTTP requests with interceptors |
 | API Client | OpenAPI Generator | - | Type-safe API client generation |
-| Testing | Karma | - | Test runner |
-| Testing | Jasmine | - | Unit test framework |
+| Testing | Vitest | 2 | Test runner + framework |
+| Testing | @analogjs/vitest-angular | 1 | Angular Vitest integration |
 | Observability | OpenTelemetry JS | - | Distributed tracing |
 
 #### Backend (.NET)
