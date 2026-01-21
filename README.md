@@ -63,6 +63,39 @@ Troubleshooting
 - HTTPS warnings: Use http://localhost:5000 during development to avoid certificate prompts, or trust the dev cert: `dotnet dev-certs https --trust`.
 - Node version mismatch: Ensure Node 20+ for Angular 19.
 
+Local DB initialization
+
+- Use the included Docker Compose to run PostgreSQL locally. From the repo root:
+
+```powershell
+docker compose up -d postgres
+```
+
+- The `docker-compose.yml` defines:
+	- `POSTGRES_USER`: mealplanner
+	- `POSTGRES_PASSWORD`: mealplanner_dev
+	- `POSTGRES_DB`: mealplanner
+
+- If you previously ran a different Postgres version and the container fails to start with "database files are incompatible", remove the named volume to allow fresh initialization (this deletes local DB data):
+
+```powershell
+docker compose down -v
+docker compose up -d postgres
+```
+
+- To inspect the database or create the DB/role manually inside the container:
+
+```powershell
+# open a psql shell as the mealplanner user
+docker exec -it mealplanner-postgres psql -U mealplanner -d mealplanner
+
+# or run SQL directly from the host (example creates DB and user if needed)
+docker exec -it mealplanner-postgres psql -U postgres -c "CREATE ROLE mealplanner WITH LOGIN PASSWORD 'mealplanner_dev';"
+docker exec -it mealplanner-postgres psql -U postgres -c "CREATE DATABASE mealplanner OWNER mealplanner;"
+```
+
+- After the DB is reachable with the credentials above, run the API. On first run the app will apply EF Core migrations and seed data in the `Development` environment.
+
 Project Structure
 - Frontend: [frontend/](frontend)
 - Backend solution: [backend/MealPlanner.sln](backend/MealPlanner.sln)
