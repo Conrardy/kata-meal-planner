@@ -1,6 +1,7 @@
-import { Component, signal } from '@angular/core';
+import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { SidebarComponent } from './shared/components/sidebar/sidebar.component';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-root',
@@ -11,22 +12,17 @@ import { SidebarComponent } from './shared/components/sidebar/sidebar.component'
 export class AppComponent {
   title = 'meal-planner';
 
-  readonly showAddRecipeModal = signal(false);
-  readonly showCreatePlanModal = signal(false);
-  readonly showGenerateListModal = signal(false);
+  constructor(private router: Router) {}
 
   onAddRecipe(): void {
-    this.showAddRecipeModal.set(true);
-    console.log('Add Recipe quick action triggered');
+    this.router.navigate(['/recipes/new']);
   }
 
   onCreatePlan(): void {
-    this.showCreatePlanModal.set(true);
     console.log('Create Meal Plan quick action triggered');
   }
 
   onGenerateList(): void {
-    this.showGenerateListModal.set(true);
     console.log('Generate Shopping List quick action triggered');
   }
 }

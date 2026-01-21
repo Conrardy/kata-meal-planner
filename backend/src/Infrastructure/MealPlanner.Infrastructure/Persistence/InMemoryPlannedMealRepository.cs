@@ -114,6 +114,14 @@ public sealed class InMemoryPlannedMealRepository : IPlannedMealRepository, IRec
         return Task.FromResult<IReadOnlyList<Recipe>>(_recipes.ToList());
     }
 
+    public Task AddAsync(Recipe recipe, CancellationToken cancellationToken = default)
+    {
+        // ensure no duplicate ids
+        _recipes.RemoveAll(r => r.Id == recipe.Id);
+        _recipes.Add(recipe);
+        return Task.CompletedTask;
+    }
+
     Task<Recipe?> IRecipeRepository.GetByIdAsync(Guid id, CancellationToken cancellationToken)
     {
         var recipe = _recipes.FirstOrDefault(r => r.Id == id);

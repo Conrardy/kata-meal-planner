@@ -62,10 +62,22 @@ if (app.Environment.IsDevelopment())
 
     using var scope = app.Services.CreateScope();
     var dbContext = scope.ServiceProvider.GetRequiredService<MealPlannerDbContext>();
-    await dbContext.Database.MigrateAsync();
+    try
+    {
+        await dbContext.Database.MigrateAsync();
 
-    var seeder = scope.ServiceProvider.GetRequiredService<DatabaseSeeder>();
-    await seeder.SeedAsync();
+        var seeder = scope.ServiceProvider.GetRequiredService<DatabaseSeeder>();
+        await seeder.SeedAsync();
+    }
+    catch (Npgsql.PostgresException pgEx)
+    {
+        throw new InvalidOperationException(
+            "Database connection or authentication failed. Ensure the PostgreSQL server is running and the database 'mealplanner' exists with correct credentials.\n" +
+            "For local development you can initialize the database using the project's docker-compose.yml (service 'postgres') or create the database manually.\n" +
+            "Example (with docker): `docker compose up -d postgres` and then exec into the container to run psql.\n" +
+            $"Original error: {pgEx.Message}",
+            pgEx);
+    }
 }
 
 app.UseCors();
@@ -180,6 +192,25 @@ app.MapGet("/api/v1/recipes", async (string? search, string? tags, IMediator med
     return Results.Ok(result);
 })
 .WithName("SearchRecipes")
+.WithOpenApi()
+.RequireAuthorization();
+
+app.MapPost("/api/v1/recipes", async (CreateRecipeRequest request, IMediator mediator) =>
+{
+    var command = new CreateRecipeCommand(
+        request.Name,
+        request.ImageUrl,
+        request.Description,
+        request.Ingredients.Select(i => new CreateIngredientDto(i.Name, i.Quantity, i.Unit)).ToList(),
+        request.Steps.Select(s => new CreateCookingStepDto(s.StepNumber, s.Instruction)).ToList(),
+        request.Tags,
+        request.MealType
+    );
+
+    var id = await mediator.Send(command);
+    return Results.Created($"/api/v1/recipes/{id}", new { Id = id });
+})
+.WithName("CreateRecipe")
 .WithOpenApi()
 .RequireAuthorization();
 

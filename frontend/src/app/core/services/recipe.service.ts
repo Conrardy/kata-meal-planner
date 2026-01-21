@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { RecipeDetails, RecipeSearchResult } from '../models/recipe.model';
+import { map } from 'rxjs/operators';
 import { ApiConfigService } from './api-config.service';
 
 @Injectable({
@@ -25,5 +26,9 @@ export class RecipeService {
       params = params.set('tags', tags.join(','));
     }
     return this.http.get<RecipeSearchResult>(`${this.baseUrl}/recipes`, { params });
+  }
+
+  createRecipe(payload: any): Observable<any> {
+    return this.http.post(`${this.baseUrl}/recipes`, payload).pipe(map((r: any) => r));
   }
 }

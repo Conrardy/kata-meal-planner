@@ -7,4 +7,5 @@ public interface IRecipeRepository
     Task<IReadOnlyList<Recipe>> GetSuggestionsAsync(Guid excludeRecipeId, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<Recipe>> SearchAsync(string? searchTerm, IReadOnlyList<string>? tags, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<string>> GetAllTagsAsync(CancellationToken cancellationToken = default);
+    Task AddAsync(Recipe recipe, CancellationToken cancellationToken = default);
 }

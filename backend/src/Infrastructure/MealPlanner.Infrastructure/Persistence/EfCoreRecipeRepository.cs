@@ -67,4 +67,10 @@ public sealed class EfCoreRecipeRepository : IRecipeRepository
             .OrderBy(t => t)
             .ToList();
     }
+
+    public async Task AddAsync(Recipe recipe, CancellationToken cancellationToken = default)
+    {
+        await _context.Recipes.AddAsync(recipe, cancellationToken);
+        await _context.SaveChangesAsync(cancellationToken);
+    }
 }

@@ -1,0 +1,57 @@
+<div class="max-w-3xl mx-auto p-6">
+  <h1 class="text-2xl font-bold mb-4">New Recipe</h1>
+
+  <form [formGroup]="form" (ngSubmit)="save()">
+    <div class="mb-4">
+      <label class="block text-sm font-medium">Name</label>
+      <input formControlName="name" class="mt-1 block w-full" />
+      <div *ngIf="form.get('name')?.touched && form.get('name')?.invalid" class="text-red-600 text-sm">Name is required.</div>
+    </div>
+
+    <div class="mb-4">
+      <label class="block text-sm font-medium">Description</label>
+      <textarea formControlName="description" class="mt-1 block w-full"></textarea>
+      <div *ngIf="form.get('description')?.touched && form.get('description')?.invalid" class="text-red-600 text-sm">Description is required.</div>
+    </div>
+
+    <div class="mb-4">
+      <label class="block text-sm font-medium">Image URL (optional)</label>
+      <input formControlName="imageUrl" class="mt-1 block w-full" />
+      <div *ngIf="form.get('imageUrl')?.touched && form.get('imageUrl')?.invalid" class="text-red-600 text-sm">Image URL must be a valid URL.</div>
+    </div>
+
+    <div class="mb-4">
+      <label class="block text-sm font-medium">Ingredients</label>
+      <div formArrayName="ingredients">
+        <div *ngFor="let ing of ingredients.controls; let i = index" [formGroupName]="i" class="flex gap-2 mb-2">
+          <input formControlName="name" placeholder="Name" class="flex-1" />
+          <input formControlName="quantity" placeholder="Quantity" class="w-24" />
+          <input formControlName="unit" placeholder="Unit" class="w-24" />
+          <button type="button" (click)="removeIngredient(i)">Remove</button>
+        </div>
+      </div>
+      <div *ngIf="ingredients.length === 0" class="text-red-600 text-sm">Add at least one ingredient.</div>
+      <button type="button" (click)="addIngredient()">Add Ingredient</button>
+    </div>
+
+    <div class="mb-4">
+      <label class="block text-sm font-medium">Steps</label>
+      <div formArrayName="steps">
+        <div *ngFor="let s of steps.controls; let i = index" [formGroupName]="i" class="mb-2">
+          <div class="flex gap-2">
+            <span class="w-6">{{ i + 1 }}.</span>
+            <input formControlName="instruction" placeholder="Instruction" class="flex-1" />
+            <button type="button" (click)="removeStep(i)">Remove</button>
+          </div>
+        </div>
+      </div>
+      <div *ngIf="steps.length === 0" class="text-red-600 text-sm">Add at least one step.</div>
+      <button type="button" (click)="addStep()">Add Step</button>
+    </div>
+
+    <div class="flex gap-2">
+      <button type="submit" [disabled]="!canSave" class="px-4 py-2 bg-primary text-white">Save</button>
+      <a routerLink="/recipes" class="px-4 py-2 border">Cancel</a>
+    </div>
+  </form>
+</div>
