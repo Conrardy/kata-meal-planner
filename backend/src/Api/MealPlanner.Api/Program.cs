@@ -5,6 +5,7 @@ using HealthChecks.NpgSql;
 using HealthChecks.Redis;
 using MediatR;
 using MealPlanner.Api.Extensions;
+using MealPlanner.Api.Logging;
 using MealPlanner.Api.Middleware;
 using MealPlanner.Application.Auth;
 using MealPlanner.Application.Common.Behaviors;
@@ -22,87 +23,143 @@ using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.IdentityModel.Tokens;
+using Serilog;
 
-var builder = WebApplication.CreateBuilder(args);
+Log.Logger = new LoggerConfiguration()
+    .WriteTo.Console()
+    .CreateBootstrapLogger();
 
-builder.Services.AddOpenApi();
-builder.Services.AddProblemDetails();
-builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
-builder.Services.AddInfrastructure(builder.Configuration);
-
-var applicationAssembly = typeof(GetDailyDigestQuery).Assembly;
-builder.Services.AddValidatorsFromAssembly(applicationAssembly);
-builder.Services.AddMediatR(cfg =>
+try
 {
-    cfg.RegisterServicesFromAssembly(applicationAssembly);
-    cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
-});
+    Log.Information("Starting MealPlanner API bootstrap");
 
-var jwtSettings = builder.Configuration.GetSection(JwtSettings.SectionName).Get<JwtSettings>()!;
-builder.Services.AddAuthentication(options =>
-{
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-})
-.AddJwtBearer(options =>
-{
-    options.TokenValidationParameters = new TokenValidationParameters
+    var builder = WebApplication.CreateBuilder(args);
+
+    Log.Information(
+        "Host bootstrap: ApplicationName={ApplicationName} Environment={Environment} ContentRoot={ContentRoot}",
+        builder.Environment.ApplicationName,
+        builder.Environment.EnvironmentName,
+        builder.Environment.ContentRootPath);
+
+    builder.Host.UseSerilog((context, services, configuration) => configuration
+        .ReadFrom.Configuration(context.Configuration)
+        .ReadFrom.Services(services)
+        .Enrich.FromLogContext()
+        .Enrich.WithMachineName()
+        .Enrich.WithEnvironmentName()
+        .Enrich.WithCorrelationIdHeader("X-Correlation-ID")
+        .Destructure.With<SensitiveDataMaskingPolicy>());
+
+    Log.Information("Configuring services");
+
+    builder.Services.AddOpenApi();
+    builder.Services.AddProblemDetails();
+    builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+    builder.Services.AddInfrastructure(builder.Configuration);
+
+    var applicationAssembly = typeof(GetDailyDigestQuery).Assembly;
+    builder.Services.AddValidatorsFromAssembly(applicationAssembly);
+    builder.Services.AddMediatR(cfg =>
     {
-        ValidateIssuer = true,
-        ValidateAudience = true,
-        ValidateLifetime = true,
-        ValidateIssuerSigningKey = true,
-        ValidIssuer = jwtSettings.Issuer,
-        ValidAudience = jwtSettings.Audience,
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.Secret)),
-        ClockSkew = TimeSpan.Zero
-    };
-});
-
-builder.Services.AddAuthorization();
-
-builder.Services.AddCors(options =>
-{
-    options.AddDefaultPolicy(policy =>
-    {
-        policy.WithOrigins("http://localhost:4200")
-              .AllowAnyMethod()
-              .AllowAnyHeader()
-              .AllowCredentials();
+        cfg.RegisterServicesFromAssembly(applicationAssembly);
+        cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
     });
-});
 
-var postgresConnectionString = builder.Configuration.GetConnectionString("DefaultConnection")!;
-var redisConnectionString = builder.Configuration.GetConnectionString("Redis")!;
+    var jwtSettings = builder.Configuration.GetSection(JwtSettings.SectionName).Get<JwtSettings>()!;
+    if (string.IsNullOrWhiteSpace(jwtSettings.Issuer)
+        || string.IsNullOrWhiteSpace(jwtSettings.Audience)
+        || string.IsNullOrWhiteSpace(jwtSettings.Secret))
+    {
+        throw new InvalidOperationException(
+            $"JWT settings are missing or invalid. Check configuration section '{JwtSettings.SectionName}' (Issuer, Audience, Secret). ");
+    }
 
-builder.Services.AddHealthChecks()
-    .AddNpgSql(
-        connectionString: postgresConnectionString,
-        name: "postgresql",
-        failureStatus: HealthStatus.Unhealthy,
-        tags: ["db", "sql", "postgresql", "ready"],
-        timeout: TimeSpan.FromSeconds(5))
-    .AddRedis(
-        redisConnectionString: redisConnectionString,
-        name: "redis",
-        failureStatus: HealthStatus.Unhealthy,
-        tags: ["cache", "redis", "ready"],
-        timeout: TimeSpan.FromSeconds(5));
+    var jwtSecretBytes = Encoding.UTF8.GetBytes(jwtSettings.Secret);
+    Log.Information(
+        "Configuring JWT authentication: Issuer={Issuer} Audience={Audience} SecretLength={SecretLength}",
+        jwtSettings.Issuer,
+        jwtSettings.Audience,
+        jwtSettings.Secret.Length);
 
-var app = builder.Build();
+    builder.Services.AddAuthentication(options =>
+    {
+        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    })
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = jwtSettings.Issuer,
+            ValidAudience = jwtSettings.Audience,
+            IssuerSigningKey = new SymmetricSecurityKey(jwtSecretBytes),
+            ClockSkew = TimeSpan.Zero
+        };
+    });
+
+    builder.Services.AddAuthorization();
+
+    Log.Information("Configuring CORS default policy");
+    builder.Services.AddCors(options =>
+    {
+        options.AddDefaultPolicy(policy =>
+        {
+            policy.WithOrigins("http://localhost:4200")
+                  .AllowAnyMethod()
+                  .AllowAnyHeader()
+                  .AllowCredentials();
+        });
+    });
+
+    var postgresConnectionString = builder.Configuration.GetConnectionString("DefaultConnection")!;
+    var redisConnectionString = builder.Configuration.GetConnectionString("Redis")!;
+    Log.Information(
+        "Configuring health checks. PostgresConfigured={PostgresConfigured} RedisConfigured={RedisConfigured}",
+        !string.IsNullOrWhiteSpace(postgresConnectionString),
+        !string.IsNullOrWhiteSpace(redisConnectionString));
+
+    builder.Services.AddHealthChecks()
+        .AddNpgSql(
+            connectionString: postgresConnectionString,
+            name: "postgresql",
+            failureStatus: HealthStatus.Unhealthy,
+            tags: ["db", "sql", "postgresql", "ready"],
+            timeout: TimeSpan.FromSeconds(5));
+       /* .AddRedis(
+            redisConnectionString: redisConnectionString,
+            name: "redis",
+            failureStatus: HealthStatus.Unhealthy,
+            tags: ["cache", "redis", "ready"],
+            timeout: TimeSpan.FromSeconds(5));*/
+
+    var app = builder.Build();
+    Log.Information(
+        "Application built. Environment={Environment} Urls={Urls}",
+        app.Environment.EnvironmentName,
+        string.Join(",", app.Urls));
 
 if (app.Environment.IsDevelopment())
 {
+    Log.Information("Development mode enabled: OpenAPI + EF migrations + seeding");
     app.MapOpenApi();
 
     using var scope = app.Services.CreateScope();
     var dbContext = scope.ServiceProvider.GetRequiredService<MealPlannerDbContext>();
     try
     {
+        Log.Information("Applying EF Core migrations");
         await dbContext.Database.MigrateAsync();
+
+        Log.Information("Seeding database");
 
         var seeder = scope.ServiceProvider.GetRequiredService<DatabaseSeeder>();
         await seeder.SeedAsync();
+
+        Log.Information("Database initialization completed");
     }
     catch (Npgsql.PostgresException pgEx)
     {
@@ -115,13 +172,31 @@ if (app.Environment.IsDevelopment())
     }
 }
 
-app.UseCorrelationId();
-app.UseExceptionHandler();
-app.UseCors();
-app.UseHttpsRedirection();
+    Log.Information("Configuring middleware pipeline");
 
-app.UseAuthentication();
-app.UseAuthorization();
+    app.UseCorrelationId();
+    app.UseSerilogRequestLogging(options =>
+    {
+        options.EnrichDiagnosticContext = (diagnosticContext, httpContext) =>
+        {
+            diagnosticContext.Set("RequestHost", httpContext.Request.Host.HasValue ? httpContext.Request.Host.Value : string.Empty);
+            diagnosticContext.Set("RequestScheme", httpContext.Request.Scheme ?? string.Empty);
+            diagnosticContext.Set("UserAgent", httpContext.Request.Headers.UserAgent.ToString() ?? string.Empty);
+            if (httpContext.Items.TryGetValue("CorrelationId", out var correlationId))
+            {
+                diagnosticContext.Set("CorrelationId", correlationId?.ToString() ?? string.Empty);
+            }
+        };
+        options.MessageTemplate = "HTTP {RequestMethod} {RequestPath} responded {StatusCode} in {Elapsed:0.0000} ms";
+    });
+    app.UseExceptionHandler();
+    app.UseCors();
+    app.UseHttpsRedirection();
+
+    app.UseAuthentication();
+    app.UseAuthorization();
+
+    Log.Information("Mapping endpoints");
 
 app.MapHealthChecks("/health/live", new HealthCheckOptions
 {
@@ -353,7 +428,18 @@ app.MapPut("/api/v1/preferences", async (UpdatePreferencesRequest request, IMedi
 .WithOpenApi()
 .RequireAuthorization();
 
-app.Run();
+    Log.Information("Initialization complete. Starting web host");
+    app.Run();
+}
+catch (Exception ex)
+{
+    Log.Fatal(ex, "Application terminated unexpectedly");
+    throw;
+}
+finally
+{
+    Log.CloseAndFlush();
+}
 
 static Task WriteHealthCheckResponse(HttpContext context, HealthReport report)
 {
