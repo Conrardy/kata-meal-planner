@@ -36,6 +36,115 @@ Not configured.
 
 ## Containerization
 
+### Docker Compose
+
+Docker Compose is the recommended way to run the full application stack locally.
+
+#### Configuration Files
+
+| File | Purpose |
+|------|---------|
+| `docker-compose.yml` | Main configuration for all services |
+| `docker-compose.override.yml` | Development-specific overrides (auto-loaded) |
+| `.env` | Environment variables (copy from `.env.example`) |
+| `.env.example` | Template for environment variables |
+
+#### Services
+
+| Service | Image/Build | Port | Description |
+|---------|-------------|------|-------------|
+| `api` | `./backend` | 5000 | .NET 9 Backend API |
+| `frontend` | `./frontend` | 4200 | Angular 19 Frontend |
+| `postgres` | `postgres:17-alpine` | 5432 | PostgreSQL Database |
+| `redis` | `redis:7-alpine` | 6379 | Redis Cache |
+
+#### Quick Start
+
+```bash
+# 1. Copy environment file
+cp .env.example .env
+
+# 2. Start all services (development mode)
+docker-compose up -d
+
+# 3. View logs
+docker-compose logs -f
+
+# 4. Stop all services
+docker-compose down
+```
+
+#### Common Commands
+
+```bash
+# Start all services in background
+docker-compose up -d
+
+# Start specific service
+docker-compose up -d postgres redis
+
+# Rebuild and start (after code changes)
+docker-compose up -d --build
+
+# View service logs
+docker-compose logs -f api
+docker-compose logs -f frontend
+
+# Check service status
+docker-compose ps
+
+# Stop all services
+docker-compose down
+
+# Stop and remove volumes (clean slate)
+docker-compose down -v
+
+# Production mode (without override file)
+docker-compose -f docker-compose.yml up -d
+```
+
+#### Environment Variables
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `POSTGRES_USER` | `mealplanner` | PostgreSQL username |
+| `POSTGRES_PASSWORD` | `mealplanner_dev` | PostgreSQL password |
+| `POSTGRES_DB` | `mealplanner` | PostgreSQL database name |
+| `POSTGRES_PORT` | `5432` | PostgreSQL exposed port |
+| `REDIS_PORT` | `6379` | Redis exposed port |
+| `API_PORT` | `5000` | Backend API exposed port |
+| `FRONTEND_PORT` | `4200` | Frontend exposed port |
+| `ASPNETCORE_ENVIRONMENT` | `Development` | .NET environment |
+| `JWT_SECRET` | - | JWT signing secret (required) |
+| `JWT_ISSUER` | `MealPlanner` | JWT issuer |
+| `JWT_AUDIENCE` | `MealPlannerApp` | JWT audience |
+| `JWT_ACCESS_TOKEN_EXPIRATION_MINUTES` | `15` | Access token TTL |
+| `JWT_REFRESH_TOKEN_EXPIRATION_DAYS` | `7` | Refresh token TTL |
+
+#### Volumes
+
+| Volume | Purpose |
+|--------|---------|
+| `mealplanner-postgres-data` | PostgreSQL data persistence |
+| `mealplanner-redis-data` | Redis data persistence |
+
+#### Networks
+
+| Network | Purpose |
+|---------|---------|
+| `mealplanner-network` | Bridge network isolating all services |
+
+#### Health Checks
+
+All services include health checks:
+
+| Service | Endpoint | Interval |
+|---------|----------|----------|
+| `api` | `/health/live` | 30s |
+| `frontend` | `/` | 30s |
+| `postgres` | `pg_isready` | 10s |
+| `redis` | `redis-cli ping` | 10s |
+
 ### Docker Images
 
 #### Backend
@@ -66,6 +175,7 @@ docker build -t mealplanner-api:v1.0.0 --build-arg CONFIGURATION=Release .
 | `ASPNETCORE_ENVIRONMENT` | Environment name (Development/Staging/Production) |
 | `ASPNETCORE_URLS` | Listen URLs (default: http://+:8080) |
 | `ConnectionStrings__DefaultConnection` | PostgreSQL connection string |
+| `ConnectionStrings__Redis` | Redis connection string |
 | `Jwt__Secret` | JWT signing secret |
 
 **Run Command**:
@@ -127,3 +237,4 @@ Dev container available for AIDD tooling:
 | Environment | Frontend | Backend |
 |-------------|----------|---------|
 | Development | http://localhost:4200 | http://localhost:5000 |
+| Docker Compose | http://localhost:4200 | http://localhost:5000 |

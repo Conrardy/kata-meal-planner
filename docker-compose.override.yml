@@ -1,0 +1,48 @@
+# MealPlanner Docker Compose Override for Development
+# This file is automatically used when running `docker-compose up`
+# For production, use: docker-compose -f docker-compose.yml up -d
+
+services:
+  # ===========================================
+  # Backend API - Development Overrides
+  # ===========================================
+  api:
+    build:
+      args:
+        CONFIGURATION: Debug
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    volumes:
+      # Mount source code for hot reload (optional - requires dotnet watch)
+      # - ./backend/src:/src:ro
+    ports:
+      - "5000:8080"
+      - "5001:8081"  # HTTPS port for development
+
+  # ===========================================
+  # Frontend - Development Overrides
+  # ===========================================
+  frontend:
+    build:
+      args:
+        CONFIGURATION: development
+    ports:
+      - "4200:8080"
+
+  # ===========================================
+  # PostgreSQL - Development Overrides
+  # ===========================================
+  postgres:
+    ports:
+      - "5432:5432"  # Expose for local tools like pgAdmin
+    environment:
+      POSTGRES_USER: mealplanner
+      POSTGRES_PASSWORD: mealplanner_dev
+      POSTGRES_DB: mealplanner
+
+  # ===========================================
+  # Redis - Development Overrides
+  # ===========================================
+  redis:
+    ports:
+      - "6379:6379"  # Expose for local tools like Redis Insight
