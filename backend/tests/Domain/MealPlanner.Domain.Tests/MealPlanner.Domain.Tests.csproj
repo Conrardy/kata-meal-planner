@@ -24,7 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\src\Application\MealPlanner.Application\MealPlanner.Application.csproj" />
+    <ProjectReference Include="..\..\..\src\Domain\MealPlanner.Domain\MealPlanner.Domain.csproj" />
   </ItemGroup>
 
 </Project>
