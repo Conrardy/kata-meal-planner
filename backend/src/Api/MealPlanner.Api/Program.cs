@@ -1,5 +1,8 @@
 using System.Text;
+using System.Text.Json;
 using FluentValidation;
+using HealthChecks.NpgSql;
+using HealthChecks.Redis;
 using MediatR;
 using MealPlanner.Api.Extensions;
 using MealPlanner.Api.Middleware;
@@ -15,7 +18,9 @@ using MealPlanner.Infrastructure;
 using MealPlanner.Infrastructure.Identity;
 using MealPlanner.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -67,6 +72,23 @@ builder.Services.AddCors(options =>
     });
 });
 
+var postgresConnectionString = builder.Configuration.GetConnectionString("DefaultConnection")!;
+var redisConnectionString = builder.Configuration.GetConnectionString("Redis")!;
+
+builder.Services.AddHealthChecks()
+    .AddNpgSql(
+        connectionString: postgresConnectionString,
+        name: "postgresql",
+        failureStatus: HealthStatus.Unhealthy,
+        tags: ["db", "sql", "postgresql", "ready"],
+        timeout: TimeSpan.FromSeconds(5))
+    .AddRedis(
+        redisConnectionString: redisConnectionString,
+        name: "redis",
+        failureStatus: HealthStatus.Unhealthy,
+        tags: ["cache", "redis", "ready"],
+        timeout: TimeSpan.FromSeconds(5));
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
@@ -100,6 +122,24 @@ app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.MapHealthChecks("/health/live", new HealthCheckOptions
+{
+    Predicate = _ => false,
+    ResponseWriter = WriteHealthCheckResponse
+})
+.AllowAnonymous()
+.WithName("LivenessCheck")
+.WithOpenApi();
+
+app.MapHealthChecks("/health/ready", new HealthCheckOptions
+{
+    Predicate = check => check.Tags.Contains("ready"),
+    ResponseWriter = WriteHealthCheckResponse
+})
+.AllowAnonymous()
+.WithName("ReadinessCheck")
+.WithOpenApi();
 
 app.MapPost("/api/v1/auth/register", async (HttpContext httpContext, RegisterRequest request, IAuthService authService) =>
 {
@@ -314,6 +354,34 @@ app.MapPut("/api/v1/preferences", async (UpdatePreferencesRequest request, IMedi
 .RequireAuthorization();
 
 app.Run();
+
+static Task WriteHealthCheckResponse(HttpContext context, HealthReport report)
+{
+    context.Response.ContentType = "application/json";
+
+    var response = new
+    {
+        status = report.Status.ToString(),
+        totalDuration = report.TotalDuration.TotalMilliseconds,
+        checks = report.Entries.Select(entry => new
+        {
+            name = entry.Key,
+            status = entry.Value.Status.ToString(),
+            duration = entry.Value.Duration.TotalMilliseconds,
+            description = entry.Value.Description,
+            exception = entry.Value.Exception?.Message,
+            data = entry.Value.Data.Count > 0 ? entry.Value.Data : null
+        })
+    };
+
+    var options = new JsonSerializerOptions
+    {
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+    };
+
+    return context.Response.WriteAsJsonAsync(response, options);
+}
 
 public record SwapMealRequest(Guid NewRecipeId);
 public record AddRecipeToMealPlanRequest(Guid RecipeId, string Date, string MealType);

@@ -145,6 +145,106 @@ All services include health checks:
 | `postgres` | `pg_isready` | 10s |
 | `redis` | `redis-cli ping` | 10s |
 
+## API Health Endpoints
+
+The backend API exposes two health check endpoints for monitoring application health and dependencies.
+
+### Liveness Probe
+
+**Endpoint**: `GET /health/live`
+
+Returns 200 OK if the application is running and can respond to requests. Does not check external dependencies.
+
+**Use Case**: Kubernetes liveness probe, load balancer health check
+
+**Example Response** (Healthy):
+```json
+{
+  "status": "Healthy",
+  "totalDuration": 0.5,
+  "checks": []
+}
+```
+
+### Readiness Probe
+
+**Endpoint**: `GET /health/ready`
+
+Verifies the application can process requests by checking all critical dependencies:
+- PostgreSQL database connection
+- Redis cache connection
+
+**Use Case**: Kubernetes readiness probe, deployment verification
+
+**Example Response** (Healthy):
+```json
+{
+  "status": "Healthy",
+  "totalDuration": 45.2,
+  "checks": [
+    {
+      "name": "postgresql",
+      "status": "Healthy",
+      "duration": 23.1
+    },
+    {
+      "name": "redis",
+      "status": "Healthy",
+      "duration": 12.4
+    }
+  ]
+}
+```
+
+**Example Response** (Unhealthy):
+```json
+{
+  "status": "Unhealthy",
+  "totalDuration": 5012.3,
+  "checks": [
+    {
+      "name": "postgresql",
+      "status": "Healthy",
+      "duration": 18.5
+    },
+    {
+      "name": "redis",
+      "status": "Unhealthy",
+      "duration": 5001.2,
+      "exception": "Connection timeout"
+    }
+  ]
+}
+```
+
+### Configuration
+
+| Parameter | Value | Description |
+|-----------|-------|-------------|
+| Timeout | 5 seconds | Maximum time for each health check |
+| Authentication | None | Endpoints are publicly accessible |
+| Response Format | JSON | Detailed status with individual check results |
+
+### HTTP Status Codes
+
+| Status Code | Meaning |
+|-------------|---------|
+| 200 OK | All checks passed (Healthy) |
+| 503 Service Unavailable | One or more checks failed (Unhealthy/Degraded) |
+
+### Usage Examples
+
+```bash
+# Check if API is alive
+curl http://localhost:5000/health/live
+
+# Check if API is ready to serve traffic
+curl http://localhost:5000/health/ready
+
+# Check with verbose output
+curl -v http://localhost:5000/health/ready | jq .
+```
+
 ### Docker Images
 
 #### Backend
