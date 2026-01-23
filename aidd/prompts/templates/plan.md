@@ -20,6 +20,7 @@ argument-hint: N/A
 - **Summary**: {Summarize feature based plan, goal oriented}
 - **Stack**: `[TECH_STACK_WITH_VERSIONS]` <!-- Output all stacks that will be used!   -->
 - **Branch name**: `{suggested-branch-name}`
+- **dependencies**: `{list-of-dependent-features-if-any}`
 
 ## Existing files
 
@@ -35,9 +36,14 @@ argument-hint: N/A
 
 > {straight to point goal}
 
-1. {ultra concise task1, with logical
+> {Attach specifics rules or constraints if any}
+
+1. {ultra concise task1, with logical subtasks if needed}
+  1.1 {subtask 1.1}
 2. {...}
+  2.1 {...}
 3. {...}
+  3.1 {...}
 
 ## Reviewed implementation
 
@@ -54,4 +60,4 @@ argument-hint: N/A
 ## Estimations
 
 - {Confidence}
-- {Time to implement}
+- {Time to implement for an AI}
