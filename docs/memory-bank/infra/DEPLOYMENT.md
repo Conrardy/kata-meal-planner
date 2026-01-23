@@ -36,7 +36,81 @@ Not configured.
 
 ## Containerization
 
-Not configured for application deployment.
+### Docker Images
+
+#### Backend
+
+**Dockerfile**: `backend/Dockerfile`
+
+**Build Commands**:
+```bash
+# Development build
+cd backend
+docker build -t mealplanner-api:dev .
+
+# Production build
+docker build -t mealplanner-api:latest --build-arg CONFIGURATION=Release .
+
+# Build with specific version tag
+docker build -t mealplanner-api:v1.0.0 --build-arg CONFIGURATION=Release .
+```
+
+**Build Arguments**:
+| Argument | Default | Description |
+|----------|---------|-------------|
+| `CONFIGURATION` | `Release` | Build configuration (Debug/Release) |
+
+**Runtime Configuration**:
+| Environment Variable | Description |
+|---------------------|-------------|
+| `ASPNETCORE_ENVIRONMENT` | Environment name (Development/Staging/Production) |
+| `ASPNETCORE_URLS` | Listen URLs (default: http://+:8080) |
+| `ConnectionStrings__DefaultConnection` | PostgreSQL connection string |
+| `Jwt__Secret` | JWT signing secret |
+
+**Run Command**:
+```bash
+docker run -p 8080:8080 \
+  -e ASPNETCORE_ENVIRONMENT=Production \
+  -e "ConnectionStrings__DefaultConnection=Host=db;Database=mealplanner;..." \
+  mealplanner-api:latest
+```
+
+#### Frontend
+
+**Dockerfile**: `frontend/Dockerfile`
+
+**Build Commands**:
+```bash
+# Development build
+cd frontend
+docker build -t mealplanner-frontend:dev --build-arg CONFIGURATION=development .
+
+# Production build
+docker build -t mealplanner-frontend:latest .
+
+# Build with specific version tag
+docker build -t mealplanner-frontend:v1.0.0 --build-arg CONFIGURATION=production .
+```
+
+**Build Arguments**:
+| Argument | Default | Description |
+|----------|---------|-------------|
+| `CONFIGURATION` | `production` | Angular build configuration |
+
+**Run Command**:
+```bash
+docker run -p 8080:8080 mealplanner-frontend:latest
+```
+
+### Image Specifications
+
+| Image | Base | Target Size | Port |
+|-------|------|-------------|------|
+| mealplanner-api | mcr.microsoft.com/dotnet/aspnet:9.0-alpine | < 200MB | 8080 |
+| mealplanner-frontend | nginx:alpine | < 50MB | 8080 |
+
+### Dev Container
 
 Dev container available for AIDD tooling:
 - @aidd/supports/.devcontainer/Dockerfile
