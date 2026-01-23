@@ -1,5 +1,7 @@
 using System.Text;
 using MediatR;
+using MealPlanner.Api.Extensions;
+using MealPlanner.Api.Middleware;
 using MealPlanner.Application.Auth;
 using MealPlanner.Application.DailyDigest;
 using MealPlanner.Application.Meals;
@@ -17,6 +19,8 @@ using Microsoft.IdentityModel.Tokens;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddOpenApi();
+builder.Services.AddProblemDetails();
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(GetDailyDigestQuery).Assembly));
 
@@ -80,54 +84,40 @@ if (app.Environment.IsDevelopment())
     }
 }
 
+app.UseCorrelationId();
+app.UseExceptionHandler();
 app.UseCors();
 app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapPost("/api/v1/auth/register", async (RegisterRequest request, IAuthService authService) =>
+app.MapPost("/api/v1/auth/register", async (HttpContext httpContext, RegisterRequest request, IAuthService authService) =>
 {
     var result = await authService.RegisterAsync(request);
-    return result.Match(
-        response => Results.Created($"/api/v1/users/{response.UserId}", response),
-        errors => Results.Problem(
-            statusCode: StatusCodes.Status400BadRequest,
-            title: "Registration failed",
-            detail: string.Join("; ", errors.Select(e => e.Description))));
+    return result.MatchResult(
+        httpContext,
+        response => Results.Created($"/api/v1/users/{response.UserId}", response));
 })
 .WithName("Register")
 .WithOpenApi();
 
-app.MapPost("/api/v1/auth/login", async (LoginRequest request, IAuthService authService) =>
+app.MapPost("/api/v1/auth/login", async (HttpContext httpContext, LoginRequest request, IAuthService authService) =>
 {
     var result = await authService.LoginAsync(request);
-    return result.Match(
-        response => Results.Ok(response),
-        errors => errors.First().Type switch
-        {
-            ErrorOr.ErrorType.Validation => Results.Problem(
-                statusCode: StatusCodes.Status401Unauthorized,
-                title: "Authentication failed",
-                detail: errors.First().Description),
-            _ => Results.Problem(
-                statusCode: StatusCodes.Status400BadRequest,
-                title: "Login failed",
-                detail: errors.First().Description)
-        });
+    return result.MatchResult(
+        httpContext,
+        response => Results.Ok(response));
 })
 .WithName("Login")
 .WithOpenApi();
 
-app.MapPost("/api/v1/auth/refresh", async (RefreshTokenRequest request, IAuthService authService) =>
+app.MapPost("/api/v1/auth/refresh", async (HttpContext httpContext, RefreshTokenRequest request, IAuthService authService) =>
 {
     var result = await authService.RefreshTokenAsync(request);
-    return result.Match(
-        response => Results.Ok(response),
-        errors => Results.Problem(
-            statusCode: StatusCodes.Status401Unauthorized,
-            title: "Token refresh failed",
-            detail: errors.First().Description));
+    return result.MatchResult(
+        httpContext,
+        response => Results.Ok(response));
 })
 .WithName("RefreshToken")
 .WithOpenApi();
@@ -162,11 +152,20 @@ app.MapPost("/api/v1/meals/{mealId}/swap", async (Guid mealId, SwapMealRequest r
 .WithOpenApi()
 .RequireAuthorization();
 
-app.MapGet("/api/v1/recipes/{recipeId}", async (Guid recipeId, IMediator mediator) =>
+app.MapGet("/api/v1/recipes/{recipeId}", async (HttpContext httpContext, Guid recipeId, IMediator mediator) =>
 {
     var query = new GetRecipeDetailsQuery(recipeId);
     var result = await mediator.Send(query);
-    return result is null ? Results.NotFound() : Results.Ok(result);
+    if (result is null)
+    {
+        var problemDetails = ApiProblemDetailsFactory.CreateProblemDetails(
+            httpContext,
+            StatusCodes.Status404NotFound,
+            "Not Found",
+            $"Recipe with ID '{recipeId}' was not found.");
+        return Results.Problem(problemDetails);
+    }
+    return Results.Ok(result);
 })
 .WithName("GetRecipeDetails")
 .WithOpenApi()
@@ -258,11 +257,20 @@ app.MapPost("/api/v1/shopping-list/{startDate}/items", async (DateOnly startDate
 .WithOpenApi()
 .RequireAuthorization();
 
-app.MapDelete("/api/v1/shopping-list/{startDate}/items/{itemId}", async (DateOnly startDate, string itemId, IMediator mediator) =>
+app.MapDelete("/api/v1/shopping-list/{startDate}/items/{itemId}", async (HttpContext httpContext, DateOnly startDate, string itemId, IMediator mediator) =>
 {
     var command = new RemoveShoppingItemCommand(startDate, itemId);
     var removed = await mediator.Send(command);
-    return removed ? Results.NoContent() : Results.NotFound();
+    if (!removed)
+    {
+        var problemDetails = ApiProblemDetailsFactory.CreateProblemDetails(
+            httpContext,
+            StatusCodes.Status404NotFound,
+            "Not Found",
+            $"Shopping item with ID '{itemId}' was not found.");
+        return Results.Problem(problemDetails);
+    }
+    return Results.NoContent();
 })
 .WithName("RemoveShoppingItem")
 .WithOpenApi()
