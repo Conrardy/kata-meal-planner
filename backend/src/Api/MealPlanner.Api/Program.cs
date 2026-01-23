@@ -1,8 +1,10 @@
 using System.Text;
+using FluentValidation;
 using MediatR;
 using MealPlanner.Api.Extensions;
 using MealPlanner.Api.Middleware;
 using MealPlanner.Application.Auth;
+using MealPlanner.Application.Common.Behaviors;
 using MealPlanner.Application.DailyDigest;
 using MealPlanner.Application.Meals;
 using MealPlanner.Application.Preferences;
@@ -22,7 +24,14 @@ builder.Services.AddOpenApi();
 builder.Services.AddProblemDetails();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddInfrastructure(builder.Configuration);
-builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(GetDailyDigestQuery).Assembly));
+
+var applicationAssembly = typeof(GetDailyDigestQuery).Assembly;
+builder.Services.AddValidatorsFromAssembly(applicationAssembly);
+builder.Services.AddMediatR(cfg =>
+{
+    cfg.RegisterServicesFromAssembly(applicationAssembly);
+    cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+});
 
 var jwtSettings = builder.Configuration.GetSection(JwtSettings.SectionName).Get<JwtSettings>()!;
 builder.Services.AddAuthentication(options =>
