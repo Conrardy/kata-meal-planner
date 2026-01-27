@@ -1,5 +1,6 @@
 using FluentAssertions;
 using MealPlanner.Application.DailyDigest;
+using MealPlanner.Application.Tests.TestHelpers;
 using MealPlanner.Domain.Meals;
 using MealPlanner.Domain.Recipes;
 using Xunit;
@@ -14,7 +15,10 @@ public sealed class GetDailyDigestQueryHandlerTests
         // Arrange
         var date = DateOnly.FromDateTime(DateTime.Now);
         var repository = new InMemoryPlannedMealRepository();
-        var recipe = new Recipe(Guid.NewGuid(), "Test Recipe", "https://example.com/image.jpg");
+        var recipe = RecipeBuilder.Create()
+            .WithName("Test Recipe")
+            .WithImageUrl("https://example.com/image.jpg")
+            .Build();
 
         var meal = new PlannedMeal(Guid.NewGuid(), date, MealType.Breakfast, recipe.Id);
         repository.AddMealWithRecipe(meal, recipe);
@@ -58,9 +62,9 @@ public sealed class GetDailyDigestQueryHandlerTests
         var date = DateOnly.FromDateTime(DateTime.Now);
         var repository = new InMemoryPlannedMealRepository();
 
-        var dinnerRecipe = new Recipe(Guid.NewGuid(), "Dinner Recipe");
-        var breakfastRecipe = new Recipe(Guid.NewGuid(), "Breakfast Recipe");
-        var lunchRecipe = new Recipe(Guid.NewGuid(), "Lunch Recipe");
+        var dinnerRecipe = RecipeBuilder.Create().WithName("Dinner Recipe").Build();
+        var breakfastRecipe = RecipeBuilder.Create().WithName("Breakfast Recipe").Build();
+        var lunchRecipe = RecipeBuilder.Create().WithName("Lunch Recipe").Build();
 
         var dinner = new PlannedMeal(Guid.NewGuid(), date, MealType.Dinner, dinnerRecipe.Id);
         var breakfast = new PlannedMeal(Guid.NewGuid(), date, MealType.Breakfast, breakfastRecipe.Id);

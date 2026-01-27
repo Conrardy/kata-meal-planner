@@ -88,13 +88,13 @@ public sealed class SearchRecipesQueryHandlerTests
         // Arrange
         var repository = new InMemoryRecipeRepository();
         var recipeId = Guid.NewGuid();
-        repository.AddRecipe(new Recipe(
-            recipeId,
-            "Test Recipe",
-            "https://example.com/image.jpg",
-            "A test description",
-            ["Tag1", "Tag2"]
-        ));
+        repository.AddRecipe(RecipeBuilder.Create()
+            .WithId(recipeId)
+            .WithName("Test Recipe")
+            .WithImageUrl("https://example.com/image.jpg")
+            .WithDescription("A test description")
+            .WithTags("Tag1", "Tag2")
+            .Build());
 
         var handler = new SearchRecipesQueryHandler(repository);
         var query = new SearchRecipesQuery(null, null);

@@ -11,15 +11,18 @@ public sealed class GenerateShoppingListQueryHandler : IRequestHandler<GenerateS
     private readonly IPlannedMealRepository _mealRepository;
     private readonly IShoppingListStateRepository _stateRepository;
     private readonly IShoppingListSyncService _syncService;
+    private readonly IQuantityParser _quantityParser;
 
     public GenerateShoppingListQueryHandler(
         IPlannedMealRepository mealRepository,
         IShoppingListStateRepository stateRepository,
-        IShoppingListSyncService syncService)
+        IShoppingListSyncService syncService,
+        IQuantityParser quantityParser)
     {
         _mealRepository = mealRepository;
         _stateRepository = stateRepository;
         _syncService = syncService;
+        _quantityParser = quantityParser;
     }
 
     public async Task<ShoppingListDto> Handle(GenerateShoppingListQuery request, CancellationToken cancellationToken)
@@ -48,7 +51,7 @@ public sealed class GenerateShoppingListQueryHandler : IRequestHandler<GenerateS
             UpdateNotice: updateNotice);
     }
 
-    private static Dictionary<string, AggregatedIngredient> AggregateIngredients(IReadOnlyList<PlannedMeal> meals)
+    private Dictionary<string, AggregatedIngredient> AggregateIngredients(IReadOnlyList<PlannedMeal> meals)
     {
         var aggregated = new Dictionary<string, AggregatedIngredient>(StringComparer.OrdinalIgnoreCase);
 
@@ -62,8 +65,12 @@ public sealed class GenerateShoppingListQueryHandler : IRequestHandler<GenerateS
 
                 if (aggregated.TryGetValue(key, out var existing))
                 {
-                    var combined = CombineQuantities(existing, ingredient.Quantity, ingredient.Unit);
-                    aggregated[key] = combined;
+                    var combinedQuantity = _quantityParser.Combine(
+                        existing.Quantity,
+                        existing.Unit ?? string.Empty,
+                        ingredient.Quantity,
+                        ingredient.Unit ?? string.Empty);
+                    aggregated[key] = existing with { Quantity = combinedQuantity };
                 }
                 else
                 {
@@ -83,54 +90,6 @@ public sealed class GenerateShoppingListQueryHandler : IRequestHandler<GenerateS
     private static string NormalizeIngredientName(string name)
     {
         return name.ToLowerInvariant().Trim();
-    }
-
-    private static AggregatedIngredient CombineQuantities(AggregatedIngredient existing, string newQuantity, string? newUnit)
-    {
-        if (TryParseQuantity(existing.Quantity, out var existingNum) &&
-            TryParseQuantity(newQuantity, out var newNum) &&
-            existing.Unit == newUnit)
-        {
-            var totalQuantity = existingNum + newNum;
-            return existing with { Quantity = FormatQuantity(totalQuantity) };
-        }
-
-        return existing with { Quantity = $"{existing.Quantity} + {newQuantity}" };
-    }
-
-    private static bool TryParseQuantity(string quantity, out double result)
-    {
-        result = 0;
-
-        if (quantity.Contains('/'))
-        {
-            var parts = quantity.Split('/');
-            if (parts.Length == 2 &&
-                double.TryParse(parts[0], out var numerator) &&
-                double.TryParse(parts[1], out var denominator) &&
-                denominator != 0)
-            {
-                result = numerator / denominator;
-                return true;
-            }
-            return false;
-        }
-
-        if (quantity.ToLowerInvariant().Contains("to taste"))
-        {
-            return false;
-        }
-
-        return double.TryParse(quantity, out result);
-    }
-
-    private static string FormatQuantity(double quantity)
-    {
-        if (Math.Abs(quantity - Math.Round(quantity)) < 0.01)
-        {
-            return ((int)Math.Round(quantity)).ToString();
-        }
-        return quantity.ToString("0.##");
     }
 
     private static IReadOnlyList<ShoppingCategoryDto> CategorizeItems(

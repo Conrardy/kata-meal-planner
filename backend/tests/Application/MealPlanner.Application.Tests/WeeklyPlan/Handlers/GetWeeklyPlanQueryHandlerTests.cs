@@ -1,4 +1,5 @@
 using FluentAssertions;
+using MealPlanner.Application.Tests.TestHelpers;
 using MealPlanner.Application.WeeklyPlan;
 using MealPlanner.Domain.Meals;
 using MealPlanner.Domain.Recipes;
@@ -66,7 +67,10 @@ public sealed class GetWeeklyPlanQueryHandlerTests
         // Arrange
         var repository = new InMemoryPlannedMealRepository();
         var startDate = new DateOnly(2026, 1, 20);
-        var recipe = new Recipe(Guid.NewGuid(), "Pancakes", "https://example.com/pancakes.jpg");
+        var recipe = RecipeBuilder.Create()
+            .WithName("Pancakes")
+            .WithImageUrl("https://example.com/pancakes.jpg")
+            .Build();
         var meal = new PlannedMeal(Guid.NewGuid(), startDate, MealType.Breakfast, recipe.Id);
         repository.AddMealWithRecipe(meal, recipe);
 
@@ -105,9 +109,9 @@ public sealed class GetWeeklyPlanQueryHandlerTests
         var repository = new InMemoryPlannedMealRepository();
         var startDate = new DateOnly(2026, 1, 20);
 
-        var breakfastRecipe = new Recipe(Guid.NewGuid(), "Breakfast Recipe");
-        var lunchRecipe = new Recipe(Guid.NewGuid(), "Lunch Recipe");
-        var dinnerRecipe = new Recipe(Guid.NewGuid(), "Dinner Recipe");
+        var breakfastRecipe = RecipeBuilder.Create().WithName("Breakfast Recipe").Build();
+        var lunchRecipe = RecipeBuilder.Create().WithName("Lunch Recipe").Build();
+        var dinnerRecipe = RecipeBuilder.Create().WithName("Dinner Recipe").Build();
 
         var breakfast = new PlannedMeal(Guid.NewGuid(), startDate, MealType.Breakfast, breakfastRecipe.Id);
         var lunch = new PlannedMeal(Guid.NewGuid(), startDate, MealType.Lunch, lunchRecipe.Id);

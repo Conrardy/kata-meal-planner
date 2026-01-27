@@ -34,8 +34,25 @@ public sealed class AddRecipeToMealPlanCommandHandler : IRequestHandler<AddRecip
     public async Task<AddRecipeToMealPlanResultDto> Handle(AddRecipeToMealPlanCommand request, CancellationToken cancellationToken)
     {
         var mealType = MealType.FromString(request.MealType);
-        var mealId = Guid.NewGuid();
 
+        var existingMeal = await _mealRepository.GetByDateAndMealTypeAsync(request.Date, mealType, cancellationToken);
+        if (existingMeal != null)
+        {
+            existingMeal.SwapRecipe(request.RecipeId);
+            await _mealRepository.UpdateAsync(existingMeal, cancellationToken);
+
+            _syncService.MarkPendingSync(request.Date);
+
+            return new AddRecipeToMealPlanResultDto(
+                existingMeal.Id,
+                existingMeal.Recipe?.Name ?? "Recipe",
+                request.Date.ToString("yyyy-MM-dd"),
+                mealType.Value,
+                ShoppingListUpdated: true
+            );
+        }
+
+        var mealId = Guid.NewGuid();
         var meal = new PlannedMeal(mealId, request.Date, mealType, request.RecipeId);
         await _mealRepository.AddAsync(meal, cancellationToken);
 

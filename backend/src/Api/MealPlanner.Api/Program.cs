@@ -2,7 +2,6 @@ using System.Text;
 using System.Text.Json;
 using FluentValidation;
 using HealthChecks.NpgSql;
-using HealthChecks.Redis;
 using MediatR;
 using MealPlanner.Api.Extensions;
 using MealPlanner.Api.Logging;
@@ -116,11 +115,9 @@ try
     });
 
     var postgresConnectionString = builder.Configuration.GetConnectionString("DefaultConnection")!;
-    var redisConnectionString = builder.Configuration.GetConnectionString("Redis")!;
     Log.Information(
-        "Configuring health checks. PostgresConfigured={PostgresConfigured} RedisConfigured={RedisConfigured}",
-        !string.IsNullOrWhiteSpace(postgresConnectionString),
-        !string.IsNullOrWhiteSpace(redisConnectionString));
+        "Configuring health checks. PostgresConfigured={PostgresConfigured}",
+        !string.IsNullOrWhiteSpace(postgresConnectionString));
 
     builder.Services.AddHealthChecks()
         .AddNpgSql(
@@ -129,12 +126,6 @@ try
             failureStatus: HealthStatus.Unhealthy,
             tags: ["db", "sql", "postgresql", "ready"],
             timeout: TimeSpan.FromSeconds(5));
-       /* .AddRedis(
-            redisConnectionString: redisConnectionString,
-            name: "redis",
-            failureStatus: HealthStatus.Unhealthy,
-            tags: ["cache", "redis", "ready"],
-            timeout: TimeSpan.FromSeconds(5));*/
 
     var app = builder.Build();
     Log.Information(

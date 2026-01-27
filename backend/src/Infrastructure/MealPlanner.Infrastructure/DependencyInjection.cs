@@ -47,6 +47,7 @@ public static class DependencyInjection
 
         services.AddSingleton<IShoppingListSyncService, InMemoryShoppingListSyncService>();
         services.AddSingleton<IAllergenDetector, AllergenDetector>();
+        services.AddSingleton<IQuantityParser, QuantityParser>();
 
         return services;
     }

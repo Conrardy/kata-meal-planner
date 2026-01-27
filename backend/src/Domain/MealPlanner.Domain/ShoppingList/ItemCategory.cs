@@ -7,9 +7,38 @@ public sealed record ItemCategory
     public static readonly ItemCategory Meat = new("Meat");
     public static readonly ItemCategory Pantry = new("Pantry");
 
+    private static readonly string[] ProduceKeywords =
+    [
+        "lettuce", "tomato", "cucumber", "onion", "garlic",
+        "berries", "berry", "avocado", "lemon", "asparagus",
+        "broccoli", "ginger", "dill", "greens", "fruit"
+    ];
+
+    private static readonly string[] DairyKeywords =
+    [
+        "milk", "cheese", "parmesan", "butter", "yogurt", "cream", "egg"
+    ];
+
+    private static readonly string[] MeatKeywords =
+    [
+        "chicken", "beef", "salmon", "fish", "pork", "meat", "tofu"
+    ];
+
     public string Value { get; }
 
     private ItemCategory(string value) => Value = value;
+
+    public static ItemCategory FromString(string category)
+    {
+        return category switch
+        {
+            "Produce" or "produce" => Produce,
+            "Dairy" or "dairy" => Dairy,
+            "Meat" or "meat" => Meat,
+            "Pantry" or "pantry" => Pantry,
+            _ => Pantry
+        };
+    }
 
     public static ItemCategory FromIngredient(string ingredientName)
     {
@@ -22,40 +51,14 @@ public sealed record ItemCategory
     }
 
     private static bool IsProduce(string name) =>
-        name.Contains("lettuce") ||
-        name.Contains("tomato") ||
-        name.Contains("cucumber") ||
-        name.Contains("onion") ||
-        name.Contains("garlic") ||
-        name.Contains("berries") ||
-        name.Contains("berry") ||
-        name.Contains("avocado") ||
-        name.Contains("lemon") ||
-        name.Contains("asparagus") ||
-        name.Contains("broccoli") ||
         name.Contains("pepper") && !name.Contains("pepper flakes") ||
-        name.Contains("ginger") ||
-        name.Contains("dill") ||
-        name.Contains("greens") ||
-        name.Contains("fruit");
+        ProduceKeywords.Any(keyword => name.Contains(keyword));
 
     private static bool IsDairy(string name) =>
-        name.Contains("milk") ||
-        name.Contains("cheese") ||
-        name.Contains("parmesan") ||
-        name.Contains("butter") ||
-        name.Contains("yogurt") ||
-        name.Contains("cream") ||
-        name.Contains("egg");
+        DairyKeywords.Any(keyword => name.Contains(keyword));
 
     private static bool IsMeat(string name) =>
-        name.Contains("chicken") ||
-        name.Contains("beef") ||
-        name.Contains("salmon") ||
-        name.Contains("fish") ||
-        name.Contains("pork") ||
-        name.Contains("meat") ||
-        name.Contains("tofu");
+        MeatKeywords.Any(keyword => name.Contains(keyword));
 
     public override string ToString() => Value;
 }

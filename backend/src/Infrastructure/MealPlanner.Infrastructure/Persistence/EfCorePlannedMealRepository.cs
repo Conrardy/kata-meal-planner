@@ -55,7 +55,9 @@ public sealed class EfCorePlannedMealRepository : IPlannedMealRepository
 
         if (existing != null)
         {
-            _context.PlannedMeals.Remove(existing);
+            throw new InvalidOperationException(
+                $"A meal already exists for {meal.Date:yyyy-MM-dd} {meal.MealType.Value}. " +
+                $"Use UpdateAsync to modify the existing meal or remove it first.");
         }
 
         _context.PlannedMeals.Add(meal);

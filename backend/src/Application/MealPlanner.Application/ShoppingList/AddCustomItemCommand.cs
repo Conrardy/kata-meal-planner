@@ -23,7 +23,7 @@ public sealed class AddCustomItemCommandHandler : IRequestHandler<AddCustomItemC
     public async Task<ShoppingItemDto> Handle(AddCustomItemCommand request, CancellationToken cancellationToken)
     {
         var state = await _stateRepository.GetOrCreateAsync(request.StartDate, cancellationToken);
-        var category = ParseCategory(request.Category);
+        var category = ItemCategory.FromString(request.Category);
         var item = state.AddCustomItem(request.Name, request.Quantity, request.Unit, category);
         await _stateRepository.SaveAsync(state, cancellationToken);
 
@@ -36,12 +36,4 @@ public sealed class AddCustomItemCommandHandler : IRequestHandler<AddCustomItemC
             IsCustom: item.IsCustom
         );
     }
-
-    private static ItemCategory ParseCategory(string category) => category switch
-    {
-        "Produce" => ItemCategory.Produce,
-        "Dairy" => ItemCategory.Dairy,
-        "Meat" => ItemCategory.Meat,
-        _ => ItemCategory.Pantry
-    };
 }
