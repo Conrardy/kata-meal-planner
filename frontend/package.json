@@ -5,6 +5,7 @@
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
+    "build:analyze": "ng build --source-map && source-map-explorer dist/meal-planner/browser/*.js",
     "watch": "ng build --watch --configuration development",
     "test": "vitest",
     "test:watch": "vitest --watch",
@@ -41,6 +42,7 @@
     "typescript": "~5.7.2",
     "vite": "^6.0.0",
     "vite-tsconfig-paths": "^5.1.0",
-    "vitest": "^2.1.0"
+    "vitest": "^2.1.0",
+    "source-map-explorer": "^2.5.3"
   }
 }

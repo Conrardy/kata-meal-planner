@@ -1,19 +1,61 @@
 import { Routes } from '@angular/router';
-import { DailyDigestComponent } from './features/daily-digest/daily-digest.component';
-import { RecipeDetailsComponent } from './features/recipe-details/recipe-details.component';
-import { WeeklyPlanComponent } from './features/weekly-plan/weekly-plan.component';
-import { RecipeBrowseComponent } from './features/recipe-browse/recipe-browse.component';
-import { RecipeCreateComponent } from './features/recipe-create/recipe-create.component';
-import { ShoppingListComponent } from './features/shopping-list/shopping-list.component';
-import { PreferencesComponent } from './features/preferences/preferences.component';
 
 export const routes: Routes = [
-  { path: '', component: DailyDigestComponent },
-  { path: 'weekly-plan', component: WeeklyPlanComponent },
-  { path: 'recipes', component: RecipeBrowseComponent },
-  { path: 'recipes/new', component: RecipeCreateComponent },
-  { path: 'recipe/:recipeId', component: RecipeDetailsComponent },
-  { path: 'shopping-list', component: ShoppingListComponent },
-  { path: 'preferences', component: PreferencesComponent },
+  {
+    path: '',
+    loadComponent: () =>
+      import('./features/daily-digest/daily-digest.component').then(
+        (m) => m.DailyDigestComponent
+      ),
+    title: 'Daily Digest',
+  },
+  {
+    path: 'weekly-plan',
+    loadComponent: () =>
+      import('./features/weekly-plan/weekly-plan.component').then(
+        (m) => m.WeeklyPlanComponent
+      ),
+    title: 'Weekly Plan',
+  },
+  {
+    path: 'recipes',
+    loadComponent: () =>
+      import('./features/recipe-browse/recipe-browse.component').then(
+        (m) => m.RecipeBrowseComponent
+      ),
+    title: 'Browse Recipes',
+  },
+  {
+    path: 'recipes/new',
+    loadComponent: () =>
+      import('./features/recipe-create/recipe-create.component').then(
+        (m) => m.RecipeCreateComponent
+      ),
+    title: 'Create Recipe',
+  },
+  {
+    path: 'recipe/:recipeId',
+    loadComponent: () =>
+      import('./features/recipe-details/recipe-details.component').then(
+        (m) => m.RecipeDetailsComponent
+      ),
+    title: 'Recipe Details',
+  },
+  {
+    path: 'shopping-list',
+    loadComponent: () =>
+      import('./features/shopping-list/shopping-list.component').then(
+        (m) => m.ShoppingListComponent
+      ),
+    title: 'Shopping List',
+  },
+  {
+    path: 'preferences',
+    loadComponent: () =>
+      import('./features/preferences/preferences.component').then(
+        (m) => m.PreferencesComponent
+      ),
+    title: 'Preferences',
+  },
   { path: '**', redirectTo: '' },
 ];

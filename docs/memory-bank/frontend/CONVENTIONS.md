@@ -131,3 +131,81 @@ npm run build -- --configuration production
 ### Production Deployment
 
 For production, set the `API_URL` placeholder in `environment.prod.ts` before building, or use a build-time environment variable replacement strategy.
+
+## Routing & Lazy Loading
+
+### Lazy Loading Strategy
+
+All feature components are lazy loaded using `loadComponent()` for standalone components:
+
+```typescript
+// app.routes.ts
+export const routes: Routes = [
+  {
+    path: 'feature',
+    loadComponent: () =>
+      import('./features/feature/feature.component').then(
+        (m) => m.FeatureComponent
+      ),
+    title: 'Feature Title',
+  },
+];
+```
+
+### Preloading Strategy
+
+The application uses `PreloadAllModules` strategy to preload lazy-loaded routes in the background after the initial bundle loads. This provides:
+- Fast initial load (small main bundle)
+- Instant navigation to other routes (preloaded in background)
+
+```typescript
+// app.config.ts
+provideRouter(routes, withPreloading(PreloadAllModules))
+```
+
+### Named Chunks
+
+Named chunks are enabled in `angular.json` for easier debugging:
+
+```json
+{
+  "options": {
+    "namedChunks": true
+  }
+}
+```
+
+This produces readable chunk names like `daily-digest.component.js` instead of hashed names.
+
+## Bundle Analysis
+
+### Using source-map-explorer
+
+Analyze the production bundle to identify large dependencies and optimization opportunities:
+
+```bash
+# Install (already in devDependencies)
+npm install --save-dev source-map-explorer
+
+# Build with source maps and analyze
+npm run build:analyze
+```
+
+This command:
+1. Builds the production bundle with source maps
+2. Opens an interactive treemap visualization of all bundles
+
+### Key Metrics to Monitor
+
+| Metric | Target | Description |
+|--------|--------|-------------|
+| Initial bundle | < 500kB | Main bundle loaded on first visit |
+| Largest chunk | < 200kB | Any single lazy-loaded chunk |
+| Total size | < 1MB | All chunks combined |
+
+### Optimization Tips
+
+1. **Review large dependencies** - Look for oversized libraries in the treemap
+2. **Check for duplicates** - Same code appearing in multiple chunks
+3. **Verify lazy loading** - Features should appear in separate chunks
+4. **Monitor @angular/* size** - Core framework should be in main bundle only

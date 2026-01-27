@@ -26,9 +26,17 @@ argument-hint: N/A
 
 - @{affected files path}
 
+## Test files to update or create
+
+- @{affected files path}
+
 ### New file to create
 
 - {not found in current project - no comments}
+
+## Test files to create
+
+- @{affected files path}
 
 ## Implementation phases
 
@@ -39,7 +47,7 @@ argument-hint: N/A
 > {Attach specifics rules or constraints if any}
 
 1. {ultra concise task1, with logical subtasks if needed}
-  1.1 {subtask 1.1}
+  1.1 {subtask 1.1 and with commit name}
 2. {...}
   2.1 {...}
 3. {...}
