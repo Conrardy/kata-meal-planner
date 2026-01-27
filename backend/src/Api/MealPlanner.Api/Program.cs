@@ -256,21 +256,21 @@ app.MapGet("/api/v1/daily-digest/{date}", async (DateOnly date, IMediator mediat
 .WithOpenApi()
 .RequireAuthorization();
 
-app.MapGet("/api/v1/meals/{mealId}/suggestions", async (Guid mealId, IMediator mediator) =>
+app.MapGet("/api/v1/meals/{mealId}/suggestions", async (HttpContext httpContext, Guid mealId, IMediator mediator) =>
 {
     var query = new GetSuggestionsQuery(mealId);
     var result = await mediator.Send(query);
-    return Results.Ok(result);
+    return result.MatchResult(httpContext, value => Results.Ok(value));
 })
 .WithName("GetMealSuggestions")
 .WithOpenApi()
 .RequireAuthorization();
 
-app.MapPost("/api/v1/meals/{mealId}/swap", async (Guid mealId, SwapMealRequest request, IMediator mediator) =>
+app.MapPost("/api/v1/meals/{mealId}/swap", async (HttpContext httpContext, Guid mealId, SwapMealRequest request, IMediator mediator) =>
 {
     var command = new SwapMealCommand(mealId, request.NewRecipeId);
     var result = await mediator.Send(command);
-    return Results.Ok(result);
+    return result.MatchResult(httpContext, value => Results.Ok(value));
 })
 .WithName("SwapMeal")
 .WithOpenApi()

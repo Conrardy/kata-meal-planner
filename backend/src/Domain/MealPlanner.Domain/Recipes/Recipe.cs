@@ -32,13 +32,19 @@ public sealed class Recipe
         if (string.IsNullOrWhiteSpace(name))
             throw new ArgumentException("Recipe name cannot be empty", nameof(name));
 
+        if (ingredients == null || ingredients.Count == 0)
+            throw new ArgumentException("Recipe must have at least one ingredient", nameof(ingredients));
+
+        if (steps == null || steps.Count == 0)
+            throw new ArgumentException("Recipe must have at least one step", nameof(steps));
+
         Id = id;
         Name = name;
         ImageUrl = imageUrl;
         Description = description;
         Tags = tags ?? [];
         MealType = mealType ?? MealType.Dinner;
-        Ingredients = ingredients ?? [];
-        Steps = steps ?? [];
+        Ingredients = ingredients;
+        Steps = steps;
     }
 }

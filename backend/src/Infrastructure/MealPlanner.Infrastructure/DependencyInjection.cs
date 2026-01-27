@@ -46,6 +46,7 @@ public static class DependencyInjection
         services.AddScoped<DatabaseSeeder>();
 
         services.AddSingleton<IShoppingListSyncService, InMemoryShoppingListSyncService>();
+        services.AddSingleton<IAllergenDetector, AllergenDetector>();
 
         return services;
     }

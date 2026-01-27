@@ -1,3 +1,4 @@
+using ErrorOr;
 using FluentAssertions;
 using MealPlanner.Application.Meals;
 using MealPlanner.Domain.Meals;
@@ -22,8 +23,12 @@ public sealed class SwapMealCommandHandlerTests
         var recipeRepository = new InMemoryRecipeRepository();
         var syncService = new StubShoppingListSyncService();
 
-        var originalRecipe = new Recipe(originalRecipeId, "Original Recipe");
-        var newRecipe = new Recipe(newRecipeId, "New Recipe", "https://example.com/new.jpg");
+        var originalRecipe = new Recipe(originalRecipeId, "Original Recipe",
+            ingredients: new List<Ingredient> { new("Test", "1", "unit") },
+            steps: new List<CookingStep> { new(1, "Test step") });
+        var newRecipe = new Recipe(newRecipeId, "New Recipe", "https://example.com/new.jpg",
+            ingredients: new List<Ingredient> { new("Test", "1", "unit") },
+            steps: new List<CookingStep> { new(1, "Test step") });
         var meal = new PlannedMeal(mealId, date, MealType.Dinner, originalRecipeId);
 
         recipeRepository.AddRecipe(originalRecipe);
@@ -37,15 +42,15 @@ public sealed class SwapMealCommandHandlerTests
         var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
-        result.Should().NotBeNull();
-        result.MealId.Should().Be(mealId);
-        result.RecipeName.Should().Be("New Recipe");
-        result.ImageUrl.Should().Be("https://example.com/new.jpg");
-        result.ShoppingListUpdated.Should().BeTrue();
+        result.IsError.Should().BeFalse();
+        result.Value.MealId.Should().Be(mealId);
+        result.Value.RecipeName.Should().Be("New Recipe");
+        result.Value.ImageUrl.Should().Be("https://example.com/new.jpg");
+        result.Value.ShoppingListUpdated.Should().BeTrue();
     }
 
     [Fact]
-    public async Task Handle_WhenMealNotFound_ShouldThrowInvalidOperationException()
+    public async Task Handle_WhenMealNotFound_ShouldReturnNotFoundError()
     {
         // Arrange
         var mealRepository = new InMemoryPlannedMealRepository();
@@ -56,15 +61,16 @@ public sealed class SwapMealCommandHandlerTests
         var command = new SwapMealCommand(Guid.NewGuid(), Guid.NewGuid());
 
         // Act
-        var action = () => handler.Handle(command, CancellationToken.None);
+        var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
-        await action.Should().ThrowAsync<InvalidOperationException>()
-            .WithMessage("*Meal*not found*");
+        result.IsError.Should().BeTrue();
+        result.FirstError.Type.Should().Be(ErrorType.NotFound);
+        result.FirstError.Code.Should().Be("Meal.NotFound");
     }
 
     [Fact]
-    public async Task Handle_WhenRecipeNotFound_ShouldThrowInvalidOperationException()
+    public async Task Handle_WhenRecipeNotFound_ShouldReturnNotFoundError()
     {
         // Arrange
         var mealId = Guid.NewGuid();
@@ -81,11 +87,12 @@ public sealed class SwapMealCommandHandlerTests
         var command = new SwapMealCommand(mealId, Guid.NewGuid());
 
         // Act
-        var action = () => handler.Handle(command, CancellationToken.None);
+        var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
-        await action.Should().ThrowAsync<InvalidOperationException>()
-            .WithMessage("*Recipe*not found*");
+        result.IsError.Should().BeTrue();
+        result.FirstError.Type.Should().Be(ErrorType.NotFound);
+        result.FirstError.Code.Should().Be("Meal.RecipeNotFound");
     }
 
     [Fact]
@@ -100,7 +107,9 @@ public sealed class SwapMealCommandHandlerTests
         var recipeRepository = new InMemoryRecipeRepository();
         var syncService = new StubShoppingListSyncService();
 
-        var newRecipe = new Recipe(newRecipeId, "New Recipe");
+        var newRecipe = new Recipe(newRecipeId, "New Recipe",
+            ingredients: new List<Ingredient> { new("Test", "1", "unit") },
+            steps: new List<CookingStep> { new(1, "Test step") });
         var meal = new PlannedMeal(mealId, date, MealType.Lunch, Guid.NewGuid());
 
         recipeRepository.AddRecipe(newRecipe);
@@ -129,7 +138,9 @@ public sealed class SwapMealCommandHandlerTests
         var recipeRepository = new InMemoryRecipeRepository();
         var syncService = new StubShoppingListSyncService();
 
-        var newRecipe = new Recipe(newRecipeId, "New Recipe");
+        var newRecipe = new Recipe(newRecipeId, "New Recipe",
+            ingredients: new List<Ingredient> { new("Test", "1", "unit") },
+            steps: new List<CookingStep> { new(1, "Test step") });
         var meal = new PlannedMeal(mealId, date, MealType.Dinner, originalRecipeId);
 
         recipeRepository.AddRecipe(newRecipe);

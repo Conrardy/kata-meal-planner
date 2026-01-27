@@ -1,3 +1,4 @@
+using ErrorOr;
 using MediatR;
 using MealPlanner.Domain.Meals;
 using MealPlanner.Domain.Recipes;
@@ -5,9 +6,9 @@ using MealPlanner.Domain.ShoppingList;
 
 namespace MealPlanner.Application.Meals;
 
-public sealed record SwapMealCommand(Guid MealId, Guid NewRecipeId) : IRequest<SwapMealResultDto>;
+public sealed record SwapMealCommand(Guid MealId, Guid NewRecipeId) : IRequest<ErrorOr<SwapMealResultDto>>;
 
-public sealed class SwapMealCommandHandler : IRequestHandler<SwapMealCommand, SwapMealResultDto>
+public sealed class SwapMealCommandHandler : IRequestHandler<SwapMealCommand, ErrorOr<SwapMealResultDto>>
 {
     private readonly IPlannedMealRepository _mealRepository;
     private readonly IRecipeRepository _recipeRepository;
@@ -23,18 +24,18 @@ public sealed class SwapMealCommandHandler : IRequestHandler<SwapMealCommand, Sw
         _syncService = syncService;
     }
 
-    public async Task<SwapMealResultDto> Handle(SwapMealCommand request, CancellationToken cancellationToken)
+    public async Task<ErrorOr<SwapMealResultDto>> Handle(SwapMealCommand request, CancellationToken cancellationToken)
     {
         var meal = await _mealRepository.GetByIdAsync(request.MealId, cancellationToken);
         if (meal == null)
         {
-            throw new InvalidOperationException($"Meal with ID {request.MealId} not found");
+            return MealErrors.NotFound(request.MealId);
         }
 
         var newRecipe = await _recipeRepository.GetByIdAsync(request.NewRecipeId, cancellationToken);
         if (newRecipe == null)
         {
-            throw new InvalidOperationException($"Recipe with ID {request.NewRecipeId} not found");
+            return MealErrors.RecipeNotFound(request.NewRecipeId);
         }
 
         meal.SwapRecipe(request.NewRecipeId);

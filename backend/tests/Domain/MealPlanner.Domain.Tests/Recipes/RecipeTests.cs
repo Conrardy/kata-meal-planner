@@ -8,14 +8,16 @@ namespace MealPlanner.Domain.Tests.Recipes;
 public sealed class RecipeTests
 {
     [Fact]
-    public void Constructor_WithValidName_ShouldCreateRecipe()
+    public void Constructor_WithValidNameIngredientsAndSteps_ShouldCreateRecipe()
     {
         // Arrange
         var id = Guid.NewGuid();
         var name = "Pasta Carbonara";
+        var ingredients = new List<Ingredient> { new("Pasta", "200", "g") };
+        var steps = new List<CookingStep> { new(1, "Cook pasta") };
 
         // Act
-        var recipe = new Recipe(id, name);
+        var recipe = new Recipe(id, name, ingredients: ingredients, steps: steps);
 
         // Assert
         recipe.Id.Should().Be(id);
@@ -24,8 +26,8 @@ public sealed class RecipeTests
         recipe.Description.Should().BeNull();
         recipe.Tags.Should().BeEmpty();
         recipe.MealType.Should().Be(MealType.Dinner);
-        recipe.Ingredients.Should().BeEmpty();
-        recipe.Steps.Should().BeEmpty();
+        recipe.Ingredients.Should().HaveCount(1);
+        recipe.Steps.Should().HaveCount(1);
     }
 
     [Fact]
@@ -86,9 +88,11 @@ public sealed class RecipeTests
     {
         // Arrange
         var id = Guid.NewGuid();
+        var ingredients = new List<Ingredient> { new("Test", "1", "unit") };
+        var steps = new List<CookingStep> { new(1, "Test step") };
 
         // Act
-        var recipe = new Recipe(id, "Test Recipe", tags: null);
+        var recipe = new Recipe(id, "Test Recipe", tags: null, ingredients: ingredients, steps: steps);
 
         // Assert
         recipe.Tags.Should().BeEmpty();
@@ -99,9 +103,11 @@ public sealed class RecipeTests
     {
         // Arrange
         var id = Guid.NewGuid();
+        var ingredients = new List<Ingredient> { new("Test", "1", "unit") };
+        var steps = new List<CookingStep> { new(1, "Test step") };
 
         // Act
-        var recipe = new Recipe(id, "Test Recipe", mealType: null);
+        var recipe = new Recipe(id, "Test Recipe", mealType: null, ingredients: ingredients, steps: steps);
 
         // Assert
         recipe.MealType.Should().Be(MealType.Dinner);
@@ -112,9 +118,11 @@ public sealed class RecipeTests
     {
         // Arrange
         var id = Guid.NewGuid();
+        var ingredients = new List<Ingredient> { new("Eggs", "2", "pieces") };
+        var steps = new List<CookingStep> { new(1, "Scramble eggs") };
 
         // Act
-        var recipe = new Recipe(id, "Pancakes", mealType: MealType.Breakfast);
+        var recipe = new Recipe(id, "Pancakes", mealType: MealType.Breakfast, ingredients: ingredients, steps: steps);
 
         // Assert
         recipe.MealType.Should().Be(MealType.Breakfast);
@@ -125,12 +133,76 @@ public sealed class RecipeTests
     {
         // Arrange
         var id = Guid.NewGuid();
+        var ingredients = new List<Ingredient> { new("Lettuce", "1", "head") };
+        var steps = new List<CookingStep> { new(1, "Prepare salad") };
 
         // Act
-        var recipe = new Recipe(id, "Caesar Salad", mealType: MealType.Lunch);
+        var recipe = new Recipe(id, "Caesar Salad", mealType: MealType.Lunch, ingredients: ingredients, steps: steps);
 
         // Assert
         recipe.MealType.Should().Be(MealType.Lunch);
+    }
+
+    [Fact]
+    public void Constructor_WithEmptyIngredients_ShouldThrowArgumentException()
+    {
+        // Arrange
+        var id = Guid.NewGuid();
+        var emptyIngredients = new List<Ingredient>();
+        var steps = new List<CookingStep> { new(1, "Test step") };
+
+        // Act
+        var action = () => new Recipe(id, "Test Recipe", ingredients: emptyIngredients, steps: steps);
+
+        // Assert
+        action.Should().Throw<ArgumentException>()
+            .WithMessage("Recipe must have at least one ingredient*");
+    }
+
+    [Fact]
+    public void Constructor_WithNullIngredients_ShouldThrowArgumentException()
+    {
+        // Arrange
+        var id = Guid.NewGuid();
+        var steps = new List<CookingStep> { new(1, "Test step") };
+
+        // Act
+        var action = () => new Recipe(id, "Test Recipe", ingredients: null, steps: steps);
+
+        // Assert
+        action.Should().Throw<ArgumentException>()
+            .WithMessage("Recipe must have at least one ingredient*");
+    }
+
+    [Fact]
+    public void Constructor_WithEmptySteps_ShouldThrowArgumentException()
+    {
+        // Arrange
+        var id = Guid.NewGuid();
+        var ingredients = new List<Ingredient> { new("Test", "1", "unit") };
+        var emptySteps = new List<CookingStep>();
+
+        // Act
+        var action = () => new Recipe(id, "Test Recipe", ingredients: ingredients, steps: emptySteps);
+
+        // Assert
+        action.Should().Throw<ArgumentException>()
+            .WithMessage("Recipe must have at least one step*");
+    }
+
+    [Fact]
+    public void Constructor_WithNullSteps_ShouldThrowArgumentException()
+    {
+        // Arrange
+        var id = Guid.NewGuid();
+        var ingredients = new List<Ingredient> { new("Test", "1", "unit") };
+
+        // Act
+        var action = () => new Recipe(id, "Test Recipe", ingredients: ingredients, steps: null);
+
+        // Assert
+        action.Should().Throw<ArgumentException>()
+            .WithMessage("Recipe must have at least one step*");
     }
 }
 

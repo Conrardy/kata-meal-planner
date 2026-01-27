@@ -1,5 +1,6 @@
 using FluentAssertions;
 using MealPlanner.Application.Recipes;
+using MealPlanner.Application.Tests.TestHelpers;
 using MealPlanner.Domain.Recipes;
 using Xunit;
 
@@ -12,8 +13,8 @@ public sealed class SearchRecipesQueryHandlerTests
     {
         // Arrange
         var repository = new InMemoryRecipeRepository();
-        repository.AddRecipe(new Recipe(Guid.NewGuid(), "Pasta", tags: ["Quick & Easy"]));
-        repository.AddRecipe(new Recipe(Guid.NewGuid(), "Salad", tags: ["Healthy"]));
+        repository.AddRecipe(RecipeBuilder.Create().WithName("Pasta").WithTags("Quick & Easy").Build());
+        repository.AddRecipe(RecipeBuilder.Create().WithName("Salad").WithTags("Healthy").Build());
 
         var handler = new SearchRecipesQueryHandler(repository);
         var query = new SearchRecipesQuery(null, null);
@@ -33,8 +34,8 @@ public sealed class SearchRecipesQueryHandlerTests
     {
         // Arrange
         var repository = new InMemoryRecipeRepository();
-        repository.AddRecipe(new Recipe(Guid.NewGuid(), "Chicken Pasta"));
-        repository.AddRecipe(new Recipe(Guid.NewGuid(), "Vegetable Salad"));
+        repository.AddRecipe(RecipeBuilder.Create().WithName("Chicken Pasta").Build());
+        repository.AddRecipe(RecipeBuilder.Create().WithName("Vegetable Salad").Build());
 
         var handler = new SearchRecipesQueryHandler(repository);
         var query = new SearchRecipesQuery("Chicken", null);
@@ -52,8 +53,8 @@ public sealed class SearchRecipesQueryHandlerTests
     {
         // Arrange
         var repository = new InMemoryRecipeRepository();
-        repository.AddRecipe(new Recipe(Guid.NewGuid(), "Quick Pasta", tags: ["Quick & Easy"]));
-        repository.AddRecipe(new Recipe(Guid.NewGuid(), "Complex Dish", tags: ["Gourmet"]));
+        repository.AddRecipe(RecipeBuilder.Create().WithName("Quick Pasta").WithTags("Quick & Easy").Build());
+        repository.AddRecipe(RecipeBuilder.Create().WithName("Complex Dish").WithTags("Gourmet").Build());
 
         var handler = new SearchRecipesQueryHandler(repository);
         var query = new SearchRecipesQuery(null, ["Quick & Easy"]);

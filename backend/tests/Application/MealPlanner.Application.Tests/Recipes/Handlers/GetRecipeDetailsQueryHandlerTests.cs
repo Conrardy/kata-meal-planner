@@ -64,7 +64,8 @@ public sealed class GetRecipeDetailsQueryHandlerTests
             new("Flour", "2", "cups"),
             new("Salt", "1", null)
         };
-        var recipe = new Recipe(recipeId, "Test Recipe", ingredients: ingredients);
+        var steps = new List<CookingStep> { new(1, "Test step") };
+        var recipe = new Recipe(recipeId, "Test Recipe", ingredients: ingredients, steps: steps);
         repository.AddRecipe(recipe);
 
         var handler = new GetRecipeDetailsQueryHandler(repository);
@@ -93,7 +94,8 @@ public sealed class GetRecipeDetailsQueryHandlerTests
             new(1, "First step"),
             new(2, "Second step")
         };
-        var recipe = new Recipe(recipeId, "Test Recipe", steps: steps);
+        var ingredients = new List<Ingredient> { new("Test", "1", "unit") };
+        var recipe = new Recipe(recipeId, "Test Recipe", ingredients: ingredients, steps: steps);
         repository.AddRecipe(recipe);
 
         var handler = new GetRecipeDetailsQueryHandler(repository);
@@ -131,7 +133,9 @@ public sealed class GetRecipeDetailsQueryHandlerTests
         // Arrange
         var repository = new InMemoryRecipeRepository();
         var recipeId = Guid.NewGuid();
-        var recipe = new Recipe(recipeId, "Pancakes", mealType: MealType.Breakfast);
+        var ingredients = new List<Ingredient> { new("Flour", "2", "cups") };
+        var steps = new List<CookingStep> { new(1, "Mix and cook") };
+        var recipe = new Recipe(recipeId, "Pancakes", mealType: MealType.Breakfast, ingredients: ingredients, steps: steps);
         repository.AddRecipe(recipe);
 
         var handler = new GetRecipeDetailsQueryHandler(repository);
