@@ -18,8 +18,6 @@
 | 2 | `dotnet test` (Backend) | Run all backend tests (xUnit + FluentAssertions) |
 | 3 | `npm run build` (Frontend) | Build frontend with Angular CLI |
 | 4 | `npm run test` (Frontend) | Run frontend tests (Vitest) |
-| 5 | `npm run lint` (Frontend) | Lint TypeScript code |
-| 6 | `npm run format` (Frontend) | Format code with Prettier |
 
 ## Backend (.NET) Assertions
 
@@ -45,7 +43,6 @@
 - Arrange-Act-Assert structure
 - FluentAssertions for readable expectations
 - No mocking of domain models
-- Integration tests with Testcontainers for real DB
 - Test behavior, not implementation details
 
 ## Frontend (Angular) Assertions
@@ -53,7 +50,6 @@
 ### Component Architecture
 - Standalone components with explicit imports
 - Signal-based reactivity for local state
-- NgRx SignalStore for shared state
 - Dependency injection via `inject()` function
 
 ### Services & Data
