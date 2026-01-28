@@ -1,0 +1,130 @@
+<div
+  class="modal-backdrop fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+  (click)="onBackdropClick($event)"
+  data-testid="add-recipe-modal"
+>
+  <div class="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+    <!-- Header -->
+    <div class="flex items-center justify-between p-4 border-b">
+      <div>
+        <h2 class="text-lg font-semibold text-gray-900">Add a Recipe</h2>
+        <p class="text-sm text-gray-500">Select a recipe for {{ mealType() }} on {{ date() }}</p>
+      </div>
+      <button
+        type="button"
+        (click)="onClose()"
+        class="p-2 text-gray-400 hover:text-gray-600 transition-colors"
+        data-testid="close-modal-button"
+      >
+        <lucide-icon [img]="XIcon" class="w-5 h-5"></lucide-icon>
+      </button>
+    </div>
+
+    <!-- Search Input -->
+    <div class="p-4 border-b">
+      <input
+        type="text"
+        placeholder="Search recipes..."
+        (input)="onSearchChange($event)"
+        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+        data-testid="search-input"
+      />
+    </div>
+
+    <!-- Content -->
+    <div class="flex-1 overflow-y-auto p-4">
+      @if (isLoading()) {
+        <div class="flex justify-center items-center py-12" data-testid="modal-loading">
+          <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+        </div>
+      } @else if (error()) {
+        <div
+          class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg"
+          data-testid="modal-error"
+        >
+          {{ error() }}
+        </div>
+      } @else if (filteredRecipes().length === 0) {
+        <div
+          class="text-center text-gray-500 py-12"
+          data-testid="no-recipes"
+        >
+          No recipes found
+        </div>
+      } @else {
+        <div class="space-y-3" data-testid="recipe-list">
+          @for (recipe of filteredRecipes(); track recipe.id) {
+            <div
+              (click)="onSelectRecipe(recipe.id)"
+              class="flex items-center gap-4 p-3 rounded-lg border transition-all cursor-pointer"
+              [class.border-primary]="selectedRecipeId() === recipe.id"
+              [class.bg-orange-50]="selectedRecipeId() === recipe.id"
+              [class.border-gray-200]="selectedRecipeId() !== recipe.id"
+              [class.hover:border-gray-300]="selectedRecipeId() !== recipe.id"
+              data-testid="recipe-item"
+            >
+              <input
+                type="radio"
+                [checked]="selectedRecipeId() === recipe.id"
+                [value]="recipe.id"
+                name="recipe"
+                class="w-4 h-4 text-primary focus:ring-primary"
+                (click)="$event.stopPropagation()"
+              />
+              <div class="w-16 h-16 rounded-lg bg-gray-200 flex-shrink-0 overflow-hidden">
+                @if (recipe.imageUrl) {
+                  <img
+                    [src]="recipe.imageUrl"
+                    [alt]="recipe.name"
+                    class="w-full h-full object-cover"
+                  />
+                } @else {
+                  <div class="w-full h-full flex items-center justify-center text-gray-400">
+                    <lucide-icon [img]="ChefHat" class="w-8 h-8"></lucide-icon>
+                  </div>
+                }
+              </div>
+              <div class="flex-1 min-w-0">
+                <h3 class="font-medium text-gray-900 truncate">{{ recipe.name }}</h3>
+                @if (recipe.description) {
+                  <p class="text-sm text-gray-500 line-clamp-2">{{ recipe.description }}</p>
+                }
+                @if (recipe.tags.length > 0) {
+                  <div class="flex gap-1 mt-1 flex-wrap">
+                    @for (tag of recipe.tags.slice(0, 3); track tag) {
+                      <span class="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded">{{ tag }}</span>
+                    }
+                  </div>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </div>
+
+    <!-- Footer -->
+    <div class="flex justify-end gap-3 p-4 border-t bg-gray-50">
+      <button
+        type="button"
+        (click)="onClose()"
+        class="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+        data-testid="cancel-button"
+      >
+        Cancel
+      </button>
+      <button
+        type="button"
+        (click)="onAdd()"
+        [disabled]="!selectedRecipeId()"
+        class="px-4 py-2 bg-primary text-white rounded-lg transition-colors"
+        [class.opacity-50]="!selectedRecipeId()"
+        [class.cursor-not-allowed]="!selectedRecipeId()"
+        [class.hover:bg-orange-600]="selectedRecipeId()"
+        data-testid="add-button"
+      >
+        Add
+      </button>
+    </div>
+  </div>
+</div>
