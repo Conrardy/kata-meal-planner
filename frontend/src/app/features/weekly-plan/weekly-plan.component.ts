@@ -5,17 +5,20 @@ import { LucideAngularModule, ChefHat, ChevronLeft, ChevronRight } from 'lucide-
 import { WeeklyPlanService } from '../../core/services/weekly-plan.service';
 import { WeeklyPlan, DayPlan, WeeklyMeal } from '../../core/models/weekly-plan.model';
 import { SwapModalComponent } from '../daily-digest/components/swap-modal/swap-modal.component';
+import { AddRecipeModalComponent } from './components/add-recipe-modal/add-recipe-modal.component';
 import { DailyDigestService } from '../../core/services/daily-digest.service';
+import { MealPlanService } from '../../core/services/meal-plan.service';
 
 @Component({
   selector: 'app-weekly-plan',
   standalone: true,
-  imports: [DatePipe, RouterLink, LucideAngularModule, SwapModalComponent],
+  imports: [DatePipe, RouterLink, LucideAngularModule, SwapModalComponent, AddRecipeModalComponent],
   templateUrl: './weekly-plan.component.html',
 })
 export class WeeklyPlanComponent implements OnInit {
   private readonly weeklyPlanService = inject(WeeklyPlanService);
   private readonly dailyDigestService = inject(DailyDigestService);
+  private readonly mealPlanService = inject(MealPlanService);
   private readonly router = inject(Router);
 
   readonly startDate = signal<Date>(this.getStartOfWeek(new Date()));
@@ -25,6 +28,9 @@ export class WeeklyPlanComponent implements OnInit {
   readonly swappingMealId = signal<string | null>(null);
   readonly swappingMealType = signal<string | null>(null);
   readonly isSwapping = signal(false);
+  readonly addingRecipeDate = signal<string | null>(null);
+  readonly addingRecipeMealType = signal<string | null>(null);
+  readonly isAdding = signal(false);
 
   readonly ChefHat = ChefHat;
   readonly ChevronLeft = ChevronLeft;
@@ -77,6 +83,28 @@ export class WeeklyPlanComponent implements OnInit {
     if (meal) {
       this.router.navigate(['/recipe', meal.recipeId]);
     }
+  }
+
+  onEmptyCellClick(date: string, mealType: string): void {
+    this.addingRecipeDate.set(date);
+    this.addingRecipeMealType.set(mealType);
+  }
+
+  onCloseAddModal(): void {
+    this.addingRecipeDate.set(null);
+    this.addingRecipeMealType.set(null);
+  }
+
+  onRecipeSelectedForAdd(recipeId: string): void {
+    const date = this.addingRecipeDate();
+    const mealType = this.addingRecipeMealType();
+    if (!date || !mealType) return;
+
+    this.isAdding.set(true);
+    // TODO: Call MealPlanService.addRecipeToMealPlan in Phase 4
+    console.log('Adding recipe', recipeId, 'to', date, mealType);
+    this.onCloseAddModal();
+    this.isAdding.set(false);
   }
 
   onEditMeal(meal: WeeklyMeal | null, mealType: string, event: MouseEvent): void {

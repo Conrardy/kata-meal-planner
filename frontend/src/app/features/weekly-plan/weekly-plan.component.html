@@ -108,8 +108,12 @@
                           </button>
                         </div>
                       } @else {
-                        <div class="p-2 text-sm text-gray-400 italic">
-                          No meal planned
+                        <div
+                          (click)="onEmptyCellClick(day.date, mealType)"
+                          class="p-2 text-sm text-gray-400 italic cursor-pointer border-2 border-dashed border-transparent hover:border-primary-light hover:text-primary transition-all rounded-lg"
+                          [attr.data-testid]="'empty-cell-' + day.dayName.toLowerCase() + '-' + mealType.toLowerCase()"
+                        >
+                          Add a meal
                         </div>
                       }
                     </td>
@@ -131,5 +135,15 @@
     [mealType]="swappingMealType()!"
     (close)="onCloseSwapModal()"
     (selectRecipe)="onSelectRecipe($event)"
+  />
+}
+
+<!-- Add Recipe Modal -->
+@if (addingRecipeDate() && addingRecipeMealType()) {
+  <app-add-recipe-modal
+    [date]="addingRecipeDate()!"
+    [mealType]="addingRecipeMealType()!"
+    (close)="onCloseAddModal()"
+    (recipeSelected)="onRecipeSelectedForAdd($event)"
   />
 }
