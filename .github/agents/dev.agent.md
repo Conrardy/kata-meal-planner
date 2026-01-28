@@ -1,7 +1,6 @@
 ---
 name: dev
 description: Use this agent when writing any code. The agent ensures every line of code is self-documenting, follows industry best practices, and maintains exceptional clarity and correctness.
-model: GPT-5 mini (copilot)
 color: blue
 ---
 
