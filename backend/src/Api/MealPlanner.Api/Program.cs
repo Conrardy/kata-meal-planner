@@ -1,5 +1,6 @@
 using System.Text;
 using System.Text.Json;
+using ErrorOr;
 using FluentValidation;
 using HealthChecks.NpgSql;
 using MediatR;
@@ -336,7 +337,16 @@ app.MapPost("/api/v1/meal-plan", async (AddRecipeToMealPlanRequest request, IMed
         request.MealType
     );
     var result = await mediator.Send(command);
-    return Results.Created($"/api/v1/meals/{result.MealId}", result);
+    return result.Match(
+        value => Results.Created($"/api/v1/meals/{value.MealId}", value),
+        errors => Results.Problem(statusCode: errors[0].Type switch
+        {
+            ErrorType.Conflict => StatusCodes.Status409Conflict,
+            ErrorType.NotFound => StatusCodes.Status404NotFound,
+            ErrorType.Validation => StatusCodes.Status400BadRequest,
+            _ => StatusCodes.Status500InternalServerError
+        }, title: errors[0].Description)
+    );
 })
 .WithName("AddRecipeToMealPlan")
 .WithOpenApi()

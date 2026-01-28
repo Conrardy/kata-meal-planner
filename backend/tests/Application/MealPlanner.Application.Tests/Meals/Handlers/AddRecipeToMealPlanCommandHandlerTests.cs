@@ -26,15 +26,16 @@ public sealed class AddRecipeToMealPlanCommandHandlerTests
         var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
-        result.Should().NotBeNull();
-        result.RecipeName.Should().Be("Recipe");
-        result.Date.Should().Be(date.ToString("yyyy-MM-dd"));
-        result.MealType.Should().Be("Dinner");
-        result.ShoppingListUpdated.Should().BeTrue();
+        result.IsError.Should().BeFalse();
+        result.Value.Should().NotBeNull();
+        result.Value.RecipeName.Should().Be("Recipe");
+        result.Value.Date.Should().Be(date.ToString("yyyy-MM-dd"));
+        result.Value.MealType.Should().Be("Dinner");
+        result.Value.ShoppingListUpdated.Should().BeTrue();
     }
 
     [Fact]
-    public async Task Handle_WithExistingMeal_ShouldSwapRecipe()
+    public async Task Handle_WithExistingMeal_ShouldReturnError()
     {
         // Arrange
         var oldRecipeId = Guid.NewGuid();
@@ -54,12 +55,12 @@ public sealed class AddRecipeToMealPlanCommandHandlerTests
         var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
-        result.Should().NotBeNull();
-        result.MealId.Should().Be(mealId);
-        result.ShoppingListUpdated.Should().BeTrue();
+        result.IsError.Should().BeTrue();
+        result.FirstError.Type.Should().Be(ErrorOr.ErrorType.Conflict);
+        result.FirstError.Code.Should().Be("Meal.SlotAlreadyFilled");
 
-        var updatedMeal = await mealRepository.GetByIdAsync(mealId);
-        updatedMeal!.RecipeId.Should().Be(newRecipeId);
+        var unchangedMeal = await mealRepository.GetByIdAsync(mealId);
+        unchangedMeal!.RecipeId.Should().Be(oldRecipeId);
     }
 
     [Fact]
@@ -76,9 +77,10 @@ public sealed class AddRecipeToMealPlanCommandHandlerTests
         var command = new AddRecipeToMealPlanCommand(recipeId, date, "Breakfast");
 
         // Act
-        await handler.Handle(command, CancellationToken.None);
+        var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
+        result.IsError.Should().BeFalse();
         syncService.LastSyncedDate.Should().Be(date);
     }
 
@@ -99,7 +101,8 @@ public sealed class AddRecipeToMealPlanCommandHandlerTests
         var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
-        result.MealType.Should().Be("Breakfast");
+        result.IsError.Should().BeFalse();
+        result.Value.MealType.Should().Be("Breakfast");
 
         var meals = await mealRepository.GetByDateAsync(date);
         meals.Should().HaveCount(1);
@@ -123,7 +126,8 @@ public sealed class AddRecipeToMealPlanCommandHandlerTests
         var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
-        result.MealType.Should().Be("Lunch");
+        result.IsError.Should().BeFalse();
+        result.Value.MealType.Should().Be("Lunch");
 
         var meals = await mealRepository.GetByDateAsync(date);
         meals.Should().HaveCount(1);
@@ -141,17 +145,20 @@ public sealed class AddRecipeToMealPlanCommandHandlerTests
         var handler = new AddRecipeToMealPlanCommandHandler(mealRepository, syncService);
 
         // Act
-        await handler.Handle(new AddRecipeToMealPlanCommand(Guid.NewGuid(), date, "Breakfast"), CancellationToken.None);
-        await handler.Handle(new AddRecipeToMealPlanCommand(Guid.NewGuid(), date, "Lunch"), CancellationToken.None);
-        await handler.Handle(new AddRecipeToMealPlanCommand(Guid.NewGuid(), date, "Dinner"), CancellationToken.None);
+        var result1 = await handler.Handle(new AddRecipeToMealPlanCommand(Guid.NewGuid(), date, "Breakfast"), CancellationToken.None);
+        var result2 = await handler.Handle(new AddRecipeToMealPlanCommand(Guid.NewGuid(), date, "Lunch"), CancellationToken.None);
+        var result3 = await handler.Handle(new AddRecipeToMealPlanCommand(Guid.NewGuid(), date, "Dinner"), CancellationToken.None);
 
         // Assert
+        result1.IsError.Should().BeFalse();
+        result2.IsError.Should().BeFalse();
+        result3.IsError.Should().BeFalse();
         var meals = await mealRepository.GetByDateAsync(date);
         meals.Should().HaveCount(3);
     }
 
     [Fact]
-    public async Task Handle_ReplacingExistingMeal_ShouldNotCreateDuplicate()
+    public async Task Handle_AddingToFilledSlot_ShouldReturnErrorAndNotCreateDuplicate()
     {
         // Arrange
         var oldRecipeId = Guid.NewGuid();
@@ -167,12 +174,14 @@ public sealed class AddRecipeToMealPlanCommandHandlerTests
         var command = new AddRecipeToMealPlanCommand(newRecipeId, date, "Dinner");
 
         // Act
-        await handler.Handle(command, CancellationToken.None);
+        var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
+        result.IsError.Should().BeTrue();
+        result.FirstError.Code.Should().Be("Meal.SlotAlreadyFilled");
         var meals = await mealRepository.GetByDateAsync(date);
         meals.Should().HaveCount(1);
-        meals[0].RecipeId.Should().Be(newRecipeId);
+        meals[0].RecipeId.Should().Be(oldRecipeId);
     }
 
     private sealed class InMemoryPlannedMealRepository : IPlannedMealRepository
