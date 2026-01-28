@@ -21,7 +21,7 @@ $ARGUMENTS
 ### Coding assertions to strictly follow
 
 ```markdown
-@docs/CODING_ASSERTIONS.md
+@docs/common/CODING_ASSERTIONS.md
 ```
 
 ### Tracking issue template
