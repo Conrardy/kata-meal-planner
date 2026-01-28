@@ -147,3 +147,16 @@
     (recipeSelected)="onRecipeSelectedForAdd($event)"
   />
 }
+
+<!-- Toast Notification -->
+@if (toastMessage()) {
+  <div
+    class="fixed bottom-4 right-4 z-50 px-6 py-3 rounded-lg shadow-lg transition-all"
+    [class.bg-green-500]="toastType() === 'success'"
+    [class.bg-red-500]="toastType() === 'error'"
+    [class.text-white]="true"
+    data-testid="toast-notification"
+  >
+    {{ toastMessage() }}
+  </div>
+}

@@ -31,6 +31,8 @@ export class WeeklyPlanComponent implements OnInit {
   readonly addingRecipeDate = signal<string | null>(null);
   readonly addingRecipeMealType = signal<string | null>(null);
   readonly isAdding = signal(false);
+  readonly toastMessage = signal<string | null>(null);
+  readonly toastType = signal<'success' | 'error'>('success');
 
   readonly ChefHat = ChefHat;
   readonly ChevronLeft = ChevronLeft;
@@ -101,10 +103,62 @@ export class WeeklyPlanComponent implements OnInit {
     if (!date || !mealType) return;
 
     this.isAdding.set(true);
-    // TODO: Call MealPlanService.addRecipeToMealPlan in Phase 4
-    console.log('Adding recipe', recipeId, 'to', date, mealType);
-    this.onCloseAddModal();
-    this.isAdding.set(false);
+    this.mealPlanService.addRecipeToMealPlan(recipeId, date, mealType).subscribe({
+      next: (result) => {
+        this.updatePlanWithNewMeal(date, mealType, result);
+        this.onCloseAddModal();
+        this.showToast(`${result.recipeName} added to ${mealType}`, 'success');
+        this.isAdding.set(false);
+      },
+      error: (err) => {
+        console.error('Failed to add recipe to meal plan:', err);
+        this.showToast('Failed to add recipe. Please try again.', 'error');
+        this.isAdding.set(false);
+      },
+    });
+  }
+
+  private showToast(message: string, type: 'success' | 'error'): void {
+    this.toastMessage.set(message);
+    this.toastType.set(type);
+    setTimeout(() => {
+      this.toastMessage.set(null);
+    }, 3000);
+  }
+
+  private updatePlanWithNewMeal(
+    date: string,
+    mealType: string,
+    result: { mealId: string; recipeName: string; date: string; mealType: string }
+  ): void {
+    this.weeklyPlan.update((plan) => {
+      if (!plan) return plan;
+
+      return {
+        ...plan,
+        days: plan.days.map((day) => {
+          if (day.date !== date) return day;
+
+          const newMeal: WeeklyMeal = {
+            id: result.mealId,
+            recipeId: '', // Not provided in response, but not needed for display
+            recipeName: result.recipeName,
+            imageUrl: null,
+          };
+
+          switch (mealType) {
+            case 'Breakfast':
+              return { ...day, breakfast: newMeal };
+            case 'Lunch':
+              return { ...day, lunch: newMeal };
+            case 'Dinner':
+              return { ...day, dinner: newMeal };
+            default:
+              return day;
+          }
+        }),
+      };
+    });
   }
 
   onEditMeal(meal: WeeklyMeal | null, mealType: string, event: MouseEvent): void {
