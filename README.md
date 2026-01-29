@@ -1,5 +1,7 @@
 MealPlanner — Local Development Guide
 
+[![CI](https://github.com/Conrardy/kata-meal-planner/actions/workflows/ci.yml/badge.svg)](https://github.com/Conrardy/kata-meal-planner/actions/workflows/ci.yml)
+
 This repo contains an Angular frontend and a .NET 9 Web API backend. Follow the steps below to run both locally on Windows.
 
 Prerequisites
