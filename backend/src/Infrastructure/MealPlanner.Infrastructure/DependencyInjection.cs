@@ -35,6 +35,14 @@ public static class DependencyInjection
             .AddEntityFrameworkStores<MealPlannerDbContext>()
             .AddDefaultTokenProviders();
 
+        services.ConfigureApplicationCookie(options =>
+        {
+            options.Cookie.HttpOnly = true;
+            options.Cookie.SecurePolicy = Microsoft.AspNetCore.Http.CookieSecurePolicy.Always;
+            options.Cookie.SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Strict;
+            options.Cookie.IsEssential = true;
+        });
+
         services.Configure<JwtSettings>(configuration.GetSection(JwtSettings.SectionName));
         services.AddSingleton<IJwtTokenProvider, JwtTokenProvider>();
         services.AddScoped<IAuthService, AuthService>();

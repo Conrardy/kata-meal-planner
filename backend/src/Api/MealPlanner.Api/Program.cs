@@ -106,6 +106,22 @@ try
 
     builder.Services.AddAuthorization();
 
+    builder.Services.AddHsts(options =>
+    {
+        options.Preload = true;
+        options.IncludeSubDomains = true;
+        options.MaxAge = TimeSpan.FromDays(365);
+    });
+
+    if (!builder.Environment.IsDevelopment())
+    {
+        Log.Information(
+            "Configuring HTTPS: HSTS enabled with MaxAge={MaxAge}days Preload={Preload} IncludeSubDomains={IncludeSubDomains}",
+            365,
+            true,
+            true);
+    }
+
     var rateLimitSettings = builder.Configuration.GetSection(RateLimitSettings.SectionName).Get<RateLimitSettings>()!;
     if (rateLimitSettings?.DefaultPolicy == null || rateLimitSettings.AuthPolicy == null)
     {
@@ -285,6 +301,12 @@ if (app.Environment.IsDevelopment())
     });
     app.UseExceptionHandler();
     app.UseCors(corsSettings.PolicyName);
+
+    if (!app.Environment.IsDevelopment())
+    {
+        app.UseHsts();
+    }
+
     app.UseHttpsRedirection();
     app.UseRateLimiter();
 

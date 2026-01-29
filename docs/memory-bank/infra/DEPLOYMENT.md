@@ -30,6 +30,23 @@
 - Environment files not yet configured
 - Uses Angular default configuration
 
+## Security Configuration
+
+### HTTPS/TLS Setup
+
+For production deployments with HTTPS, see [@docs/SSL_TLS_CONFIGURATION.md](../../SSL_TLS_CONFIGURATION.md) for:
+- SSL/TLS certificate configuration
+- HSTS (HTTP Strict Transport Security) setup
+- Secure cookie configuration
+- Nginx HTTPS configuration
+- Certificate acquisition and renewal
+
+**Quick Reference**:
+- Development: HTTP only (nginx.conf)
+- Production: HTTPS with certificates (nginx.production.conf)
+- Backend HSTS: Automatically enabled in production
+- Frontend HSTS: Configured in nginx.production.conf
+
 ## CI/CD Pipeline
 
 Not configured.

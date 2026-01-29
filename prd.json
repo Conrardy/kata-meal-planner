@@ -407,7 +407,7 @@
         "Documentation des variables d'environnement requises"
       ],
       "priority": 1,
-      "passes": false,
+      "passes": true,
       "labels": [
         "configuration",
         "production"
@@ -416,7 +416,7 @@
         "US-003",
         "US-011"
       ],
-      "completionNotes": ""
+      "completionNotes": "Completed by agent"
     },
     {
       "id": "US-019",
@@ -432,7 +432,7 @@
         "Seed data pour les données de référence (dietary preferences, allergies)"
       ],
       "priority": 1,
-      "passes": false,
+      "passes": true,
       "labels": [
         "backend",
         "database"
@@ -440,7 +440,7 @@
       "dependsOn": [
         "US-001"
       ],
-      "completionNotes": ""
+      "completionNotes": "Completed by agent"
     },
     {
       "id": "US-020",
@@ -470,6 +470,6 @@
   "metadata": {
     "createdAt": "2026-01-20T10:00:00.000Z",
     "version": "2.0.0",
-    "updatedAt": "2026-01-29T16:32:04.291Z"
+    "updatedAt": "2026-01-29T16:40:03.418Z"
   }
 }
