@@ -170,15 +170,50 @@ try
         });
     });
 
-    Log.Information("Configuring CORS default policy");
+    var corsSettings = builder.Configuration.GetSection(CorsSettings.SectionName).Get<CorsSettings>()!;
+    if (corsSettings == null || corsSettings.AllowedOrigins.Count == 0)
+    {
+        throw new InvalidOperationException(
+            $"CORS settings are missing or invalid. Check configuration section '{CorsSettings.SectionName}'.");
+    }
+
+    Log.Information(
+        "Configuring CORS policy: PolicyName={PolicyName} AllowedOrigins={AllowedOrigins} AllowCredentials={AllowCredentials} PreflightMaxAge={PreflightMaxAge}s",
+        corsSettings.PolicyName,
+        string.Join(", ", corsSettings.AllowedOrigins),
+        corsSettings.AllowCredentials,
+        corsSettings.PreflightMaxAgeSeconds);
+
     builder.Services.AddCors(options =>
     {
-        options.AddDefaultPolicy(policy =>
+        options.AddPolicy(corsSettings.PolicyName, policy =>
         {
-            policy.WithOrigins("http://localhost:4200")
-                  .AllowAnyMethod()
-                  .AllowAnyHeader()
-                  .AllowCredentials();
+            policy.WithOrigins([.. corsSettings.AllowedOrigins]);
+
+            if (corsSettings.AllowedHeaders.Count > 0)
+            {
+                policy.WithHeaders([.. corsSettings.AllowedHeaders]);
+            }
+            else
+            {
+                policy.AllowAnyHeader();
+            }
+
+            if (corsSettings.AllowedMethods.Count > 0)
+            {
+                policy.WithMethods([.. corsSettings.AllowedMethods]);
+            }
+            else
+            {
+                policy.AllowAnyMethod();
+            }
+
+            if (corsSettings.AllowCredentials)
+            {
+                policy.AllowCredentials();
+            }
+
+            policy.SetPreflightMaxAge(TimeSpan.FromSeconds(corsSettings.PreflightMaxAgeSeconds));
         });
     });
 
@@ -249,7 +284,7 @@ if (app.Environment.IsDevelopment())
         options.MessageTemplate = "HTTP {RequestMethod} {RequestPath} responded {StatusCode} in {Elapsed:0.0000} ms";
     });
     app.UseExceptionHandler();
-    app.UseCors();
+    app.UseCors(corsSettings.PolicyName);
     app.UseHttpsRedirection();
     app.UseRateLimiter();
 
