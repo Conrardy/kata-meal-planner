@@ -190,44 +190,54 @@
 
         <!-- Leftovers Toggle -->
         <div class="flex items-center justify-between py-3 border-b border-gray-100">
-          <div>
+          <div id="leftovers-label">
             <p class="font-medium text-gray-900">Include Leftovers</p>
             <p class="text-sm text-gray-500">Plan meals that use leftovers from previous days</p>
           </div>
           <button
             type="button"
             (click)="onLeftoversToggle()"
+            role="switch"
+            [attr.aria-checked]="selectedIncludeLeftovers"
+            aria-labelledby="leftovers-label"
             class="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none"
             [class.bg-primary]="selectedIncludeLeftovers"
             [class.bg-gray-200]="!selectedIncludeLeftovers"
             data-testid="leftovers-toggle"
           >
+            <span class="sr-only">{{ selectedIncludeLeftovers ? 'Disable' : 'Enable' }} leftovers</span>
             <span
               class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"
               [class.translate-x-5]="selectedIncludeLeftovers"
               [class.translate-x-0]="!selectedIncludeLeftovers"
+              aria-hidden="true"
             ></span>
           </button>
         </div>
 
         <!-- Auto-generate Shopping List Toggle -->
         <div class="flex items-center justify-between py-3">
-          <div>
+          <div id="auto-shopping-label">
             <p class="font-medium text-gray-900">Auto-generate Shopping List</p>
             <p class="text-sm text-gray-500">Automatically create a shopping list when you plan meals</p>
           </div>
           <button
             type="button"
             (click)="onAutoGenerateShoppingListToggle()"
+            role="switch"
+            [attr.aria-checked]="selectedAutoGenerateShoppingList"
+            aria-labelledby="auto-shopping-label"
             class="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none"
             [class.bg-primary]="selectedAutoGenerateShoppingList"
             [class.bg-gray-200]="!selectedAutoGenerateShoppingList"
             data-testid="auto-shopping-list-toggle"
           >
+            <span class="sr-only">{{ selectedAutoGenerateShoppingList ? 'Disable' : 'Enable' }} auto-generate shopping list</span>
             <span
               class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"
               [class.translate-x-5]="selectedAutoGenerateShoppingList"
               [class.translate-x-0]="!selectedAutoGenerateShoppingList"
+              aria-hidden="true"
             ></span>
           </button>
         </div>

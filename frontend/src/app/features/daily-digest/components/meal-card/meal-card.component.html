@@ -1,18 +1,19 @@
-<article class="bg-white rounded-xl shadow-md overflow-hidden" data-testid="meal-card">
+<article class="bg-white rounded-xl shadow-md overflow-hidden" data-testid="meal-card" role="listitem">
   <div class="relative h-48 bg-gray-200">
     @if (meal().imageUrl) {
       <img
         [src]="meal().imageUrl"
-        [alt]="meal().recipeName"
+        [alt]="meal().recipeName + ' - ' + meal().mealType"
         class="w-full h-full object-cover"
       />
     } @else {
-      <div class="w-full h-full flex items-center justify-center text-gray-400">
-        <lucide-icon [img]="ChefHat" class="w-16 h-16"></lucide-icon>
+      <div class="w-full h-full flex items-center justify-center text-gray-400" role="img" [attr.aria-label]="'Placeholder image for ' + meal().recipeName">
+        <lucide-icon [img]="ChefHat" class="w-16 h-16" aria-hidden="true"></lucide-icon>
       </div>
     }
     <span
       class="absolute top-3 left-3 bg-primary text-white text-xs font-semibold px-3 py-1 rounded-full"
+      aria-label="Meal type"
     >
       {{ meal().mealType }}
     </span>
@@ -29,8 +30,9 @@
         (click)="onSwapMeal()"
         class="flex-1 flex items-center justify-center gap-2 px-4 py-2 border-2 border-primary-light text-primary rounded-lg hover:bg-orange-50 transition-colors"
         data-testid="swap-meal-button"
+        [attr.aria-label]="'Swap ' + meal().mealType + ' meal'"
       >
-        <lucide-icon [img]="RefreshCw" class="w-4 h-4"></lucide-icon>
+        <lucide-icon [img]="RefreshCw" class="w-4 h-4" aria-hidden="true"></lucide-icon>
         <span class="text-sm font-medium">Swap Meal</span>
       </button>
 
@@ -39,8 +41,9 @@
         (click)="onCookNow()"
         class="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-orange-600 transition-colors"
         data-testid="cook-now-button"
+        [attr.aria-label]="'View cooking instructions for ' + meal().recipeName"
       >
-        <lucide-icon [img]="ChefHat" class="w-4 h-4"></lucide-icon>
+        <lucide-icon [img]="ChefHat" class="w-4 h-4" aria-hidden="true"></lucide-icon>
         <span class="text-sm font-medium">Cook Now</span>
       </button>
     </div>

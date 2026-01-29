@@ -227,6 +227,9 @@
                     <button
                       type="button"
                       (click)="onToggleItem(item)"
+                      role="checkbox"
+                      [attr.aria-checked]="item.isChecked"
+                      [attr.aria-label]="'Mark ' + item.name + ' as ' + (item.isChecked ? 'not purchased' : 'purchased')"
                       class="flex-shrink-0 w-5 h-5 rounded border-2 flex items-center justify-center transition-colors print:hidden"
                       [class]="item.isChecked
                         ? 'bg-primary border-primary text-white'
@@ -234,7 +237,7 @@
                       [attr.data-testid]="'toggle-' + item.id"
                     >
                       @if (item.isChecked) {
-                        <lucide-icon [img]="Check" class="w-3 h-3"></lucide-icon>
+                        <lucide-icon [img]="Check" class="w-3 h-3" aria-hidden="true"></lucide-icon>
                       }
                     </button>
 
@@ -270,9 +273,9 @@
                         (click)="onRemoveItem(item)"
                         class="flex-shrink-0 p-1 text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity print:hidden"
                         [attr.data-testid]="'remove-' + item.id"
-                        title="Remove item"
+                        [attr.aria-label]="'Remove ' + item.name + ' from shopping list'"
                       >
-                        <lucide-icon [img]="Trash2" class="w-4 h-4"></lucide-icon>
+                        <lucide-icon [img]="Trash2" class="w-4 h-4" aria-hidden="true"></lucide-icon>
                       </button>
                     }
                   </li>

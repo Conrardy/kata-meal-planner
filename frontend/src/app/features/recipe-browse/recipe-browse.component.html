@@ -22,35 +22,43 @@
         <lucide-angular
           [img]="Search"
           class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"
+          aria-hidden="true"
         />
+        <label for="recipe-search" class="sr-only">Search recipes</label>
         <input
-          type="text"
+          type="search"
+          id="recipe-search"
           placeholder="Search recipes by name or description..."
           [value]="searchTerm()"
           (input)="onSearchInput($event)"
           class="w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-colors"
           data-testid="search-input"
+          aria-label="Search recipes by name or description"
         />
         @if (searchTerm()) {
           <button
+            type="button"
             (click)="onClearFilters()"
             class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
             aria-label="Clear search"
           >
-            <lucide-angular [img]="X" class="w-5 h-5" />
+            <lucide-angular [img]="X" class="w-5 h-5" aria-hidden="true" />
           </button>
         }
       </div>
 
       <!-- Filter Chips -->
-      <div class="flex flex-wrap gap-2" data-testid="filter-chips">
+      <div class="flex flex-wrap gap-2" data-testid="filter-chips" role="group" aria-label="Recipe filters">
         @for (tag of availableTags(); track tag) {
           <button
+            type="button"
             (click)="onToggleTag(tag)"
             [class]="isTagSelected(tag)
               ? 'px-4 py-2 rounded-full text-sm font-medium bg-primary text-white transition-colors'
               : 'px-4 py-2 rounded-full text-sm font-medium bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors'"
             [attr.data-testid]="getTagTestId(tag)"
+            [attr.aria-pressed]="isTagSelected(tag)"
+            [attr.aria-label]="'Filter by ' + tag"
           >
             {{ tag }}
           </button>
@@ -77,13 +85,15 @@
 
     <!-- Recipes Grid -->
     @if (isLoading()) {
-      <div class="flex justify-center items-center py-12" data-testid="loading-spinner">
-        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      <div class="flex justify-center items-center py-12" data-testid="loading-spinner" role="status" aria-live="polite">
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary" aria-hidden="true"></div>
+        <span class="sr-only">Loading recipes...</span>
       </div>
     } @else if (error()) {
       <div
         class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg"
         data-testid="error-message"
+        role="alert"
       >
         {{ error() }}
       </div>
@@ -91,17 +101,23 @@
       <div
         class="bg-orange-50 border border-orange-200 text-orange-700 px-4 py-8 rounded-lg text-center"
         data-testid="no-recipes-message"
+        role="status"
       >
         <p class="text-lg font-medium mb-2">No recipes found</p>
         <p>Try adjusting your search or filters</p>
       </div>
     } @else {
-      <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3" data-testid="recipes-grid">
+      <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3" data-testid="recipes-grid" role="list" aria-label="Recipe results">
         @for (recipe of recipes(); track recipe.id) {
           <article
             class="bg-white rounded-xl shadow-md overflow-hidden cursor-pointer hover:shadow-lg transition-shadow"
             (click)="onRecipeClick(recipe)"
+            (keydown.enter)="onRecipeClick(recipe)"
+            (keydown.space)="onRecipeClick(recipe); $event.preventDefault()"
+            tabindex="0"
+            role="button"
             [attr.data-testid]="'recipe-card-' + recipe.id"
+            [attr.aria-label]="'View recipe: ' + recipe.name"
           >
             <!-- Recipe Image -->
             @if (recipe.imageUrl) {
