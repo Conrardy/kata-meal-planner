@@ -4,14 +4,18 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { RecipeService } from '../../core/services/recipe.service';
+import { LucideAngularModule, ChevronLeft, Plus, Trash2 } from 'lucide-angular';
 
 @Component({
   selector: 'app-recipe-create',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule, LucideAngularModule],
   templateUrl: './recipe-create.component.html'
 })
 export class RecipeCreateComponent {
+  readonly ChevronLeft = ChevronLeft;
+  readonly Plus = Plus;
+  readonly Trash2 = Trash2;
   form: FormGroup;
 
   constructor(private fb: FormBuilder, private recipeService: RecipeService, private router: Router) {

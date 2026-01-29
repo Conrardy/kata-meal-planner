@@ -1,57 +1,176 @@
-<div class="max-w-3xl mx-auto p-6">
-  <h1 class="text-2xl font-bold mb-4">New Recipe</h1>
+<section class="min-h-screen bg-gray-50 pb-8">
+  <!-- Header (mobile only, hidden on desktop where sidebar is visible) -->
+  <header class="bg-white shadow-sm sticky top-0 z-10 lg:hidden">
+    <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <a routerLink="/recipes" class="text-gray-500 hover:text-gray-900 transition-colors">
+          <lucide-angular [img]="ChevronLeft" class="w-5 h-5" />
+        </a>
+        <h1 class="text-2xl font-bold text-gray-900">New Recipe</h1>
+      </div>
+    </div>
+  </header>
 
-  <form [formGroup]="form" (ngSubmit)="save()">
-    <div class="mb-4">
-      <label class="block text-sm font-medium">Name</label>
-      <input formControlName="name" class="mt-1 block w-full" />
-      <div *ngIf="form.get('name')?.touched && form.get('name')?.invalid" class="text-red-600 text-sm">Name is required.</div>
+  <!-- Recipe Create Content -->
+  <main class="max-w-3xl mx-auto px-4 py-6">
+    <!-- Page Header (desktop only) -->
+    <div class="mb-6">
+      <h2 class="text-xl font-semibold text-gray-900 hidden lg:block">New Recipe</h2>
     </div>
 
-    <div class="mb-4">
-      <label class="block text-sm font-medium">Description</label>
-      <textarea formControlName="description" class="mt-1 block w-full"></textarea>
-      <div *ngIf="form.get('description')?.touched && form.get('description')?.invalid" class="text-red-600 text-sm">Description is required.</div>
-    </div>
+    <form [formGroup]="form" (ngSubmit)="save()">
+      <!-- Basic Information Card -->
+      <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Basic Information</h3>
 
-    <div class="mb-4">
-      <label class="block text-sm font-medium">Image URL (optional)</label>
-      <input formControlName="imageUrl" class="mt-1 block w-full" />
-      <div *ngIf="form.get('imageUrl')?.touched && form.get('imageUrl')?.invalid" class="text-red-600 text-sm">Image URL must be a valid URL.</div>
-    </div>
+        <!-- Name field -->
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700 mb-2">Recipe Name</label>
+          <input
+            formControlName="name"
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-colors"
+            placeholder="Enter recipe name..."
+          />
+          @if (form.get('name')?.touched && form.get('name')?.invalid) {
+            <p class="text-red-600 text-sm mt-1">Recipe name is required.</p>
+          }
+        </div>
 
-    <div class="mb-4">
-      <label class="block text-sm font-medium">Ingredients</label>
-      <div formArrayName="ingredients">
-        <div *ngFor="let ing of ingredients.controls; let i = index" [formGroupName]="i" class="flex gap-2 mb-2">
-          <input formControlName="name" placeholder="Name" class="flex-1" />
-          <input formControlName="quantity" placeholder="Quantity" class="w-24" />
-          <input formControlName="unit" placeholder="Unit" class="w-24" />
-          <button type="button" (click)="removeIngredient(i)">Remove</button>
+        <!-- Description field -->
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
+          <textarea
+            formControlName="description"
+            rows="3"
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-colors"
+            placeholder="Describe your recipe..."
+          ></textarea>
+          @if (form.get('description')?.touched && form.get('description')?.invalid) {
+            <p class="text-red-600 text-sm mt-1">Description is required.</p>
+          }
+        </div>
+
+        <!-- Image URL field -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Image URL (optional)</label>
+          <input
+            formControlName="imageUrl"
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-colors"
+            placeholder="https://example.com/image.jpg"
+          />
+          @if (form.get('imageUrl')?.touched && form.get('imageUrl')?.invalid) {
+            <p class="text-red-600 text-sm mt-1">Please enter a valid URL.</p>
+          }
         </div>
       </div>
-      <div *ngIf="ingredients.length === 0" class="text-red-600 text-sm">Add at least one ingredient.</div>
-      <button type="button" (click)="addIngredient()">Add Ingredient</button>
-    </div>
 
-    <div class="mb-4">
-      <label class="block text-sm font-medium">Steps</label>
-      <div formArrayName="steps">
-        <div *ngFor="let s of steps.controls; let i = index" [formGroupName]="i" class="mb-2">
-          <div class="flex gap-2">
-            <span class="w-6">{{ i + 1 }}.</span>
-            <input formControlName="instruction" placeholder="Instruction" class="flex-1" />
-            <button type="button" (click)="removeStep(i)">Remove</button>
-          </div>
+      <!-- Ingredients Card -->
+      <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-2">Ingredients</h3>
+        <p class="text-sm text-gray-500 mb-4">Add all ingredients needed for this recipe.</p>
+
+        <div formArrayName="ingredients" class="space-y-3">
+          @for (ing of ingredients.controls; track $index; let i = $index) {
+            <div [formGroupName]="i" class="flex gap-2">
+              <input
+                formControlName="name"
+                placeholder="Ingredient name"
+                class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-colors"
+              />
+              <input
+                formControlName="quantity"
+                placeholder="Amount"
+                class="w-24 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-colors"
+              />
+              <input
+                formControlName="unit"
+                placeholder="Unit"
+                class="w-24 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-colors"
+              />
+              <button
+                type="button"
+                (click)="removeIngredient(i)"
+                class="px-3 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                [attr.aria-label]="'Remove ingredient ' + (i + 1)"
+              >
+                <lucide-angular [img]="Trash2" class="w-5 h-5" />
+              </button>
+            </div>
+          }
         </div>
-      </div>
-      <div *ngIf="steps.length === 0" class="text-red-600 text-sm">Add at least one step.</div>
-      <button type="button" (click)="addStep()">Add Step</button>
-    </div>
 
-    <div class="flex gap-2">
-      <button type="submit" [disabled]="!canSave" class="px-4 py-2 bg-primary text-white">Save</button>
-      <a routerLink="/recipes" class="px-4 py-2 border">Cancel</a>
-    </div>
-  </form>
-</div>
+        @if (ingredients.length === 0) {
+          <p class="text-red-600 text-sm mt-2">Please add at least one ingredient.</p>
+        }
+
+        <button
+          type="button"
+          (click)="addIngredient()"
+          class="mt-4 flex items-center gap-2 px-4 py-2 border-2 border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+        >
+          <lucide-angular [img]="Plus" class="w-4 h-4" />
+          Add Ingredient
+        </button>
+      </div>
+
+      <!-- Cooking Steps Card -->
+      <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-2">Cooking Steps</h3>
+        <p class="text-sm text-gray-500 mb-4">Break down the recipe into clear, easy-to-follow steps.</p>
+
+        <div formArrayName="steps" class="space-y-3">
+          @for (s of steps.controls; track $index; let i = $index) {
+            <div [formGroupName]="i" class="flex gap-2">
+              <span class="flex-shrink-0 w-8 h-10 flex items-center justify-center text-gray-500 font-medium">
+                {{ i + 1 }}.
+              </span>
+              <input
+                formControlName="instruction"
+                placeholder="Describe this step..."
+                class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-colors"
+              />
+              <button
+                type="button"
+                (click)="removeStep(i)"
+                class="px-3 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                [attr.aria-label]="'Remove step ' + (i + 1)"
+              >
+                <lucide-angular [img]="Trash2" class="w-5 h-5" />
+              </button>
+            </div>
+          }
+        </div>
+
+        @if (steps.length === 0) {
+          <p class="text-red-600 text-sm mt-2">Please add at least one cooking step.</p>
+        }
+
+        <button
+          type="button"
+          (click)="addStep()"
+          class="mt-4 flex items-center gap-2 px-4 py-2 border-2 border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+        >
+          <lucide-angular [img]="Plus" class="w-4 h-4" />
+          Add Step
+        </button>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex justify-end gap-3">
+        <a
+          routerLink="/recipes"
+          class="px-6 py-3 border-2 border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+        >
+          Cancel
+        </a>
+        <button
+          type="submit"
+          [disabled]="!canSave"
+          class="px-6 py-3 bg-primary text-white rounded-lg hover:bg-orange-600 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          Save Recipe
+        </button>
+      </div>
+    </form>
+  </main>
+</section>
