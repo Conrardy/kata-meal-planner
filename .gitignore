@@ -3,6 +3,8 @@
 .vscode
 .vs
 
+worktrees/
+
 node_modules/
 **/node_modules/
 .ralph-tui

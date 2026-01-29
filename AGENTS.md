@@ -70,11 +70,39 @@ All information should be kept up to date and reflect the actual state of the pr
 
 ### Context specific to this project
 
-about infra deployment : @docs/memory-bank/infra/DEPLOYMENT.md
+#### Quick Navigation - When to Read What
 
-Before any frontend task read : @docs/memory-bank/frontend/CONVENTIONS.md
+| Task Type | Required Reading | Path |
+|-----------|-----------------|------|
+| **Infrastructure & Deployment** | Deployment config, Docker, health checks | @docs/memory-bank/infra/DEPLOYMENT.md |
+| **Frontend Development** | Angular conventions, components, state | @docs/memory-bank/frontend/CONVENTIONS.md |
+| **Frontend UI/UX** | Design system, Tailwind, accessibility | @docs/memory-bank/frontend/DESIGN.md |
+| **Backend Development** | .NET conventions, Clean Architecture, CQRS | @docs/memory-bank/backend/CONVENTIONS.md |
+| **Architecture Overview** | Tech stack, project structure, services | @docs/memory-bank/common/ARCHITECTURE.md |
+| **Code Quality** | Coding standards, assertions, build process | @docs/memory-bank/common/CODING_ASSERTIONS.md |
+| **Testing Strategy** | Test tools, coverage, execution | @docs/memory-bank/common/TESTING.md |
+| **Project Context** | Vision, domain, ubiquitous language | See below: PROJECT_BRIEF.md |
+| **Tech Stack** | Dependencies, versions, tools | See below: STACK.md |
 
-Before any backend task read : @docs/memory-bank/backend/CONVENTIONS.md
+#### Memory Bank Structure
+
+```plaintext
+docs/memory-bank/
+├── PROJECT_BRIEF.md         # Project vision, domain, features
+├── STACK.md                 # Tech stack (Angular 19, .NET 9, etc.)
+├── CODEBASE_STRUCTURE.md    # Directory organization
+├── backend/
+│   └── CONVENTIONS.md       # .NET Clean Architecture patterns
+├── frontend/
+│   ├── CONVENTIONS.md       # Angular patterns & best practices
+│   └── DESIGN.md            # Tailwind design system
+├── common/
+│   ├── ARCHITECTURE.md      # Overall system architecture
+│   ├── CODING_ASSERTIONS.md # Quality standards & build steps
+│   └── TESTING.md           # Testing strategy
+└── infra/
+    └── DEPLOYMENT.md        # Docker, CI/CD, health checks
+```
 
 ---
 ### PROJECT_BRIEF.md

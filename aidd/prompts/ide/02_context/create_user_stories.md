@@ -12,10 +12,10 @@ Generate well-structured user stories from feature requirements through systemat
 
 ## Context
 
-@docs/memory-bank/ARCHITECTURE.md
+@docs/memory-bank/common/ARCHITECTURE.md
 @docs/memory-bank/CODEBASE_STRUCTURE.md
 @docs/memory-bank/DECISIONS.md
-@docs/memory-bank/DESIGN.md
+@docs/memory-bank/frontend/DESIGN.md
 @docs/memory-bank/INFRASTRUCTURE.md
 @docs/memory-bank/PROJECT_BRIEF.md
 
