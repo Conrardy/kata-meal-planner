@@ -362,13 +362,13 @@
         "Logging des violations de rate limit"
       ],
       "priority": 1,
-      "passes": false,
+      "passes": true,
       "labels": [
         "backend",
         "security"
       ],
       "dependsOn": [],
-      "completionNotes": ""
+      "completionNotes": "Completed by agent"
     },
     {
       "id": "US-017",
@@ -385,13 +385,13 @@
         "Preflight cache: 600 secondes"
       ],
       "priority": 1,
-      "passes": false,
+      "passes": true,
       "labels": [
         "backend",
         "security"
       ],
       "dependsOn": [],
-      "completionNotes": ""
+      "completionNotes": "Completed by agent"
     },
     {
       "id": "US-018",
@@ -470,6 +470,6 @@
   "metadata": {
     "createdAt": "2026-01-20T10:00:00.000Z",
     "version": "2.0.0",
-    "updatedAt": "2026-01-29T16:19:08.596Z"
+    "updatedAt": "2026-01-29T16:32:04.291Z"
   }
 }
