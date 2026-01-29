@@ -1,9 +1,11 @@
 using System.Text;
 using System.Text.Json;
+using System.Threading.RateLimiting;
 using ErrorOr;
 using FluentValidation;
 using HealthChecks.NpgSql;
 using MediatR;
+using MealPlanner.Api.Configuration;
 using MealPlanner.Api.Extensions;
 using MealPlanner.Api.Logging;
 using MealPlanner.Api.Middleware;
@@ -20,6 +22,7 @@ using MealPlanner.Infrastructure.Identity;
 using MealPlanner.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.IdentityModel.Tokens;
@@ -103,6 +106,70 @@ try
 
     builder.Services.AddAuthorization();
 
+    var rateLimitSettings = builder.Configuration.GetSection(RateLimitSettings.SectionName).Get<RateLimitSettings>()!;
+    if (rateLimitSettings?.DefaultPolicy == null || rateLimitSettings.AuthPolicy == null)
+    {
+        throw new InvalidOperationException(
+            $"Rate limiting settings are missing or invalid. Check configuration section '{RateLimitSettings.SectionName}'.");
+    }
+
+    Log.Information(
+        "Configuring rate limiting: Default={DefaultLimit} req/{DefaultWindow}s, Auth={AuthLimit} req/{AuthWindow}s",
+        rateLimitSettings.DefaultPolicy.PermitLimit,
+        rateLimitSettings.DefaultPolicy.WindowInSeconds,
+        rateLimitSettings.AuthPolicy.PermitLimit,
+        rateLimitSettings.AuthPolicy.WindowInSeconds);
+
+    builder.Services.AddRateLimiter(options =>
+    {
+        options.OnRejected = RateLimitingMiddleware.OnRejected;
+
+        options.AddFixedWindowLimiter("default", limiterOptions =>
+        {
+            limiterOptions.PermitLimit = rateLimitSettings.DefaultPolicy.PermitLimit;
+            limiterOptions.Window = TimeSpan.FromSeconds(rateLimitSettings.DefaultPolicy.WindowInSeconds);
+            limiterOptions.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+            limiterOptions.QueueLimit = rateLimitSettings.DefaultPolicy.QueueLimit;
+        });
+
+        options.AddFixedWindowLimiter("auth", limiterOptions =>
+        {
+            limiterOptions.PermitLimit = rateLimitSettings.AuthPolicy.PermitLimit;
+            limiterOptions.Window = TimeSpan.FromSeconds(rateLimitSettings.AuthPolicy.WindowInSeconds);
+            limiterOptions.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+            limiterOptions.QueueLimit = rateLimitSettings.AuthPolicy.QueueLimit;
+        });
+
+        options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(context =>
+        {
+            var clientIp = context.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+            var endpoint = context.Request.Path.Value ?? string.Empty;
+
+            if (endpoint.StartsWith("/api/v1/auth", StringComparison.OrdinalIgnoreCase))
+            {
+                return RateLimitPartition.GetFixedWindowLimiter(
+                    partitionKey: $"auth:{clientIp}",
+                    factory: _ => new FixedWindowRateLimiterOptions
+                    {
+                        PermitLimit = rateLimitSettings.AuthPolicy.PermitLimit,
+                        Window = TimeSpan.FromSeconds(rateLimitSettings.AuthPolicy.WindowInSeconds),
+                        QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                        QueueLimit = rateLimitSettings.AuthPolicy.QueueLimit,
+                    });
+            }
+
+            return RateLimitPartition.GetFixedWindowLimiter(
+                partitionKey: $"default:{clientIp}",
+                factory: _ => new FixedWindowRateLimiterOptions
+                {
+                    PermitLimit = rateLimitSettings.DefaultPolicy.PermitLimit,
+                    Window = TimeSpan.FromSeconds(rateLimitSettings.DefaultPolicy.WindowInSeconds),
+                    QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                    QueueLimit = rateLimitSettings.DefaultPolicy.QueueLimit,
+                });
+        });
+    });
+
     Log.Information("Configuring CORS default policy");
     builder.Services.AddCors(options =>
     {
@@ -184,6 +251,7 @@ if (app.Environment.IsDevelopment())
     app.UseExceptionHandler();
     app.UseCors();
     app.UseHttpsRedirection();
+    app.UseRateLimiter();
 
     app.UseAuthentication();
     app.UseAuthorization();
