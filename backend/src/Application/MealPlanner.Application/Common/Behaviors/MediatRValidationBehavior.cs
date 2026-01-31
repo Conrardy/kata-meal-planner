@@ -1,22 +1,21 @@
 using FluentValidation;
-using MealPlanner.Application.Common.Mediator;
+using MediatR;
 using ValidationException = MealPlanner.Application.Common.Exceptions.ValidationException;
 
 namespace MealPlanner.Application.Common.Behaviors;
 
 /// <summary>
-/// Pipeline behavior that validates requests using FluentValidation.
-/// Executes all registered validators for the request type and throws
-/// ValidationException if any validation failures occur.
+/// MediatR pipeline behavior for validation using FluentValidation.
+/// This is a temporary wrapper until all handlers are migrated to the custom mediator (US-023).
 /// </summary>
 /// <typeparam name="TRequest">The request type to validate.</typeparam>
 /// <typeparam name="TResponse">The response type.</typeparam>
-public sealed class ValidationBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
+public sealed class MediatRValidationBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
     where TRequest : notnull
 {
     private readonly IEnumerable<IValidator<TRequest>> _validators;
 
-    public ValidationBehavior(IEnumerable<IValidator<TRequest>> validators)
+    public MediatRValidationBehavior(IEnumerable<IValidator<TRequest>> validators)
     {
         _validators = validators;
     }

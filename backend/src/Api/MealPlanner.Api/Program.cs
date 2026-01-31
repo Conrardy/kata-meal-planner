@@ -62,10 +62,12 @@ try
 
     var applicationAssembly = typeof(GetDailyDigestQuery).Assembly;
     builder.Services.AddValidatorsFromAssembly(applicationAssembly);
+
+    // MediatR with pipeline behaviors (will be replaced by custom mediator in US-023)
     builder.Services.AddMediatR(cfg =>
     {
         cfg.RegisterServicesFromAssembly(applicationAssembly);
-        cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+        cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(MediatRValidationBehavior<,>));
     });
 
     var jwtSettings = builder.Configuration.GetSection(JwtSettings.SectionName).Get<JwtSettings>()!;

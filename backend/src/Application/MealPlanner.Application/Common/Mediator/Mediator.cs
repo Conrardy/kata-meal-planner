@@ -1,3 +1,4 @@
+using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace MealPlanner.Application.Common.Mediator;
@@ -5,6 +6,7 @@ namespace MealPlanner.Application.Common.Mediator;
 /// <summary>
 /// Default implementation of the mediator pattern.
 /// Resolves handlers from the DI container and dispatches requests/notifications.
+/// Supports pipeline behaviors that execute before and after the handler.
 /// </summary>
 public sealed class Mediator : IMediator
 {
@@ -30,15 +32,57 @@ public sealed class Mediator : IMediator
         var handleMethod = handlerType.GetMethod("Handle")
             ?? throw new InvalidOperationException($"Handle method not found on handler type {handlerType.Name}");
 
-        var result = handleMethod.Invoke(handler, [request, cancellationToken]);
-
-        if (result is not Task<TResponse> task)
+        // Create the final handler delegate
+        RequestHandlerDelegate<TResponse> handlerDelegate = async () =>
         {
-            throw new InvalidOperationException(
-                $"Handler for {requestType.Name} did not return Task<{typeof(TResponse).Name}>.");
+            var result = handleMethod.Invoke(handler, [request, cancellationToken]);
+            if (result is not Task<TResponse> task)
+            {
+                throw new InvalidOperationException(
+                    $"Handler for {requestType.Name} did not return Task<{typeof(TResponse).Name}>.");
+            }
+            return await task;
+        };
+
+        // Get pipeline behaviors
+        var behaviorType = typeof(IPipelineBehavior<,>).MakeGenericType(requestType, typeof(TResponse));
+        var behaviorsEnumerableType = typeof(IEnumerable<>).MakeGenericType(behaviorType);
+        var behaviors = _serviceProvider.GetService(behaviorsEnumerableType) as IEnumerable<object>;
+
+        if (behaviors is null || !behaviors.Any())
+        {
+            return await handlerDelegate();
         }
 
-        return await task;
+        // Build the pipeline by wrapping behaviors around the handler
+        // Behaviors execute in registration order (first registered = outermost)
+        var pipeline = behaviors.Reverse().Aggregate(
+            handlerDelegate,
+            (next, behavior) =>
+            {
+                var behaviorHandleMethod = behaviorType.GetMethod("Handle")
+                    ?? throw new InvalidOperationException($"Handle method not found on behavior type {behaviorType.Name}");
+
+                return async () =>
+                {
+                    try
+                    {
+                        var result = behaviorHandleMethod.Invoke(behavior, [request, next, cancellationToken]);
+                        if (result is not Task<TResponse> task)
+                        {
+                            throw new InvalidOperationException(
+                                $"Behavior did not return Task<{typeof(TResponse).Name}>.");
+                        }
+                        return await task;
+                    }
+                    catch (TargetInvocationException ex) when (ex.InnerException is not null)
+                    {
+                        throw ex.InnerException;
+                    }
+                };
+            });
+
+        return await pipeline();
     }
 
     public async Task Publish(INotification notification, CancellationToken cancellationToken = default)

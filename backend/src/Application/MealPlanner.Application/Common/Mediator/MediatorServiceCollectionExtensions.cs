@@ -43,6 +43,59 @@ public static class MediatorServiceCollectionExtensions
         return services.AddMediator(typeof(T).Assembly);
     }
 
+    /// <summary>
+    /// Registers a pipeline behavior. Behaviors are executed in the order they are registered.
+    /// </summary>
+    /// <typeparam name="TBehavior">The behavior implementation type.</typeparam>
+    /// <param name="services">The service collection to add services to.</param>
+    /// <returns>The service collection for chaining.</returns>
+    /// <remarks>
+    /// Pipeline execution order:
+    /// <code>
+    /// Request → First Registered Behavior → Second Registered Behavior → ... → Handler → Response
+    /// </code>
+    /// Register behaviors in the order you want them to execute (e.g., logging first, then validation, then transaction).
+    /// </remarks>
+    public static IServiceCollection AddMediatorBehavior<TBehavior>(this IServiceCollection services)
+        where TBehavior : class
+    {
+        var behaviorType = typeof(TBehavior);
+
+        if (!behaviorType.IsGenericTypeDefinition)
+        {
+            throw new ArgumentException(
+                $"Behavior {behaviorType.Name} must be an open generic type (e.g., typeof(ValidationBehavior<,>)).",
+                nameof(TBehavior));
+        }
+
+        services.AddScoped(typeof(IPipelineBehavior<,>), behaviorType);
+
+        return services;
+    }
+
+    /// <summary>
+    /// Registers a pipeline behavior with explicit open generic type.
+    /// Behaviors are executed in the order they are registered.
+    /// </summary>
+    /// <param name="services">The service collection to add services to.</param>
+    /// <param name="behaviorType">The open generic behavior type.</param>
+    /// <returns>The service collection for chaining.</returns>
+    public static IServiceCollection AddMediatorBehavior(this IServiceCollection services, Type behaviorType)
+    {
+        ArgumentNullException.ThrowIfNull(behaviorType);
+
+        if (!behaviorType.IsGenericTypeDefinition)
+        {
+            throw new ArgumentException(
+                $"Behavior {behaviorType.Name} must be an open generic type (e.g., typeof(ValidationBehavior<,>)).",
+                nameof(behaviorType));
+        }
+
+        services.AddScoped(typeof(IPipelineBehavior<,>), behaviorType);
+
+        return services;
+    }
+
     private static void RegisterRequestHandlers(IServiceCollection services, Assembly assembly)
     {
         var handlerInterfaceType = typeof(IRequestHandler<,>);

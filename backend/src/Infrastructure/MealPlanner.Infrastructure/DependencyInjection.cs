@@ -1,4 +1,5 @@
 using MealPlanner.Application.Auth;
+using MealPlanner.Application.Common.Interfaces;
 using MealPlanner.Domain.Auth;
 using MealPlanner.Domain.Meals;
 using MealPlanner.Domain.Preferences;
@@ -24,6 +25,8 @@ public static class DependencyInjection
 
         services.AddDbContext<MealPlannerDbContext>(options =>
             options.UseNpgsql(connectionString));
+
+        services.AddScoped<IUnitOfWork, EfCoreUnitOfWork>();
 
         services.AddIdentity<ApplicationUser, IdentityRole<Guid>>(options =>
             {

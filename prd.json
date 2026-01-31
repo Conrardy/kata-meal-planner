@@ -19,9 +19,14 @@
         "Tests unitaires pour le dispatcher core"
       ],
       "priority": 1,
-      "passes": false,
-      "labels": ["backend", "architecture", "refactoring"],
-      "dependsOn": []
+      "passes": true,
+      "labels": [
+        "backend",
+        "architecture",
+        "refactoring"
+      ],
+      "dependsOn": [],
+      "completionNotes": "Completed by agent"
     },
     {
       "id": "US-022",
@@ -38,9 +43,16 @@
         "Documentation du pattern pipeline dans le code"
       ],
       "priority": 1,
-      "passes": false,
-      "labels": ["backend", "architecture", "refactoring"],
-      "dependsOn": ["US-021"]
+      "passes": true,
+      "labels": [
+        "backend",
+        "architecture",
+        "refactoring"
+      ],
+      "dependsOn": [
+        "US-021"
+      ],
+      "completionNotes": "Implemented custom pipeline behaviors: IPipelineBehavior interface, ValidationBehavior (with FluentValidation), LoggingBehavior (with execution duration), TransactionBehavior (with EF Core transactions). Behaviors execute in registration order. 17 new unit tests added. MediatR temporarily retained for existing handlers (migration in US-023)."
     },
     {
       "id": "US-023",
@@ -56,8 +68,14 @@
       ],
       "priority": 1,
       "passes": false,
-      "labels": ["backend", "architecture", "refactoring"],
-      "dependsOn": ["US-022"]
+      "labels": [
+        "backend",
+        "architecture",
+        "refactoring"
+      ],
+      "dependsOn": [
+        "US-022"
+      ]
     },
     {
       "id": "US-024",
@@ -75,8 +93,15 @@
       ],
       "priority": 2,
       "passes": false,
-      "labels": ["frontend", "backend", "security", "admin"],
-      "dependsOn": ["US-023"]
+      "labels": [
+        "frontend",
+        "backend",
+        "security",
+        "admin"
+      ],
+      "dependsOn": [
+        "US-023"
+      ]
     },
     {
       "id": "US-025",
@@ -92,8 +117,14 @@
       ],
       "priority": 2,
       "passes": false,
-      "labels": ["backend", "frontend", "security"],
-      "dependsOn": ["US-023"]
+      "labels": [
+        "backend",
+        "frontend",
+        "security"
+      ],
+      "dependsOn": [
+        "US-023"
+      ]
     },
     {
       "id": "US-026",
@@ -110,7 +141,10 @@
       ],
       "priority": 3,
       "passes": false,
-      "labels": ["frontend", "i18n"],
+      "labels": [
+        "frontend",
+        "i18n"
+      ],
       "dependsOn": []
     },
     {
@@ -127,8 +161,13 @@
       ],
       "priority": 3,
       "passes": false,
-      "labels": ["frontend", "i18n"],
-      "dependsOn": ["US-026"]
+      "labels": [
+        "frontend",
+        "i18n"
+      ],
+      "dependsOn": [
+        "US-026"
+      ]
     },
     {
       "id": "US-028",
@@ -145,8 +184,13 @@
       ],
       "priority": 3,
       "passes": false,
-      "labels": ["backend", "i18n"],
-      "dependsOn": ["US-026"]
+      "labels": [
+        "backend",
+        "i18n"
+      ],
+      "dependsOn": [
+        "US-026"
+      ]
     },
     {
       "id": "US-029",
@@ -162,8 +206,13 @@
       ],
       "priority": 3,
       "passes": false,
-      "labels": ["frontend", "i18n"],
-      "dependsOn": ["US-027"]
+      "labels": [
+        "frontend",
+        "i18n"
+      ],
+      "dependsOn": [
+        "US-027"
+      ]
     },
     {
       "id": "US-030",
@@ -181,7 +230,10 @@
       ],
       "priority": 4,
       "passes": false,
-      "labels": ["documentation", "devops"],
+      "labels": [
+        "documentation",
+        "devops"
+      ],
       "dependsOn": []
     },
     {
@@ -198,8 +250,12 @@
       ],
       "priority": 4,
       "passes": false,
-      "labels": ["documentation"],
-      "dependsOn": ["US-030"]
+      "labels": [
+        "documentation"
+      ],
+      "dependsOn": [
+        "US-030"
+      ]
     },
     {
       "id": "US-032",
@@ -216,8 +272,12 @@
       ],
       "priority": 4,
       "passes": false,
-      "labels": ["documentation"],
-      "dependsOn": ["US-031"]
+      "labels": [
+        "documentation"
+      ],
+      "dependsOn": [
+        "US-031"
+      ]
     },
     {
       "id": "US-033",
@@ -234,13 +294,19 @@
       ],
       "priority": 4,
       "passes": false,
-      "labels": ["documentation", "testing", "ci-cd"],
-      "dependsOn": ["US-032"]
+      "labels": [
+        "documentation",
+        "testing",
+        "ci-cd"
+      ],
+      "dependsOn": [
+        "US-032"
+      ]
     }
   ],
   "metadata": {
     "createdAt": "2026-01-31T10:00:00.000Z",
     "version": "3.0.0",
-    "updatedAt": "2026-01-31T10:00:00.000Z"
+    "updatedAt": "2026-01-31T13:10:21.134Z"
   }
 }
