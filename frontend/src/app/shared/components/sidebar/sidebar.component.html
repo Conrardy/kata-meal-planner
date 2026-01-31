@@ -92,4 +92,26 @@
       </div>
     </div>
   </nav>
+
+  <!-- User Section -->
+  <div class="px-4 py-4 border-t border-gray-200">
+    <div class="flex items-center justify-between">
+      <div class="flex items-center gap-2 min-w-0">
+        <div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white font-medium text-sm flex-shrink-0">
+          {{ currentUser().username?.charAt(0)?.toUpperCase() || '?' }}
+        </div>
+        <span class="text-sm font-medium text-gray-700 truncate">{{ currentUser().username || 'User' }}</span>
+      </div>
+      <button
+        type="button"
+        (click)="onLogout()"
+        class="p-2 rounded-lg text-gray-500 hover:bg-gray-100 hover:text-gray-700 transition-colors"
+        data-testid="logout-button"
+        aria-label="Sign out"
+        title="Sign out"
+      >
+        <lucide-icon [img]="LogOut" class="w-5 h-5" aria-hidden="true"></lucide-icon>
+      </button>
+    </div>
+  </div>
 </aside>

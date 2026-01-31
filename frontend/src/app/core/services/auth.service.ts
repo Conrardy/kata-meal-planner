@@ -28,7 +28,7 @@ export class AuthService {
   readonly isAuthenticated = computed(() => this.authState().isAuthenticated);
   readonly currentUser = computed(() => ({
     userId: this.authState().userId,
-    email: this.authState().email,
+    username: this.authState().username,
   }));
   readonly accessToken = computed(() => this.authState().accessToken);
 
@@ -75,7 +75,7 @@ export class AuthService {
       accessToken: response.accessToken,
       refreshToken: response.refreshToken,
       userId: response.userId,
-      email: response.email,
+      username: response.username,
       isAuthenticated: true,
     };
 
@@ -88,7 +88,7 @@ export class AuthService {
       accessToken: null,
       refreshToken: null,
       userId: null,
-      email: null,
+      username: null,
       isAuthenticated: false,
     };
 
@@ -105,10 +105,10 @@ export class AuthService {
     if (state.refreshToken) {
       localStorage.setItem(REFRESH_TOKEN_KEY, state.refreshToken);
     }
-    if (state.userId && state.email) {
+    if (state.userId && state.username) {
       localStorage.setItem(
         USER_KEY,
-        JSON.stringify({ userId: state.userId, email: state.email })
+        JSON.stringify({ userId: state.userId, username: state.username })
       );
     }
   }
@@ -123,12 +123,12 @@ export class AuthService {
         accessToken: null,
         refreshToken: null,
         userId: null,
-        email: null,
+        username: null,
         isAuthenticated: false,
       };
     }
 
-    let user: { userId: string; email: string } | null = null;
+    let user: { userId: string; username: string } | null = null;
     if (userJson) {
       try {
         user = JSON.parse(userJson);
@@ -141,7 +141,7 @@ export class AuthService {
       accessToken,
       refreshToken,
       userId: user?.userId ?? null,
-      email: user?.email ?? null,
+      username: user?.username ?? null,
       isAuthenticated: true,
     };
   }

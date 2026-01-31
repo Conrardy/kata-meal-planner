@@ -1,8 +1,7 @@
 ---
 name: architect
 description: Lead Software Architect AI guiding design, structure, and evolution of software projects
-argument-hint: N/A
-model: Claude Sonnet 4.5 (copilot)
+argument-hint: evaluate or create technical plan, analyze architecture, suggest configurations or directory structures
 ---
 
 # AI Role

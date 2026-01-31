@@ -4,7 +4,7 @@ export interface RegisterRequest {
 }
 
 export interface LoginRequest {
-  email: string;
+  username: string;
   password: string;
 }
 
@@ -18,7 +18,7 @@ export interface AuthResponse {
   accessTokenExpiresAt: string;
   refreshTokenExpiresAt: string;
   userId: string;
-  email: string;
+  username: string;
 }
 
 export interface RegisterResponse {
@@ -30,6 +30,6 @@ export interface AuthState {
   accessToken: string | null;
   refreshToken: string | null;
   userId: string | null;
-  email: string | null;
+  username: string | null;
   isAuthenticated: boolean;
 }

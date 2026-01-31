@@ -343,9 +343,10 @@ app.MapPost("/api/v1/auth/register", async (HttpContext httpContext, RegisterReq
 .WithName("Register")
 .WithOpenApi();
 
-app.MapPost("/api/v1/auth/login", async (HttpContext httpContext, LoginRequest request, IAuthService authService) =>
+app.MapPost("/api/v1/auth/login", async (HttpContext httpContext, UsernameLoginRequest request, IMediator mediator) =>
 {
-    var result = await authService.LoginAsync(request);
+    var command = new MealPlanner.Application.Auth.Login.LoginCommand(request.Username, request.Password);
+    var result = await mediator.Send(command);
     return result.MatchResult(
         httpContext,
         response => Results.Ok(response));
@@ -353,14 +354,35 @@ app.MapPost("/api/v1/auth/login", async (HttpContext httpContext, LoginRequest r
 .WithName("Login")
 .WithOpenApi();
 
-app.MapPost("/api/v1/auth/refresh", async (HttpContext httpContext, RefreshTokenRequest request, IAuthService authService) =>
+app.MapPost("/api/v1/auth/login/email", async (HttpContext httpContext, LoginRequest request, IAuthService authService) =>
+{
+    var result = await authService.LoginAsync(request);
+    return result.MatchResult(
+        httpContext,
+        response => Results.Ok(response));
+})
+.WithName("LoginWithEmail")
+.WithOpenApi();
+
+app.MapPost("/api/v1/auth/refresh", async (HttpContext httpContext, UsernameRefreshTokenRequest request, IMediator mediator) =>
+{
+    var command = new MealPlanner.Application.Auth.Login.RefreshTokenCommand(request.RefreshToken);
+    var result = await mediator.Send(command);
+    return result.MatchResult(
+        httpContext,
+        response => Results.Ok(response));
+})
+.WithName("RefreshToken")
+.WithOpenApi();
+
+app.MapPost("/api/v1/auth/refresh/email", async (HttpContext httpContext, RefreshTokenRequest request, IAuthService authService) =>
 {
     var result = await authService.RefreshTokenAsync(request);
     return result.MatchResult(
         httpContext,
         response => Results.Ok(response));
 })
-.WithName("RefreshToken")
+.WithName("RefreshTokenWithEmail")
 .WithOpenApi();
 
 app.MapGet("/api/v1/daily-digest/{date}", async (DateOnly date, IMediator mediator) =>
@@ -608,3 +630,6 @@ public record UpdatePreferencesRequest(
     bool? AutoGenerateShoppingList = null,
     List<string>? ExcludedIngredients = null
 );
+
+public record UsernameLoginRequest(string Username, string Password);
+public record UsernameRefreshTokenRequest(string RefreshToken);

@@ -1,8 +1,10 @@
 using MealPlanner.Application.Auth;
+using MealPlanner.Domain.Auth;
 using MealPlanner.Domain.Meals;
 using MealPlanner.Domain.Preferences;
 using MealPlanner.Domain.Recipes;
 using MealPlanner.Domain.ShoppingList;
+using MealPlanner.Infrastructure.Auth;
 using MealPlanner.Infrastructure.Identity;
 using MealPlanner.Infrastructure.Persistence;
 using MealPlanner.Infrastructure.Services;
@@ -44,8 +46,11 @@ public static class DependencyInjection
         });
 
         services.Configure<JwtSettings>(configuration.GetSection(JwtSettings.SectionName));
+        services.Configure<SeededUsersSettings>(configuration.GetSection(SeededUsersSettings.SectionName));
         services.AddSingleton<IJwtTokenProvider, JwtTokenProvider>();
         services.AddScoped<IAuthService, AuthService>();
+        services.AddSingleton<ISeededUserRepository, SeededUserRepository>();
+        services.AddScoped<ISeededUserAuthService, SeededUserAuthService>();
 
         services.AddScoped<IRecipeRepository, EfCoreRecipeRepository>();
         services.AddScoped<IPlannedMealRepository, EfCorePlannedMealRepository>();

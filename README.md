@@ -102,3 +102,86 @@ Project Structure
 - Frontend: [frontend/](frontend)
 - Backend solution: [backend/MealPlanner.sln](backend/MealPlanner.sln)
 - API project: [backend/src/Api/MealPlanner.Api](backend/src/Api/MealPlanner.Api)
+
+## Ralph-tui
+
+Ralph-tui is a terminal user interface (TUI) application that serves as an orchestrator for AI agent loops. It allows users to create Product Requirement Documents (PRDs), run AI agents, and manage tasks through a command-line interface.
+
+### Setup
+
+Follow installation instructions at https://ralph-tui.com/docs/getting-started/installation
+
+### Usage 
+
+Ralph TUI - AI Agent Loop Orchestrator
+
+Usage: ralph-tui [command] [options]
+
+Commands:
+  (none)              Start Ralph execution (same as 'run')
+  create-prd [opts]   Create a new PRD interactively (alias: prime)
+  convert [options]   Convert PRD markdown to JSON format
+  run [options]       Start Ralph execution
+  resume [options]    Resume an interrupted session
+  status [options]    Check session status (headless, for CI/scripts)
+  logs [options]      View/manage iteration output logs
+  setup [options]     Run interactive project setup (alias: init)
+  config show         Display merged configuration
+  template show       Display current prompt template
+  template init       Copy default template for customization
+  plugins agents      List available agent plugins
+  plugins trackers    List available tracker plugins
+  docs [section]      Open documentation in browser
+  help, --help, -h    Show this help message
+  version, --version, -v  Show version number
+
+Run Options:
+  --epic <id>         Epic ID for beads tracker
+  --prd <path>        PRD file path (auto-switches to json tracker)
+  --agent <name>      Override agent plugin (e.g., claude, opencode)
+  --model <name>      Override model (e.g., opus, sonnet)
+  --tracker <name>    Override tracker plugin (e.g., beads, beads-bv, json)
+  --iterations <n>    Maximum iterations (0 = unlimited)
+  --resume            Resume existing session (deprecated, use 'resume' command)
+  --headless          Run without TUI (alias: --no-tui)
+  --no-tui            Run without TUI, output structured logs to stdout
+  --no-setup          Skip interactive setup even if no config exists
+  --notify            Force enable desktop notifications
+  --no-notify         Force disable desktop notifications
+
+Resume Options:
+  --cwd <path>        Working directory
+  --headless          Run without TUI
+  --force             Override stale lock
+
+Status Options:
+  --json              Output in JSON format for CI/scripts
+  --cwd <path>        Working directory
+
+Convert Options:
+  --to <format>       Target format: json
+  --output, -o <path> Output file path (default: ./prd.json)
+  --branch, -b <name> Git branch name (prompts if not provided)
+  --force, -f         Overwrite existing files
+
+Examples:
+  ralph-tui                              # Start execution (same as 'run')
+  ralph-tui create-prd                   # Create a new PRD interactively
+  ralph-tui create-prd --chat            # Create PRD with AI chat mode
+  ralph-tui convert --to json ./prd.md   # Convert PRD to JSON
+  ralph-tui run                          # Start execution with defaults
+  ralph-tui run --epic myproject-epic    # Run with specific epic
+  ralph-tui run --prd ./prd.json         # Run with PRD file
+  ralph-tui resume                       # Resume interrupted session
+  ralph-tui status                       # Check session status
+  ralph-tui status --json                # JSON output for CI/scripts
+  ralph-tui logs                         # List iteration logs
+  ralph-tui logs --iteration 5           # View specific iteration
+  ralph-tui logs --task US-005           # View logs for a task
+  ralph-tui logs --clean --keep 10       # Clean up old logs
+  ralph-tui plugins agents               # List agent plugins
+  ralph-tui plugins trackers             # List tracker plugins
+  ralph-tui template show                # Show current prompt template
+  ralph-tui template init                # Create custom template
+  ralph-tui docs                         # Open documentation in browser
+  ralph-tui docs quickstart              # Open quick start guide

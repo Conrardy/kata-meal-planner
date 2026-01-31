@@ -1,6 +1,7 @@
-import { Component, output } from '@angular/core';
-import { RouterLink, RouterLinkActive } from '@angular/router';
-import { LucideAngularModule, Plus, CalendarDays, ShoppingCart, Home, Calendar, Search, Settings } from 'lucide-angular';
+import { Component, inject, output } from '@angular/core';
+import { Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { LucideAngularModule, Plus, CalendarDays, ShoppingCart, Home, Calendar, Search, Settings, LogOut } from 'lucide-angular';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-sidebar',
@@ -9,6 +10,9 @@ import { LucideAngularModule, Plus, CalendarDays, ShoppingCart, Home, Calendar, 
   templateUrl: './sidebar.component.html',
 })
 export class SidebarComponent {
+  private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
+
   addRecipe = output<void>();
   createPlan = output<void>();
   generateList = output<void>();
@@ -20,6 +24,9 @@ export class SidebarComponent {
   readonly CalendarDays = CalendarDays;
   readonly ShoppingCart = ShoppingCart;
   readonly Settings = Settings;
+  readonly LogOut = LogOut;
+
+  readonly currentUser = this.authService.currentUser;
 
   onAddRecipe(): void {
     this.addRecipe.emit();
@@ -31,5 +38,10 @@ export class SidebarComponent {
 
   onGenerateList(): void {
     this.generateList.emit();
+  }
+
+  onLogout(): void {
+    this.authService.logout();
+    this.router.navigate(['/login']);
   }
 }

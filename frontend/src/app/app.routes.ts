@@ -1,6 +1,15 @@
 import { Routes } from '@angular/router';
+import { authGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
+  {
+    path: 'login',
+    loadComponent: () =>
+      import('./features/login/login.component').then(
+        (m) => m.LoginComponent
+      ),
+    title: 'Login',
+  },
   {
     path: '',
     loadComponent: () =>
@@ -8,6 +17,7 @@ export const routes: Routes = [
         (m) => m.DailyDigestComponent
       ),
     title: 'Daily Digest',
+    canActivate: [authGuard],
   },
   {
     path: 'weekly-plan',
@@ -16,6 +26,7 @@ export const routes: Routes = [
         (m) => m.WeeklyPlanComponent
       ),
     title: 'Weekly Plan',
+    canActivate: [authGuard],
   },
   {
     path: 'recipes',
@@ -24,6 +35,7 @@ export const routes: Routes = [
         (m) => m.RecipeBrowseComponent
       ),
     title: 'Browse Recipes',
+    canActivate: [authGuard],
   },
   {
     path: 'recipes/new',
@@ -32,6 +44,7 @@ export const routes: Routes = [
         (m) => m.RecipeCreateComponent
       ),
     title: 'Create Recipe',
+    canActivate: [authGuard],
   },
   {
     path: 'recipe/:recipeId',
@@ -40,6 +53,7 @@ export const routes: Routes = [
         (m) => m.RecipeDetailsComponent
       ),
     title: 'Recipe Details',
+    canActivate: [authGuard],
   },
   {
     path: 'shopping-list',
@@ -48,6 +62,7 @@ export const routes: Routes = [
         (m) => m.ShoppingListComponent
       ),
     title: 'Shopping List',
+    canActivate: [authGuard],
   },
   {
     path: 'preferences',
@@ -56,6 +71,7 @@ export const routes: Routes = [
         (m) => m.PreferencesComponent
       ),
     title: 'Preferences',
+    canActivate: [authGuard],
   },
   { path: '**', redirectTo: '' },
 ];
