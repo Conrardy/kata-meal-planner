@@ -7,9 +7,8 @@ COPY src/Domain/MealPlanner.Domain/MealPlanner.Domain.csproj src/Domain/MealPlan
 COPY src/Application/MealPlanner.Application/MealPlanner.Application.csproj src/Application/MealPlanner.Application/
 COPY src/Infrastructure/MealPlanner.Infrastructure/MealPlanner.Infrastructure.csproj src/Infrastructure/MealPlanner.Infrastructure/
 COPY src/Api/MealPlanner.Api/MealPlanner.Api.csproj src/Api/MealPlanner.Api/
-COPY MealPlanner.sln .
 
-RUN dotnet restore MealPlanner.sln
+RUN dotnet restore src/Api/MealPlanner.Api/MealPlanner.Api.csproj
 
 # Stage 2: Build application
 FROM restore AS build

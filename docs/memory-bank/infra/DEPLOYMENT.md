@@ -27,8 +27,10 @@
 
 ### Frontend
 
-- Environment files not yet configured
-- Uses Angular default configuration
+| File | Purpose |
+|------|---------|
+| `frontend/src/environments/environment.ts` | Development configuration (apiUrl: http://localhost:5000) |
+| `frontend/src/environments/environment.prod.ts` | Production/Docker configuration (apiUrl: empty, uses nginx proxy) |
 
 ## Security Configuration
 
@@ -161,6 +163,34 @@ All services include health checks:
 | `frontend` | `/` | 30s |
 | `postgres` | `pg_isready` | 10s |
 | `redis` | `redis-cli ping` | 10s |
+
+#### Architecture in Docker
+
+```
+Browser (localhost:4200)
+    │
+    ▼
+┌─────────────────────────────────────┐
+│  nginx (mealplanner-frontend:8080)  │
+│  ├── /           → Angular SPA      │
+│  └── /api/*      → proxy to api     │
+└─────────────────┬───────────────────┘
+                  │ (Docker network)
+                  ▼
+┌─────────────────────────────────────┐
+│  .NET API (mealplanner-api:8080)    │
+│  ├── /api/v1/*  → REST endpoints    │
+│  └── /health/*  → health checks     │
+└───────┬─────────────────┬───────────┘
+        │                 │
+        ▼                 ▼
+┌──────────────┐   ┌──────────────┐
+│  PostgreSQL  │   │    Redis     │
+│   :5432      │   │    :6379     │
+└──────────────┘   └──────────────┘
+```
+
+The nginx configuration (`frontend/nginx.conf`) proxies `/api/*` requests to the backend API service, allowing the Angular app to use relative URLs (empty `apiUrl` in production environment).
 
 ## API Health Endpoints
 
@@ -336,6 +366,25 @@ docker run -p 8080:8080 mealplanner-frontend:latest
 |-------|------|-------------|------|
 | mealplanner-api | mcr.microsoft.com/dotnet/aspnet:9.0-alpine | < 200MB | 8080 |
 | mealplanner-frontend | nginx:alpine | < 50MB | 8080 |
+
+### Troubleshooting
+
+| Problem | Command |
+|---------|---------|
+| API not starting | `docker-compose logs api --tail 100` |
+| Database connection failed | `docker-compose exec postgres psql -U mealplanner -c "\l"` |
+| Frontend can't reach API | Check nginx.conf proxy is enabled |
+| Rebuild after code change | `docker-compose up -d --build` |
+| Container won't start | `docker-compose logs <service> --follow` |
+
+### Verification Checklist
+
+After starting Docker Compose:
+
+- [ ] `docker-compose ps` shows all services as "healthy"
+- [ ] http://localhost:4200 loads the Angular app
+- [ ] Login page can reach the API (no network errors in browser console)
+- [ ] http://localhost:5000/health/ready returns healthy status
 
 ### Dev Container
 

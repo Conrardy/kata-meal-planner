@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiUrl: '${API_URL}',
+  apiUrl: '',  // Empty = same origin, nginx proxies /api/* to backend
 };

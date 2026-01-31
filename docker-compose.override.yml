@@ -14,7 +14,7 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
     volumes:
       # Mount source code for hot reload (optional - requires dotnet watch)
-      # - ./backend/src:/src:ro
+      - ./backend/src:/src:ro
     ports:
       - "5000:8080"
       - "5001:8081"  # HTTPS port for development
