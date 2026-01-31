@@ -341,7 +341,8 @@ app.MapPost("/api/v1/auth/register", async (HttpContext httpContext, RegisterReq
         response => Results.Created($"/api/v1/users/{response.UserId}", response));
 })
 .WithName("Register")
-.WithOpenApi();
+.WithOpenApi()
+.RequireAuthorization();
 
 app.MapPost("/api/v1/auth/login", async (HttpContext httpContext, UsernameLoginRequest request, IMediator mediator) =>
 {
