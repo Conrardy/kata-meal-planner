@@ -1,3 +1,4 @@
+```json
 {
   "name": "Product Requirements Document: MealPlanner Application - Admin, i18n, Architecture Refactoring & Documentation",
   "description": "**Product Name:** MealPlanner (MealPrep) **Version:** 3.0 Admin & Documentation **Date:** 2026-01-31 **Tech Stack:** Angular 19 (Frontend) + .NET 9 (Backend) + PostgreSQL",
@@ -244,3 +245,4 @@
     "updatedAt": "2026-01-31T10:00:00.000Z"
   }
 }
+```
