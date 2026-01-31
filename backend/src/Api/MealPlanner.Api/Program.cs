@@ -4,13 +4,13 @@ using System.Threading.RateLimiting;
 using ErrorOr;
 using FluentValidation;
 using HealthChecks.NpgSql;
-using MediatR;
 using MealPlanner.Api.Configuration;
 using MealPlanner.Api.Extensions;
 using MealPlanner.Api.Logging;
 using MealPlanner.Api.Middleware;
 using MealPlanner.Application.Auth;
 using MealPlanner.Application.Common.Behaviors;
+using MealPlanner.Application.Common.Mediator;
 using MealPlanner.Application.DailyDigest;
 using MealPlanner.Application.Meals;
 using MealPlanner.Application.Preferences;
@@ -63,12 +63,11 @@ try
     var applicationAssembly = typeof(GetDailyDigestQuery).Assembly;
     builder.Services.AddValidatorsFromAssembly(applicationAssembly);
 
-    // MediatR with pipeline behaviors (will be replaced by custom mediator in US-023)
-    builder.Services.AddMediatR(cfg =>
-    {
-        cfg.RegisterServicesFromAssembly(applicationAssembly);
-        cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(MediatRValidationBehavior<,>));
-    });
+    // Custom mediator with pipeline behaviors (replaces MediatR as of US-023)
+    builder.Services.AddMediator(applicationAssembly);
+    builder.Services.AddMediatorBehavior(typeof(LoggingBehavior<,>));
+    builder.Services.AddMediatorBehavior(typeof(ValidationBehavior<,>));
+    builder.Services.AddMediatorBehavior(typeof(TransactionBehavior<,>));
 
     var jwtSettings = builder.Configuration.GetSection(JwtSettings.SectionName).Get<JwtSettings>()!;
     if (string.IsNullOrWhiteSpace(jwtSettings.Issuer)

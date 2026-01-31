@@ -1,6 +1,6 @@
 using ErrorOr;
+using MealPlanner.Application.Common.Mediator;
 using MealPlanner.Domain.Auth;
-using MediatR;
 
 namespace MealPlanner.Application.Auth.Login;
 

@@ -1,5 +1,5 @@
 using ErrorOr;
-using MediatR;
+using MealPlanner.Application.Common.Mediator;
 
 namespace MealPlanner.Application.Auth.Login;
 

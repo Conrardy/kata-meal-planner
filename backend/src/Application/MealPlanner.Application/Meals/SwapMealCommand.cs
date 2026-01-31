@@ -1,5 +1,5 @@
 using ErrorOr;
-using MediatR;
+using MealPlanner.Application.Common.Mediator;
 using MealPlanner.Domain.Meals;
 using MealPlanner.Domain.Recipes;
 using MealPlanner.Domain.ShoppingList;

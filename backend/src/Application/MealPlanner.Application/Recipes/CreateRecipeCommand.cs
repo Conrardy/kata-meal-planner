@@ -1,4 +1,4 @@
-using MediatR;
+using MealPlanner.Application.Common.Mediator;
 using MealPlanner.Domain.Recipes;
 using MealPlanner.Domain.Meals;
 
