@@ -31,5 +31,6 @@ export interface AuthState {
   refreshToken: string | null;
   userId: string | null;
   username: string | null;
+  isAdmin: boolean;
   isAuthenticated: boolean;
 }

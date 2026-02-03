@@ -96,7 +96,6 @@ describe('ShoppingListComponent', () => {
 
     const fixture = TestBed.createComponent(ShoppingListComponent);
     fixture.detectChanges();
-    await fixture.whenStable();
 
     expect(fixture.componentInstance.showUpdateNotice()).toBe(true);
   });
@@ -263,6 +262,7 @@ describe('ShoppingListComponent', () => {
     await fixture.whenStable();
 
     const component = fixture.componentInstance;
+    component.onShowAddForm();
     component.newItemName = 'Test';
     component.onAddCustomItem();
     await fixture.whenStable();

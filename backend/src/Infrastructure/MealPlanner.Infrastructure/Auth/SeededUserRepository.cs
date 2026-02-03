@@ -30,7 +30,7 @@ public sealed class SeededUserRepository : ISeededUserRepository
             .Where(u => !string.IsNullOrWhiteSpace(u.Username))
             .ToDictionary(
                 u => u.Username.ToLowerInvariant(),
-                u => SeededUser.Create(GenerateDeterministicGuid(u.Username), u.Username),
+                u => SeededUser.Create(GenerateDeterministicGuid(u.Username), u.Username, isAdmin: true),
                 StringComparer.OrdinalIgnoreCase);
     }
 

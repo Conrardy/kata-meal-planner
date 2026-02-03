@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
+import { adminGuard } from './core/guards/admin.guard';
 
 export const routes: Routes = [
   {
@@ -72,6 +73,15 @@ export const routes: Routes = [
       ),
     title: 'Preferences',
     canActivate: [authGuard],
+  },
+  {
+    path: 'admin/users',
+    loadComponent: () =>
+      import('./features/admin-users/admin-users.component').then(
+        (m) => m.AdminUsersComponent
+      ),
+    title: 'Admin Users',
+    canActivate: [adminGuard],
   },
   { path: '**', redirectTo: '' },
 ];

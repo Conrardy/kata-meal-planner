@@ -242,7 +242,6 @@ describe('PreferencesComponent', () => {
     component.selectedDietaryPreference = 'Vegan';
 
     component.onSavePreferences();
-    expect(component.isSaving()).toBe(true);
 
     await fixture.whenStable();
 

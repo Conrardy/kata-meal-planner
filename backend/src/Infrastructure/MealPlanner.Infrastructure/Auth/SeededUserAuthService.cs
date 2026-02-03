@@ -34,22 +34,12 @@ public sealed class SeededUserAuthService : ISeededUserAuthService
 
     public async Task<ErrorOr<LoginResponse>> GenerateTokensAsync(SeededUser user, CancellationToken cancellationToken = default)
     {
-        var accessToken = GenerateAccessToken(user);
-        var refreshTokenValue = GenerateRefreshToken();
-        var refreshTokenExpiration = DateTime.UtcNow.Add(TimeSpan.FromDays(_jwtSettings.RefreshTokenExpirationDays));
+        return await GenerateTokensCoreAsync(user.Id, user.Username.Value, user.IsAdmin, cancellationToken);
+    }
 
-        var refreshToken = RefreshToken.Create(user.Id, refreshTokenValue, TimeSpan.FromDays(_jwtSettings.RefreshTokenExpirationDays));
-
-        _dbContext.RefreshTokens.Add(refreshToken);
-        await _dbContext.SaveChangesAsync(cancellationToken);
-
-        return new LoginResponse(
-            accessToken,
-            refreshTokenValue,
-            DateTime.UtcNow.AddMinutes(_jwtSettings.AccessTokenExpirationMinutes),
-            refreshTokenExpiration,
-            user.Id,
-            user.Username.Value);
+    public async Task<ErrorOr<LoginResponse>> GenerateTokensForUserAsync(AuthenticatedUser user, CancellationToken cancellationToken = default)
+    {
+        return await GenerateTokensCoreAsync(user.Id, user.Username, user.IsAdmin, cancellationToken);
     }
 
     public async Task<ErrorOr<LoginResponse>> RefreshTokenAsync(string refreshToken, CancellationToken cancellationToken = default)
@@ -76,15 +66,44 @@ public sealed class SeededUserAuthService : ISeededUserAuthService
         return await GenerateTokensAsync(user, cancellationToken);
     }
 
-    private string GenerateAccessToken(SeededUser user)
+    private async Task<ErrorOr<LoginResponse>> GenerateTokensCoreAsync(
+        Guid userId,
+        string username,
+        bool isAdmin,
+        CancellationToken cancellationToken)
+    {
+        var accessToken = GenerateAccessToken(userId, username, isAdmin);
+        var refreshTokenValue = GenerateRefreshToken();
+        var refreshTokenExpiration = DateTime.UtcNow.Add(TimeSpan.FromDays(_jwtSettings.RefreshTokenExpirationDays));
+
+        var refreshToken = RefreshToken.Create(userId, refreshTokenValue, TimeSpan.FromDays(_jwtSettings.RefreshTokenExpirationDays));
+
+        _dbContext.RefreshTokens.Add(refreshToken);
+        await _dbContext.SaveChangesAsync(cancellationToken);
+
+        return new LoginResponse(
+            accessToken,
+            refreshTokenValue,
+            DateTime.UtcNow.AddMinutes(_jwtSettings.AccessTokenExpirationMinutes),
+            refreshTokenExpiration,
+            userId,
+            username);
+    }
+
+    private string GenerateAccessToken(Guid userId, string username, bool isAdmin)
     {
         var claims = new List<Claim>
         {
-            new(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
-            new(JwtRegisteredClaimNames.Name, user.Username.Value),
+            new(JwtRegisteredClaimNames.Sub, userId.ToString()),
+            new(JwtRegisteredClaimNames.Name, username),
             new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
             new(JwtRegisteredClaimNames.Iat, DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString(), ClaimValueTypes.Integer64)
         };
+
+        if (isAdmin)
+        {
+            claims.Add(new Claim("IsAdmin", "true"));
+        }
 
         var key = new SymmetricSecurityKey(_keyBytes);
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);

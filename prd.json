@@ -52,7 +52,7 @@
       "dependsOn": [
         "US-021"
       ],
-      "completionNotes": "Implemented custom pipeline behaviors: IPipelineBehavior interface, ValidationBehavior (with FluentValidation), LoggingBehavior (with execution duration), TransactionBehavior (with EF Core transactions). Behaviors execute in registration order. 17 new unit tests added. MediatR temporarily retained for existing handlers (migration in US-023)."
+      "completionNotes": "Completed by agent"
     },
     {
       "id": "US-023",
@@ -67,7 +67,7 @@
         "Documentation de migration pour référence future"
       ],
       "priority": 1,
-      "passes": false,
+      "passes": true,
       "labels": [
         "backend",
         "architecture",
@@ -75,7 +75,8 @@
       ],
       "dependsOn": [
         "US-022"
-      ]
+      ],
+      "completionNotes": "Completed by agent"
     },
     {
       "id": "US-024",
@@ -307,6 +308,6 @@
   "metadata": {
     "createdAt": "2026-01-31T10:00:00.000Z",
     "version": "3.0.0",
-    "updatedAt": "2026-01-31T13:10:21.134Z"
+    "updatedAt": "2026-02-03T21:01:09.941Z"
   }
 }

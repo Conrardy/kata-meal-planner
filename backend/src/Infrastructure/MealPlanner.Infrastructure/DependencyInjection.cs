@@ -1,3 +1,4 @@
+using MealPlanner.Application.Admin;
 using MealPlanner.Application.Auth;
 using MealPlanner.Application.Common.Interfaces;
 using MealPlanner.Domain.Auth;
@@ -6,6 +7,7 @@ using MealPlanner.Domain.Preferences;
 using MealPlanner.Domain.Recipes;
 using MealPlanner.Domain.ShoppingList;
 using MealPlanner.Infrastructure.Auth;
+using MealPlanner.Infrastructure.Admin;
 using MealPlanner.Infrastructure.Identity;
 using MealPlanner.Infrastructure.Persistence;
 using MealPlanner.Infrastructure.Services;
@@ -52,8 +54,11 @@ public static class DependencyInjection
         services.Configure<SeededUsersSettings>(configuration.GetSection(SeededUsersSettings.SectionName));
         services.AddSingleton<IJwtTokenProvider, JwtTokenProvider>();
         services.AddScoped<IAuthService, AuthService>();
+        services.AddScoped<IUserAuthenticationService, UserAuthenticationService>();
         services.AddSingleton<ISeededUserRepository, SeededUserRepository>();
         services.AddScoped<ISeededUserAuthService, SeededUserAuthService>();
+        services.AddScoped<IAdminUserService, AdminUserService>();
+        services.AddScoped<IPasswordHasher<DynamicUser>, PasswordHasher<DynamicUser>>();
 
         services.AddScoped<IRecipeRepository, EfCoreRecipeRepository>();
         services.AddScoped<IPlannedMealRepository, EfCorePlannedMealRepository>();

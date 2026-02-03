@@ -26,9 +26,11 @@ export class AuthService {
   private readonly authState = signal<AuthState>(this.loadStoredState());
 
   readonly isAuthenticated = computed(() => this.authState().isAuthenticated);
+  readonly isAdmin = computed(() => this.authState().isAdmin);
   readonly currentUser = computed(() => ({
     userId: this.authState().userId,
     username: this.authState().username,
+    isAdmin: this.authState().isAdmin,
   }));
   readonly accessToken = computed(() => this.authState().accessToken);
 
@@ -71,11 +73,13 @@ export class AuthService {
   }
 
   private handleAuthSuccess(response: AuthResponse): void {
+    const isAdmin = this.getIsAdminFromToken(response.accessToken);
     const newState: AuthState = {
       accessToken: response.accessToken,
       refreshToken: response.refreshToken,
       userId: response.userId,
       username: response.username,
+      isAdmin,
       isAuthenticated: true,
     };
 
@@ -89,6 +93,7 @@ export class AuthService {
       refreshToken: null,
       userId: null,
       username: null,
+      isAdmin: false,
       isAuthenticated: false,
     };
 
@@ -124,6 +129,7 @@ export class AuthService {
         refreshToken: null,
         userId: null,
         username: null,
+        isAdmin: false,
         isAuthenticated: false,
       };
     }
@@ -142,7 +148,39 @@ export class AuthService {
       refreshToken,
       userId: user?.userId ?? null,
       username: user?.username ?? null,
+      isAdmin: this.getIsAdminFromToken(accessToken),
       isAuthenticated: true,
     };
+  }
+
+  private getIsAdminFromToken(token: string | null): boolean {
+    if (!token) {
+      return false;
+    }
+
+    const payload = this.decodeJwtPayload(token);
+    const rawValue = payload?.['IsAdmin'] ?? payload?.['isAdmin'] ?? payload?.['is_admin'];
+
+    if (rawValue === true || rawValue === 'true') {
+      return true;
+    }
+
+    return false;
+  }
+
+  private decodeJwtPayload(token: string): Record<string, unknown> | null {
+    const parts = token.split('.');
+    if (parts.length < 2) {
+      return null;
+    }
+
+    const normalized = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+    const padded = normalized.padEnd(normalized.length + ((4 - (normalized.length % 4)) % 4), '=');
+
+    try {
+      return JSON.parse(atob(padded)) as Record<string, unknown>;
+    } catch {
+      return null;
+    }
   }
 }

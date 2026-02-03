@@ -80,15 +80,26 @@ describe('RecipeDetailsComponent', () => {
   });
 
   it('should set error when recipe ID is not found', async () => {
-    TestBed.overrideProvider(ActivatedRoute, {
-      useValue: {
-        snapshot: {
-          paramMap: {
-            get: () => null,
+    TestBed.resetTestingModule();
+
+    await TestBed.configureTestingModule({
+      imports: [RecipeDetailsComponent],
+      providers: [
+        provideRouter([]),
+        { provide: RecipeService, useValue: recipeServiceMock },
+        { provide: MealPlanService, useValue: mealPlanServiceMock },
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            snapshot: {
+              paramMap: {
+                get: () => null,
+              },
+            },
           },
         },
-      },
-    });
+      ],
+    }).compileComponents();
 
     const fixture = TestBed.createComponent(RecipeDetailsComponent);
     fixture.detectChanges();

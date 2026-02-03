@@ -7,5 +7,6 @@ namespace MealPlanner.Application.Auth;
 public interface ISeededUserAuthService
 {
     Task<ErrorOr<LoginResponse>> GenerateTokensAsync(SeededUser user, CancellationToken cancellationToken = default);
+    Task<ErrorOr<LoginResponse>> GenerateTokensForUserAsync(AuthenticatedUser user, CancellationToken cancellationToken = default);
     Task<ErrorOr<LoginResponse>> RefreshTokenAsync(string refreshToken, CancellationToken cancellationToken = default);
 }

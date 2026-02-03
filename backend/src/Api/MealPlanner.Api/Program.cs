@@ -8,6 +8,7 @@ using MealPlanner.Api.Configuration;
 using MealPlanner.Api.Extensions;
 using MealPlanner.Api.Logging;
 using MealPlanner.Api.Middleware;
+using MealPlanner.Application.Admin;
 using MealPlanner.Application.Auth;
 using MealPlanner.Application.Common.Behaviors;
 using MealPlanner.Application.Common.Mediator;
@@ -105,7 +106,11 @@ try
         };
     });
 
-    builder.Services.AddAuthorization();
+    builder.Services.AddAuthorization(options =>
+    {
+        options.AddPolicy("RequireAdmin", policy =>
+            policy.RequireClaim("IsAdmin", "true"));
+    });
 
     builder.Services.AddHsts(options =>
     {
@@ -387,6 +392,27 @@ app.MapPost("/api/v1/auth/refresh/email", async (HttpContext httpContext, Refres
 .WithName("RefreshTokenWithEmail")
 .WithOpenApi();
 
+app.MapGet("/api/v1/admin/users", async (IMediator mediator) =>
+{
+    var result = await mediator.Send(new GetUsersQuery());
+    return Results.Ok(result);
+})
+.WithName("GetAdminUsers")
+.WithOpenApi()
+.RequireAuthorization("RequireAdmin");
+
+app.MapPost("/api/v1/admin/users", async (HttpContext httpContext, CreateAdminUserRequest request, IMediator mediator) =>
+{
+    var command = new CreateUserCommand(request.Username, request.Password);
+    var result = await mediator.Send(command);
+    return result.MatchResult(
+        httpContext,
+        response => Results.Created($"/api/v1/admin/users/{response.UserId}", response));
+})
+.WithName("CreateAdminUser")
+.WithOpenApi()
+.RequireAuthorization("RequireAdmin");
+
 app.MapGet("/api/v1/daily-digest/{date}", async (DateOnly date, IMediator mediator) =>
 {
     var query = new GetDailyDigestQuery(date);
@@ -632,6 +658,8 @@ public record UpdatePreferencesRequest(
     bool? AutoGenerateShoppingList = null,
     List<string>? ExcludedIngredients = null
 );
+
+public record CreateAdminUserRequest(string Username, string Password);
 
 public record UsernameLoginRequest(string Username, string Password);
 public record UsernameRefreshTokenRequest(string RefreshToken);

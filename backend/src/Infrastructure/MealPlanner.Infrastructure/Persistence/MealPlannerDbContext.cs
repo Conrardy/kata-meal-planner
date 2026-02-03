@@ -18,6 +18,7 @@ public sealed class MealPlannerDbContext : IdentityDbContext<ApplicationUser, Id
     public DbSet<UserPreferencesEntity> UserPreferences => Set<UserPreferencesEntity>();
     public DbSet<ShoppingListStateEntity> ShoppingListStates => Set<ShoppingListStateEntity>();
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
+    public DbSet<DynamicUser> DynamicUsers => Set<DynamicUser>();
 
     public MealPlannerDbContext(DbContextOptions<MealPlannerDbContext> options)
         : base(options)
@@ -33,6 +34,7 @@ public sealed class MealPlannerDbContext : IdentityDbContext<ApplicationUser, Id
         ConfigureUserPreferences(modelBuilder);
         ConfigureShoppingListState(modelBuilder);
         ConfigureRefreshToken(modelBuilder);
+        ConfigureDynamicUser(modelBuilder);
         ConfigureIdentityTables(modelBuilder);
     }
 
@@ -217,6 +219,22 @@ public sealed class MealPlannerDbContext : IdentityDbContext<ApplicationUser, Id
 
             entity.HasIndex(t => t.Token).IsUnique();
             entity.HasIndex(t => t.UserId);
+        });
+    }
+
+    private static void ConfigureDynamicUser(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<DynamicUser>(entity =>
+        {
+            entity.ToTable("dynamic_users");
+            entity.HasKey(u => u.Id);
+
+            entity.Property(u => u.Id).HasColumnName("id");
+            entity.Property(u => u.Username).HasColumnName("username").HasMaxLength(50).IsRequired();
+            entity.Property(u => u.PasswordHash).HasColumnName("password_hash").HasMaxLength(500).IsRequired();
+            entity.Property(u => u.CreatedAt).HasColumnName("created_at");
+
+            entity.HasIndex(u => u.Username).IsUnique();
         });
     }
 
