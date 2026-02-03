@@ -93,7 +93,7 @@
         "Tests frontend et backend pour les scénarios admin"
       ],
       "priority": 2,
-      "passes": false,
+      "passes": true,
       "labels": [
         "frontend",
         "backend",
@@ -102,7 +102,8 @@
       ],
       "dependsOn": [
         "US-023"
-      ]
+      ],
+      "completionNotes": "Completed by agent"
     },
     {
       "id": "US-025",
@@ -117,7 +118,7 @@
         "Tests d'autorisation pour les scénarios positifs et négatifs"
       ],
       "priority": 2,
-      "passes": false,
+      "passes": true,
       "labels": [
         "backend",
         "frontend",
@@ -125,7 +126,8 @@
       ],
       "dependsOn": [
         "US-023"
-      ]
+      ],
+      "completionNotes": "Already implemented as part of US-024. All criteria verified: IsAdmin claim on seeded users, RequireAdmin policy, adminGuard, 403 on non-admin endpoints, conditional sidebar link, authorization tests."
     },
     {
       "id": "US-026",
@@ -308,6 +310,6 @@
   "metadata": {
     "createdAt": "2026-01-31T10:00:00.000Z",
     "version": "3.0.0",
-    "updatedAt": "2026-02-03T21:01:09.941Z"
+    "updatedAt": "2026-02-03T21:06:04.349Z"
   }
 }
