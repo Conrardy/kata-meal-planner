@@ -11,7 +11,11 @@
     "test:watch": "vitest --watch",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest run --coverage",
-    "test:ci": "vitest run --coverage"
+    "test:ci": "vitest run --coverage",
+    "i18n:extract": "ng extract-i18n",
+    "build:fr": "ng build --configuration production-fr",
+    "build:en": "ng build --configuration production-en",
+    "build:i18n": "ng build --localize"
   },
   "private": true,
   "dependencies": {
@@ -36,13 +40,14 @@
     "@angular-devkit/build-angular": "^19.2.19",
     "@angular/cli": "^19.2.19",
     "@angular/compiler-cli": "^19.2.0",
+    "@angular/localize": "^19.2.18",
     "@vitest/coverage-v8": "^2.1.0",
     "@vitest/ui": "^2.1.0",
     "jsdom": "^25.0.0",
+    "source-map-explorer": "^2.5.3",
     "typescript": "~5.7.2",
     "vite": "^6.0.0",
     "vite-tsconfig-paths": "^5.1.0",
-    "vitest": "^2.1.0",
-    "source-map-explorer": "^2.5.3"
+    "vitest": "^2.1.0"
   }
 }
