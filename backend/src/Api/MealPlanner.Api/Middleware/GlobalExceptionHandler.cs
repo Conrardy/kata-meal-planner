@@ -1,4 +1,5 @@
 using System.Text.Json;
+using MealPlanner.Api.Localization;
 using MealPlanner.Application.Common.Exceptions;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
@@ -9,13 +10,16 @@ public sealed class GlobalExceptionHandler : IExceptionHandler
 {
     private readonly ILogger<GlobalExceptionHandler> _logger;
     private readonly IHostEnvironment _environment;
+    private readonly ErrorLocalizer _errorLocalizer;
 
     public GlobalExceptionHandler(
         ILogger<GlobalExceptionHandler> logger,
-        IHostEnvironment environment)
+        IHostEnvironment environment,
+        ErrorLocalizer errorLocalizer)
     {
         _logger = logger;
         _environment = environment;
+        _errorLocalizer = errorLocalizer;
     }
 
     public async ValueTask<bool> TryHandleAsync(
@@ -50,10 +54,10 @@ public sealed class GlobalExceptionHandler : IExceptionHandler
         var problemDetails = new ProblemDetails
         {
             Status = StatusCodes.Status400BadRequest,
-            Title = "One or more validation errors occurred",
+            Title = _errorLocalizer.LocalizeByKey("ProblemDetails.ValidationTitle"),
             Type = "https://tools.ietf.org/html/rfc9110#section-15.5.1",
             Instance = httpContext.Request.Path,
-            Detail = "See the errors property for details.",
+            Detail = _errorLocalizer.LocalizeByKey("ProblemDetails.ValidationDetail"),
             Extensions =
             {
                 ["correlationId"] = correlationId,
@@ -89,7 +93,7 @@ public sealed class GlobalExceptionHandler : IExceptionHandler
         var problemDetails = new ProblemDetails
         {
             Status = StatusCodes.Status500InternalServerError,
-            Title = "An unexpected error occurred",
+            Title = _errorLocalizer.LocalizeByKey("ProblemDetails.UnexpectedTitle"),
             Type = "https://tools.ietf.org/html/rfc9110#section-15.6.1",
             Instance = httpContext.Request.Path,
             Extensions =
@@ -111,7 +115,7 @@ public sealed class GlobalExceptionHandler : IExceptionHandler
         }
         else
         {
-            problemDetails.Detail = "Please contact support if this issue persists.";
+            problemDetails.Detail = _errorLocalizer.LocalizeByKey("ProblemDetails.UnexpectedDetail");
         }
 
         httpContext.Response.StatusCode = StatusCodes.Status500InternalServerError;

@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" msdata:Ordinal="0" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+
+  <!-- Business Errors: Admin -->
+  <data name="Admin.UsernameAlreadyExists" xml:space="preserve"><value>A user with this username already exists.</value></data>
+  <data name="Admin.PasswordRequirementsNotMet" xml:space="preserve"><value>The password does not meet the requirements.</value></data>
+
+  <!-- Business Errors: Auth -->
+  <data name="Auth.InvalidCredentials" xml:space="preserve"><value>Invalid username or password.</value></data>
+  <data name="Auth.EmailAlreadyExists" xml:space="preserve"><value>A user with this email already exists.</value></data>
+  <data name="Auth.InvalidRefreshToken" xml:space="preserve"><value>The refresh token is invalid or expired.</value></data>
+  <data name="Auth.UserNotFound" xml:space="preserve"><value>User not found.</value></data>
+  <data name="Auth.PasswordRequirementsNotMet" xml:space="preserve"><value>The password does not meet the requirements.</value></data>
+
+  <!-- Business Errors: Meals -->
+  <data name="Meal.NotFound" xml:space="preserve"><value>Meal with ID {0} was not found.</value></data>
+  <data name="Meal.RecipeNotFound" xml:space="preserve"><value>Recipe with ID {0} was not found.</value></data>
+  <data name="Meal.SlotAlreadyFilled" xml:space="preserve"><value>A meal is already planned for {0} on {1}. Use swap instead.</value></data>
+
+  <!-- Business Errors: Shopping List -->
+  <data name="ShoppingItem.NotFound" xml:space="preserve"><value>Shopping item with ID {0} was not found.</value></data>
+
+  <!-- Business Errors: Recipes -->
+  <data name="Recipe.NotFound" xml:space="preserve"><value>Recipe with ID {0} was not found.</value></data>
+
+  <!-- Validation Errors: Common -->
+  <data name="Validation.Required" xml:space="preserve"><value>{0} is required.</value></data>
+  <data name="Validation.MinLength" xml:space="preserve"><value>{0} must be at least {1} characters.</value></data>
+  <data name="Validation.MaxLength" xml:space="preserve"><value>{0} must not exceed {1} characters.</value></data>
+  <data name="Validation.InvalidEmail" xml:space="preserve"><value>Invalid email format.</value></data>
+  <data name="Validation.MustBeOneOf" xml:space="preserve"><value>{0} must be one of: {1}.</value></data>
+  <data name="Validation.MaxItems" xml:space="preserve"><value>Cannot have more than {0} {1}.</value></data>
+  <data name="Validation.GreaterThan" xml:space="preserve"><value>{0} must be greater than {1}.</value></data>
+  <data name="Validation.InvalidUrl" xml:space="preserve"><value>{0} must be a valid URL.</value></data>
+  <data name="Validation.PasswordUppercase" xml:space="preserve"><value>Password must contain at least one uppercase letter.</value></data>
+  <data name="Validation.PasswordLowercase" xml:space="preserve"><value>Password must contain at least one lowercase letter.</value></data>
+  <data name="Validation.PasswordDigit" xml:space="preserve"><value>Password must contain at least one digit.</value></data>
+
+  <!-- Problem Details -->
+  <data name="ProblemDetails.ValidationTitle" xml:space="preserve"><value>One or more validation errors occurred</value></data>
+  <data name="ProblemDetails.ValidationDetail" xml:space="preserve"><value>See the errors property for details.</value></data>
+  <data name="ProblemDetails.UnexpectedTitle" xml:space="preserve"><value>An unexpected error occurred</value></data>
+  <data name="ProblemDetails.UnexpectedDetail" xml:space="preserve"><value>Please contact support if this issue persists.</value></data>
+  <data name="ProblemDetails.Conflict" xml:space="preserve"><value>Conflict</value></data>
+  <data name="ProblemDetails.NotFound" xml:space="preserve"><value>Not Found</value></data>
+  <data name="ProblemDetails.Unauthorized" xml:space="preserve"><value>Unauthorized</value></data>
+  <data name="ProblemDetails.Forbidden" xml:space="preserve"><value>Forbidden</value></data>
+  <data name="ProblemDetails.BadRequest" xml:space="preserve"><value>Bad Request</value></data>
+</root>

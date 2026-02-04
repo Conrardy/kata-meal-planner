@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" msdata:Ordinal="0" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+
+  <!-- Erreurs métier : Admin -->
+  <data name="Admin.UsernameAlreadyExists" xml:space="preserve"><value>Un utilisateur avec ce nom d'utilisateur existe déjà.</value></data>
+  <data name="Admin.PasswordRequirementsNotMet" xml:space="preserve"><value>Le mot de passe ne respecte pas les exigences requises.</value></data>
+
+  <!-- Erreurs métier : Auth -->
+  <data name="Auth.InvalidCredentials" xml:space="preserve"><value>Nom d'utilisateur ou mot de passe invalide.</value></data>
+  <data name="Auth.EmailAlreadyExists" xml:space="preserve"><value>Un utilisateur avec cette adresse e-mail existe déjà.</value></data>
+  <data name="Auth.InvalidRefreshToken" xml:space="preserve"><value>Le jeton de rafraîchissement est invalide ou expiré.</value></data>
+  <data name="Auth.UserNotFound" xml:space="preserve"><value>Utilisateur non trouvé.</value></data>
+  <data name="Auth.PasswordRequirementsNotMet" xml:space="preserve"><value>Le mot de passe ne respecte pas les exigences requises.</value></data>
+
+  <!-- Erreurs métier : Meals -->
+  <data name="Meal.NotFound" xml:space="preserve"><value>Le repas avec l'identifiant {0} n'a pas été trouvé.</value></data>
+  <data name="Meal.RecipeNotFound" xml:space="preserve"><value>La recette avec l'identifiant {0} n'a pas été trouvée.</value></data>
+  <data name="Meal.SlotAlreadyFilled" xml:space="preserve"><value>Un repas est déjà planifié pour {0} le {1}. Utilisez l'échange à la place.</value></data>
+
+  <!-- Erreurs métier : Liste de courses -->
+  <data name="ShoppingItem.NotFound" xml:space="preserve"><value>L'article de la liste de courses avec l'identifiant {0} n'a pas été trouvé.</value></data>
+
+  <!-- Erreurs métier : Recettes -->
+  <data name="Recipe.NotFound" xml:space="preserve"><value>La recette avec l'identifiant {0} n'a pas été trouvée.</value></data>
+
+  <!-- Erreurs de validation : Commun -->
+  <data name="Validation.Required" xml:space="preserve"><value>{0} est requis.</value></data>
+  <data name="Validation.MinLength" xml:space="preserve"><value>{0} doit contenir au moins {1} caractères.</value></data>
+  <data name="Validation.MaxLength" xml:space="preserve"><value>{0} ne doit pas dépasser {1} caractères.</value></data>
+  <data name="Validation.InvalidEmail" xml:space="preserve"><value>Format d'adresse e-mail invalide.</value></data>
+  <data name="Validation.MustBeOneOf" xml:space="preserve"><value>{0} doit être l'un des suivants : {1}.</value></data>
+  <data name="Validation.MaxItems" xml:space="preserve"><value>Impossible d'avoir plus de {0} {1}.</value></data>
+  <data name="Validation.GreaterThan" xml:space="preserve"><value>{0} doit être supérieur à {1}.</value></data>
+  <data name="Validation.InvalidUrl" xml:space="preserve"><value>{0} doit être une URL valide.</value></data>
+  <data name="Validation.PasswordUppercase" xml:space="preserve"><value>Le mot de passe doit contenir au moins une lettre majuscule.</value></data>
+  <data name="Validation.PasswordLowercase" xml:space="preserve"><value>Le mot de passe doit contenir au moins une lettre minuscule.</value></data>
+  <data name="Validation.PasswordDigit" xml:space="preserve"><value>Le mot de passe doit contenir au moins un chiffre.</value></data>
+
+  <!-- Problem Details -->
+  <data name="ProblemDetails.ValidationTitle" xml:space="preserve"><value>Une ou plusieurs erreurs de validation se sont produites</value></data>
+  <data name="ProblemDetails.ValidationDetail" xml:space="preserve"><value>Consultez la propriété errors pour plus de détails.</value></data>
+  <data name="ProblemDetails.UnexpectedTitle" xml:space="preserve"><value>Une erreur inattendue s'est produite</value></data>
+  <data name="ProblemDetails.UnexpectedDetail" xml:space="preserve"><value>Veuillez contacter le support si le problème persiste.</value></data>
+  <data name="ProblemDetails.Conflict" xml:space="preserve"><value>Conflit</value></data>
+  <data name="ProblemDetails.NotFound" xml:space="preserve"><value>Non trouvé</value></data>
+  <data name="ProblemDetails.Unauthorized" xml:space="preserve"><value>Non autorisé</value></data>
+  <data name="ProblemDetails.Forbidden" xml:space="preserve"><value>Accès interdit</value></data>
+  <data name="ProblemDetails.BadRequest" xml:space="preserve"><value>Requête invalide</value></data>
+</root>

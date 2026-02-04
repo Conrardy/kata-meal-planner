@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text;
 using System.Text.Json;
 using System.Threading.RateLimiting;
@@ -6,8 +7,10 @@ using FluentValidation;
 using HealthChecks.NpgSql;
 using MealPlanner.Api.Configuration;
 using MealPlanner.Api.Extensions;
+using MealPlanner.Api.Localization;
 using MealPlanner.Api.Logging;
 using MealPlanner.Api.Middleware;
+using Microsoft.AspNetCore.Localization;
 using MealPlanner.Application.Admin;
 using MealPlanner.Application.Auth;
 using MealPlanner.Application.Common.Behaviors;
@@ -59,6 +62,10 @@ try
     builder.Services.AddOpenApi();
     builder.Services.AddProblemDetails();
     builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+
+    builder.Services.AddLocalization();
+    builder.Services.AddSingleton<ErrorLocalizer>();
+
     builder.Services.AddInfrastructure(builder.Configuration);
 
     var applicationAssembly = typeof(GetDailyDigestQuery).Assembly;
@@ -291,6 +298,18 @@ if (app.Environment.IsDevelopment())
     Log.Information("Configuring middleware pipeline");
 
     app.UseCorrelationId();
+
+    var supportedCultures = new[] { new CultureInfo("en"), new CultureInfo("fr") };
+    app.UseRequestLocalization(new RequestLocalizationOptions
+    {
+        DefaultRequestCulture = new RequestCulture("en"),
+        SupportedCultures = supportedCultures,
+        SupportedUICultures = supportedCultures,
+        FallBackToParentCultures = true,
+        FallBackToParentUICultures = true,
+        ApplyCurrentCultureToResponseHeaders = true
+    });
+
     app.UseSerilogRequestLogging(options =>
     {
         options.EnrichDiagnosticContext = (diagnosticContext, httpContext) =>
@@ -443,7 +462,7 @@ app.MapPost("/api/v1/meals/{mealId}/swap", async (HttpContext httpContext, Guid 
 .WithOpenApi()
 .RequireAuthorization();
 
-app.MapGet("/api/v1/recipes/{recipeId}", async (HttpContext httpContext, Guid recipeId, IMediator mediator) =>
+app.MapGet("/api/v1/recipes/{recipeId}", async (HttpContext httpContext, Guid recipeId, IMediator mediator, ErrorLocalizer errorLocalizer) =>
 {
     var query = new GetRecipeDetailsQuery(recipeId);
     var result = await mediator.Send(query);
@@ -452,8 +471,8 @@ app.MapGet("/api/v1/recipes/{recipeId}", async (HttpContext httpContext, Guid re
         var problemDetails = ApiProblemDetailsFactory.CreateProblemDetails(
             httpContext,
             StatusCodes.Status404NotFound,
-            "Not Found",
-            $"Recipe with ID '{recipeId}' was not found.");
+            errorLocalizer.LocalizeByKey("ProblemDetails.NotFound"),
+            errorLocalizer.LocalizeByKey("Meal.RecipeNotFound", recipeId));
         return Results.Problem(problemDetails);
     }
     return Results.Ok(result);
@@ -504,7 +523,7 @@ app.MapPost("/api/v1/recipes", async (CreateRecipeRequest request, IMediator med
 .WithOpenApi()
 .RequireAuthorization();
 
-app.MapPost("/api/v1/meal-plan", async (AddRecipeToMealPlanRequest request, IMediator mediator) =>
+app.MapPost("/api/v1/meal-plan", async (HttpContext httpContext, AddRecipeToMealPlanRequest request, IMediator mediator) =>
 {
     var command = new AddRecipeToMealPlanCommand(
         request.RecipeId,
@@ -512,16 +531,9 @@ app.MapPost("/api/v1/meal-plan", async (AddRecipeToMealPlanRequest request, IMed
         request.MealType
     );
     var result = await mediator.Send(command);
-    return result.Match(
-        value => Results.Created($"/api/v1/meals/{value.MealId}", value),
-        errors => Results.Problem(statusCode: errors[0].Type switch
-        {
-            ErrorType.Conflict => StatusCodes.Status409Conflict,
-            ErrorType.NotFound => StatusCodes.Status404NotFound,
-            ErrorType.Validation => StatusCodes.Status400BadRequest,
-            _ => StatusCodes.Status500InternalServerError
-        }, title: errors[0].Description)
-    );
+    return result.MatchResult(
+        httpContext,
+        value => Results.Created($"/api/v1/meals/{value.MealId}", value));
 })
 .WithName("AddRecipeToMealPlan")
 .WithOpenApi()
@@ -557,7 +569,7 @@ app.MapPost("/api/v1/shopping-list/{startDate}/items", async (DateOnly startDate
 .WithOpenApi()
 .RequireAuthorization();
 
-app.MapDelete("/api/v1/shopping-list/{startDate}/items/{itemId}", async (HttpContext httpContext, DateOnly startDate, string itemId, IMediator mediator) =>
+app.MapDelete("/api/v1/shopping-list/{startDate}/items/{itemId}", async (HttpContext httpContext, DateOnly startDate, string itemId, IMediator mediator, ErrorLocalizer errorLocalizer) =>
 {
     var command = new RemoveShoppingItemCommand(startDate, itemId);
     var removed = await mediator.Send(command);
@@ -566,8 +578,8 @@ app.MapDelete("/api/v1/shopping-list/{startDate}/items/{itemId}", async (HttpCon
         var problemDetails = ApiProblemDetailsFactory.CreateProblemDetails(
             httpContext,
             StatusCodes.Status404NotFound,
-            "Not Found",
-            $"Shopping item with ID '{itemId}' was not found.");
+            errorLocalizer.LocalizeByKey("ProblemDetails.NotFound"),
+            errorLocalizer.LocalizeByKey("ShoppingItem.NotFound", itemId));
         return Results.Problem(problemDetails);
     }
     return Results.NoContent();

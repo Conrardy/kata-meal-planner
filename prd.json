@@ -164,14 +164,15 @@
         "Tests de non-régression pour les deux langues"
       ],
       "priority": 3,
-      "passes": false,
+      "passes": true,
       "labels": [
         "frontend",
         "i18n"
       ],
       "dependsOn": [
         "US-026"
-      ]
+      ],
+      "completionNotes": "Completed by agent"
     },
     {
       "id": "US-028",
@@ -187,7 +188,8 @@
         "Tests pour les messages localisés"
       ],
       "priority": 3,
-      "passes": false,
+      "passes": true,
+      "completionNotes": "Completed by agent",
       "labels": [
         "backend",
         "i18n"
@@ -311,6 +313,6 @@
   "metadata": {
     "createdAt": "2026-01-31T10:00:00.000Z",
     "version": "3.0.0",
-    "updatedAt": "2026-02-04T12:42:48.643Z"
+    "updatedAt": "2026-02-04T12:57:03.528Z"
   }
 }

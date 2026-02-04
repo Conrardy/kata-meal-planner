@@ -1,3 +1,4 @@
+using MealPlanner.Api.Localization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace MealPlanner.Api.Middleware;
@@ -39,15 +40,19 @@ public static class ApiProblemDetailsFactory
 
     public static ProblemDetails CreateValidationProblemDetails(
         HttpContext httpContext,
-        IDictionary<string, string[]> validationErrors)
+        IDictionary<string, string[]> validationErrors,
+        ErrorLocalizer? errorLocalizer = null)
     {
         var correlationId = httpContext.Items["CorrelationId"]?.ToString()
             ?? httpContext.TraceIdentifier;
 
+        var title = errorLocalizer?.LocalizeByKey("ProblemDetails.ValidationTitle")
+            ?? "One or more validation errors occurred";
+
         var problemDetails = new ProblemDetails
         {
             Status = StatusCodes.Status400BadRequest,
-            Title = "One or more validation errors occurred",
+            Title = title,
             Type = "https://tools.ietf.org/html/rfc9110#section-15.5.1",
             Instance = httpContext.Request.Path,
             Extensions =
