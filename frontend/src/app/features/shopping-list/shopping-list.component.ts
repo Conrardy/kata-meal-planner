@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { Component, OnInit, inject, signal, computed, LOCALE_ID } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import {
@@ -32,6 +32,7 @@ import {
 })
 export class ShoppingListComponent implements OnInit {
   private readonly shoppingListService = inject(ShoppingListService);
+  private readonly locale = inject(LOCALE_ID);
 
   readonly startDate = signal<Date>(this.getStartOfWeek(new Date()));
   readonly shoppingList = signal<ShoppingList | null>(null);
@@ -249,6 +250,6 @@ export class ShoppingListComponent implements OnInit {
 
   private formatDisplayDate(dateStr: string): string {
     const date = new Date(dateStr);
-    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    return date.toLocaleDateString(this.locale, { month: 'short', day: 'numeric' });
   }
 }

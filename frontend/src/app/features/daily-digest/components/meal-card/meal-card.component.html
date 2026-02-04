@@ -13,7 +13,8 @@
     }
     <span
       class="absolute top-3 left-3 bg-primary text-white text-xs font-semibold px-3 py-1 rounded-full"
-      aria-label="Meal type"
+      i18n-aria-label="@@mealCard.mealType"
+      aria-label="Type de repas"
     >
       {{ meal().mealType }}
     </span>
@@ -33,7 +34,7 @@
         [attr.aria-label]="'Swap ' + meal().mealType + ' meal'"
       >
         <lucide-icon [img]="RefreshCw" class="w-4 h-4" aria-hidden="true"></lucide-icon>
-        <span class="text-sm font-medium">Swap Meal</span>
+        <span class="text-sm font-medium" i18n="@@mealCard.swapMeal">Changer le repas</span>
       </button>
 
       <button
@@ -44,7 +45,7 @@
         [attr.aria-label]="'View cooking instructions for ' + meal().recipeName"
       >
         <lucide-icon [img]="ChefHat" class="w-4 h-4" aria-hidden="true"></lucide-icon>
-        <span class="text-sm font-medium">Cook Now</span>
+        <span class="text-sm font-medium" i18n="@@mealCard.cookNow">Cuisiner maintenant</span>
       </button>
     </div>
   </div>

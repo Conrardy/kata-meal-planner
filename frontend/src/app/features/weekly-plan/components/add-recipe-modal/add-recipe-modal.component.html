@@ -7,8 +7,8 @@
     <!-- Header -->
     <div class="flex items-center justify-between p-4 border-b">
       <div>
-        <h2 class="text-lg font-semibold text-gray-900">Add a Recipe</h2>
-        <p class="text-sm text-gray-500">Select a recipe for {{ mealType() }} on {{ date() }}</p>
+        <h2 class="text-lg font-semibold text-gray-900" i18n="@@addRecipeModal.title">Ajouter une recette</h2>
+        <p class="text-sm text-gray-500" i18n="@@addRecipeModal.subtitle">Select a recipe for {{ mealType() }} on {{ date() }}</p>
       </div>
       <button
         type="button"
@@ -28,6 +28,7 @@
         (input)="onSearchChange($event)"
         class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
         data-testid="search-input"
+        i18n-placeholder="@@addRecipeModal.searchPlaceholder"
       />
     </div>
 
@@ -48,8 +49,9 @@
         <div
           class="text-center text-gray-500 py-12"
           data-testid="no-recipes"
+          i18n="@@addRecipeModal.noRecipes"
         >
-          No recipes found
+          Aucune recette trouvée
         </div>
       } @else {
         <div class="space-y-3" data-testid="recipe-list">
@@ -110,8 +112,9 @@
         (click)="onClose()"
         class="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
         data-testid="cancel-button"
+        i18n="@@addRecipeModal.cancelButton"
       >
-        Cancel
+        Annuler
       </button>
       <button
         type="button"
@@ -122,8 +125,9 @@
         [class.cursor-not-allowed]="!selectedRecipeId()"
         [class.hover:bg-orange-600]="selectedRecipeId()"
         data-testid="add-button"
+        i18n="@@addRecipeModal.addButton"
       >
-        Add
+        Ajouter
       </button>
     </div>
   </div>

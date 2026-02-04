@@ -2,11 +2,11 @@
   <!-- Header (mobile only, hidden on desktop where sidebar is visible) -->
   <header class="bg-white shadow-sm sticky top-0 z-10 lg:hidden print:hidden">
     <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-      <h1 class="text-2xl font-bold text-gray-900">MealPrep</h1>
+      <h1 class="text-2xl font-bold text-gray-900" i18n="@@shoppingList.mealprep">MealPrep</h1>
       <nav class="flex gap-4">
-        <a routerLink="/" class="text-gray-500 hover:text-gray-900 transition-colors">Today</a>
-        <a routerLink="/weekly-plan" class="text-gray-500 hover:text-gray-900 transition-colors">Weekly Plan</a>
-        <span class="text-primary font-medium">Shopping List</span>
+        <a routerLink="/" class="text-gray-500 hover:text-gray-900 transition-colors" i18n="@@shoppingList.today">Aujourd'hui</a>
+        <a routerLink="/weekly-plan" class="text-gray-500 hover:text-gray-900 transition-colors" i18n="@@shoppingList.weeklyPlan">Plan hebdomadaire</a>
+        <span class="text-primary font-medium" i18n="@@shoppingList.shoppingList">Liste de courses</span>
       </nav>
     </div>
   </header>
@@ -20,7 +20,7 @@
           [img]="ShoppingCart"
           class="w-6 h-6 text-primary print:hidden"
         ></lucide-icon>
-        <h2 class="text-xl font-semibold text-gray-900">Shopping List</h2>
+        <h2 class="text-xl font-semibold text-gray-900" i18n="@@shoppingList.shoppingList">Liste de courses</h2>
       </div>
       <div class="flex items-center gap-2 print:hidden">
         <button
@@ -47,7 +47,7 @@
 
     <!-- Print Header (only visible when printing) -->
     <div class="hidden print:block mb-4">
-      <p class="text-sm text-gray-600">Week of {{ formattedDateRange() }}</p>
+      <p class="text-sm text-gray-600"><span i18n="@@shoppingList.weekOf">Week of</span> {{ formattedDateRange() }}</p>
     </div>
 
     @if (isLoading()) {
@@ -86,7 +86,7 @@
       <!-- Actions Bar -->
       <div class="flex items-center justify-between mb-4 print:hidden">
         <p class="text-sm text-gray-600" data-testid="total-items">
-          {{ totalItems() }} items
+          {{ totalItems() }} <span i18n="@@shoppingList.items">items</span>
         </p>
         <div class="flex items-center gap-2">
           <button
@@ -94,18 +94,20 @@
             (click)="onShowAddForm()"
             class="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-primary rounded-lg hover:bg-primary/90 transition-colors"
             data-testid="add-item-btn"
+            i18n="@@shoppingList.addItem"
           >
             <lucide-icon [img]="Plus" class="w-4 h-4"></lucide-icon>
-            Add Item
+            Ajouter un article
           </button>
           <button
             type="button"
             (click)="onPrint()"
             class="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
             data-testid="print-btn"
+            i18n="@@shoppingList.printList"
           >
             <lucide-icon [img]="Printer" class="w-4 h-4"></lucide-icon>
-            Print List
+            Imprimer la liste
           </button>
         </div>
       </div>
@@ -113,43 +115,46 @@
       <!-- Add Custom Item Form -->
       @if (showAddForm()) {
         <div class="bg-white rounded-xl shadow-sm p-4 mb-4" data-testid="add-item-form">
-          <h3 class="font-semibold text-gray-900 mb-3">Add Custom Item</h3>
+          <h3 class="font-semibold text-gray-900 mb-3" i18n="@@shoppingList.addCustomItem">Add Custom Item</h3>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label for="itemName" class="block text-sm font-medium text-gray-700 mb-1">Item Name *</label>
+              <label for="itemName" class="block text-sm font-medium text-gray-700 mb-1" i18n="@@shoppingList.itemName">Item Name *</label>
               <input
                 type="text"
                 id="itemName"
                 [(ngModel)]="newItemName"
                 class="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none"
-                placeholder="e.g., Apples"
+                placeholder="ex. Pommes"
+                i18n-placeholder="@@shoppingList.exampleApples"
                 data-testid="item-name-input"
               />
             </div>
             <div>
-              <label for="itemQuantity" class="block text-sm font-medium text-gray-700 mb-1">Quantity</label>
+              <label for="itemQuantity" class="block text-sm font-medium text-gray-700 mb-1" i18n="@@shoppingList.quantity">Quantity</label>
               <input
                 type="text"
                 id="itemQuantity"
                 [(ngModel)]="newItemQuantity"
                 class="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none"
-                placeholder="e.g., 2"
+                placeholder="ex. 2"
+                i18n-placeholder="@@shoppingList.exampleTwo"
                 data-testid="item-quantity-input"
               />
             </div>
             <div>
-              <label for="itemUnit" class="block text-sm font-medium text-gray-700 mb-1">Unit (optional)</label>
+              <label for="itemUnit" class="block text-sm font-medium text-gray-700 mb-1" i18n="@@shoppingList.unit">Unit (optional)</label>
               <input
                 type="text"
                 id="itemUnit"
                 [(ngModel)]="newItemUnit"
                 class="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none"
-                placeholder="e.g., lbs, kg, cups"
+                placeholder="ex. kg, g, tasses"
+                i18n-placeholder="@@shoppingList.exampleUnits"
                 data-testid="item-unit-input"
               />
             </div>
             <div>
-              <label for="itemCategory" class="block text-sm font-medium text-gray-700 mb-1">Category</label>
+              <label for="itemCategory" class="block text-sm font-medium text-gray-700 mb-1" i18n="@@shoppingList.category">Category</label>
               <select
                 id="itemCategory"
                 [(ngModel)]="newItemCategory"
@@ -168,9 +173,10 @@
               (click)="onCancelAddForm()"
               class="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
               data-testid="cancel-add-btn"
+              i18n="@@shoppingList.cancel"
             >
               <lucide-icon [img]="X" class="w-4 h-4"></lucide-icon>
-              Cancel
+              Annuler
             </button>
             <button
               type="button"
@@ -178,9 +184,10 @@
               [disabled]="!newItemName.trim()"
               class="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-primary rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               data-testid="confirm-add-btn"
+              i18n="@@shoppingList.addItem"
             >
               <lucide-icon [img]="Check" class="w-4 h-4"></lucide-icon>
-              Add Item
+              Ajouter un article
             </button>
           </div>
         </div>
@@ -189,8 +196,8 @@
       @if (shoppingList()!.categories.length === 0) {
         <div class="bg-white rounded-xl shadow-sm p-8 text-center" data-testid="empty-list">
           <lucide-icon [img]="ShoppingCart" class="w-12 h-12 text-gray-300 mx-auto mb-4"></lucide-icon>
-          <p class="text-gray-500">No items in your shopping list.</p>
-          <p class="text-sm text-gray-400 mt-1">Add recipes to your meal plan to generate a shopping list.</p>
+          <p class="text-gray-500" i18n="@@shoppingList.noItems">No items in your shopping list.</p>
+          <p class="text-sm text-gray-400 mt-1" i18n="@@shoppingList.addRecipes">Add recipes to your meal plan to generate a shopping list.</p>
         </div>
       } @else {
         <!-- Categories -->
@@ -253,7 +260,7 @@
                     >
                       {{ item.name }}
                       @if (item.isCustom) {
-                        <span class="text-xs text-primary ml-1">(custom)</span>
+                        <span class="text-xs text-primary ml-1" i18n="@@shoppingList.custom">(custom)</span>
                       }
                     </span>
 

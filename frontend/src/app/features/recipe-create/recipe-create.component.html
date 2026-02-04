@@ -6,7 +6,7 @@
         <a routerLink="/recipes" class="text-gray-500 hover:text-gray-900 transition-colors">
           <lucide-angular [img]="ChevronLeft" class="w-5 h-5" />
         </a>
-        <h1 class="text-2xl font-bold text-gray-900">New Recipe</h1>
+        <h1 class="text-2xl font-bold text-gray-900" i18n="@@recipeCreate.title">Nouvelle recette</h1>
       </div>
     </div>
   </header>
@@ -15,76 +15,83 @@
   <main class="max-w-3xl mx-auto px-4 py-6">
     <!-- Page Header (desktop only) -->
     <div class="mb-6">
-      <h2 class="text-xl font-semibold text-gray-900 hidden lg:block">New Recipe</h2>
+      <h2 class="text-xl font-semibold text-gray-900 hidden lg:block" i18n="@@recipeCreate.title">Nouvelle recette</h2>
     </div>
 
     <form [formGroup]="form" (ngSubmit)="save()">
       <!-- Basic Information Card -->
       <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
-        <h3 class="text-lg font-semibold text-gray-900 mb-4">Basic Information</h3>
+        <h3 class="text-lg font-semibold text-gray-900 mb-4" i18n="@@recipeCreate.basicInfo">Informations de base</h3>
 
         <!-- Name field -->
         <div class="mb-4">
-          <label class="block text-sm font-medium text-gray-700 mb-2">Recipe Name</label>
+          <label class="block text-sm font-medium text-gray-700 mb-2" i18n="@@recipeCreate.recipeName">Nom de la recette</label>
           <input
             formControlName="name"
             class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-colors"
-            placeholder="Enter recipe name..."
+            i18n-placeholder="@@recipeCreate.namePlaceholder"
+            placeholder="Entrez le nom de la recette..."
+            i18n="@@recipeCreate.namePlaceholder"
           />
           @if (form.get('name')?.touched && form.get('name')?.invalid) {
-            <p class="text-red-600 text-sm mt-1">Recipe name is required.</p>
+            <p class="text-red-600 text-sm mt-1" i18n="@@recipeCreate.nameRequired">Le nom de la recette est requis.</p>
           }
         </div>
 
         <!-- Description field -->
         <div class="mb-4">
-          <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
+          <label class="block text-sm font-medium text-gray-700 mb-2" i18n="@@recipeCreate.description">Description</label>
           <textarea
             formControlName="description"
             rows="3"
             class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-colors"
-            placeholder="Describe your recipe..."
+            i18n-placeholder="@@recipeCreate.descriptionPlaceholder"
+            placeholder="Décrivez votre recette..."
           ></textarea>
           @if (form.get('description')?.touched && form.get('description')?.invalid) {
-            <p class="text-red-600 text-sm mt-1">Description is required.</p>
+            <p class="text-red-600 text-sm mt-1" i18n="@@recipeCreate.descriptionRequired">La description est requise.</p>
           }
         </div>
 
         <!-- Image URL field -->
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">Image URL (optional)</label>
+          <label class="block text-sm font-medium text-gray-700 mb-2" i18n="@@recipeCreate.imageUrl">Image URL (optional)</label>
           <input
             formControlName="imageUrl"
             class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-colors"
+            i18n-placeholder="@@recipeCreate.imageUrlPlaceholder"
             placeholder="https://example.com/image.jpg"
           />
           @if (form.get('imageUrl')?.touched && form.get('imageUrl')?.invalid) {
-            <p class="text-red-600 text-sm mt-1">Please enter a valid URL.</p>
+            <p class="text-red-600 text-sm mt-1" i18n="@@recipeCreate.invalidUrl">Veuillez entrer une URL valide.</p>
           }
         </div>
       </div>
 
       <!-- Ingredients Card -->
       <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
-        <h3 class="text-lg font-semibold text-gray-900 mb-2">Ingredients</h3>
-        <p class="text-sm text-gray-500 mb-4">Add all ingredients needed for this recipe.</p>
+        <h3 class="text-lg font-semibold text-gray-900 mb-2" i18n="@@recipeCreate.ingredients">Ingrédients</h3>
+        <p class="text-sm text-gray-500 mb-4" i18n="@@recipeCreate.ingredientsDescription">Add all ingredients needed for this recipe.</p>
 
         <div formArrayName="ingredients" class="space-y-3">
           @for (ing of ingredients.controls; track $index; let i = $index) {
             <div [formGroupName]="i" class="flex gap-2">
               <input
                 formControlName="name"
-                placeholder="Ingredient name"
+                i18n-placeholder="@@recipeCreate.ingredientNamePlaceholder"
+                placeholder="Nom de l'ingrédient"
                 class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-colors"
               />
               <input
                 formControlName="quantity"
-                placeholder="Amount"
+                i18n-placeholder="@@recipeCreate.amountPlaceholder"
+                placeholder="Quantité"
                 class="w-24 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-colors"
               />
               <input
                 formControlName="unit"
-                placeholder="Unit"
+                i18n-placeholder="@@recipeCreate.unitPlaceholder"
+                placeholder="Unité"
                 class="w-24 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-colors"
               />
               <button
@@ -100,23 +107,24 @@
         </div>
 
         @if (ingredients.length === 0) {
-          <p class="text-red-600 text-sm mt-2">Please add at least one ingredient.</p>
+          <p class="text-red-600 text-sm mt-2" i18n="@@recipeCreate.atLeastOneIngredient">Please add at least one ingredient.</p>
         }
 
         <button
           type="button"
           (click)="addIngredient()"
           class="mt-4 flex items-center gap-2 px-4 py-2 border-2 border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+          i18n="@@recipeCreate.addIngredient"
         >
           <lucide-angular [img]="Plus" class="w-4 h-4" />
-          Add Ingredient
+          Ajouter un ingrédient
         </button>
       </div>
 
       <!-- Cooking Steps Card -->
       <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
-        <h3 class="text-lg font-semibold text-gray-900 mb-2">Cooking Steps</h3>
-        <p class="text-sm text-gray-500 mb-4">Break down the recipe into clear, easy-to-follow steps.</p>
+        <h3 class="text-lg font-semibold text-gray-900 mb-2" i18n="@@recipeCreate.cookingSteps">Cooking Steps</h3>
+        <p class="text-sm text-gray-500 mb-4" i18n="@@recipeCreate.stepsDescription">Break down the recipe into clear, easy-to-follow steps.</p>
 
         <div formArrayName="steps" class="space-y-3">
           @for (s of steps.controls; track $index; let i = $index) {
@@ -126,7 +134,8 @@
               </span>
               <input
                 formControlName="instruction"
-                placeholder="Describe this step..."
+                i18n-placeholder="@@recipeCreate.stepPlaceholder"
+                placeholder="Décrivez cette étape..."
                 class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-colors"
               />
               <button
@@ -142,16 +151,17 @@
         </div>
 
         @if (steps.length === 0) {
-          <p class="text-red-600 text-sm mt-2">Please add at least one cooking step.</p>
+          <p class="text-red-600 text-sm mt-2" i18n="@@recipeCreate.atLeastOneStep">Please add at least one cooking step.</p>
         }
 
         <button
           type="button"
           (click)="addStep()"
           class="mt-4 flex items-center gap-2 px-4 py-2 border-2 border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+          i18n="@@recipeCreate.addStep"
         >
           <lucide-angular [img]="Plus" class="w-4 h-4" />
-          Add Step
+          Ajouter une étape
         </button>
       </div>
 
@@ -160,15 +170,17 @@
         <a
           routerLink="/recipes"
           class="px-6 py-3 border-2 border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+          i18n="@@recipeCreate.cancel"
         >
-          Cancel
+          Annuler
         </a>
         <button
           type="submit"
           [disabled]="!canSave"
           class="px-6 py-3 bg-primary text-white rounded-lg hover:bg-orange-600 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+          i18n="@@recipeCreate.saveRecipe"
         >
-          Save Recipe
+          Enregistrer la recette
         </button>
       </div>
     </form>

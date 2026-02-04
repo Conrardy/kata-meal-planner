@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { Component, OnInit, inject, signal, computed, LOCALE_ID } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { LucideAngularModule, ChefHat, ChevronLeft, ChevronRight } from 'lucide-angular';
@@ -20,6 +20,7 @@ export class WeeklyPlanComponent implements OnInit {
   private readonly dailyDigestService = inject(DailyDigestService);
   private readonly mealPlanService = inject(MealPlanService);
   private readonly router = inject(Router);
+  private readonly locale = inject(LOCALE_ID);
 
   readonly startDate = signal<Date>(this.getStartOfWeek(new Date()));
   readonly weeklyPlan = signal<WeeklyPlan | null>(null);
@@ -240,6 +241,6 @@ export class WeeklyPlanComponent implements OnInit {
 
   private formatDisplayDate(dateStr: string): string {
     const date = new Date(dateStr);
-    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    return date.toLocaleDateString(this.locale, { month: 'short', day: 'numeric' });
   }
 }

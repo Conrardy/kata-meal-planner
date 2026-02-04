@@ -2,11 +2,11 @@
   <!-- Header (mobile only, hidden on desktop where sidebar is visible) -->
   <header class="bg-white shadow-sm sticky top-0 z-10 lg:hidden">
     <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-      <h1 class="text-2xl font-bold text-gray-900">MealPrep</h1>
+      <h1 class="text-2xl font-bold text-gray-900" i18n="@@preferences.mealprep">MealPrep</h1>
       <nav class="flex gap-4">
-        <a routerLink="/" class="text-gray-500 hover:text-gray-900 transition-colors">Today</a>
-        <a routerLink="/weekly-plan" class="text-gray-500 hover:text-gray-900 transition-colors">Weekly Plan</a>
-        <span class="text-primary font-medium">Settings</span>
+        <a routerLink="/" class="text-gray-500 hover:text-gray-900 transition-colors" i18n="@@preferences.today">Aujourd'hui</a>
+        <a routerLink="/weekly-plan" class="text-gray-500 hover:text-gray-900 transition-colors" i18n="@@preferences.weeklyPlan">Plan hebdomadaire</a>
+        <span class="text-primary font-medium" i18n="@@preferences.settings">Paramètres</span>
       </nav>
     </div>
   </header>
@@ -19,7 +19,7 @@
         [img]="Settings"
         class="w-6 h-6 text-primary"
       ></lucide-icon>
-      <h2 class="text-xl font-semibold text-gray-900">Preferences</h2>
+      <h2 class="text-xl font-semibold text-gray-900" i18n="@@preferences.preferences">Préférences</h2>
     </div>
 
     @if (isLoading()) {
@@ -57,9 +57,9 @@
 
       <!-- Dietary Preference Section -->
       <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
-        <h3 class="text-lg font-semibold text-gray-900 mb-2">Dietary Preference</h3>
-        <p class="text-sm text-gray-500 mb-4">
-          Select your dietary preference. Recipe suggestions will match this preference.
+        <h3 class="text-lg font-semibold text-gray-900 mb-2" i18n="@@preferences.dietaryPref">Préférence alimentaire</h3>
+        <p class="text-sm text-gray-500 mb-4" i18n="@@preferences.dietaryPrefDesc">
+          Sélectionnez votre préférence alimentaire. Les suggestions de recettes correspondront à cette préférence.
         </p>
 
         <div class="space-y-2" data-testid="dietary-options">
@@ -102,9 +102,9 @@
 
       <!-- Allergies Section -->
       <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
-        <h3 class="text-lg font-semibold text-gray-900 mb-2">Allergies & Intolerances</h3>
-        <p class="text-sm text-gray-500 mb-4">
-          Select any allergies or intolerances. Recipes containing these ingredients will be filtered out.
+        <h3 class="text-lg font-semibold text-gray-900 mb-2" i18n="@@preferences.allergies">Allergies et intolérances</h3>
+        <p class="text-sm text-gray-500 mb-4" i18n="@@preferences.allergiesDesc">
+          Sélectionnez vos allergies ou intolérances. Les recettes contenant ces ingrédients seront filtrées.
         </p>
 
         <div class="grid grid-cols-2 sm:grid-cols-3 gap-3" data-testid="allergy-options">
@@ -132,9 +132,9 @@
 
       <!-- Meals Per Day Section -->
       <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
-        <h3 class="text-lg font-semibold text-gray-900 mb-2">Meals Per Day</h3>
-        <p class="text-sm text-gray-500 mb-4">
-          Select how many meals per day you want to plan.
+        <h3 class="text-lg font-semibold text-gray-900 mb-2" i18n="@@preferences.mealsPerDay">Repas par jour</h3>
+        <p class="text-sm text-gray-500 mb-4" i18n="@@preferences.mealsPerDayDesc">
+          Sélectionnez le nombre de repas par jour que vous souhaitez planifier.
         </p>
 
         <div class="flex gap-3" data-testid="meals-per-day-options">
@@ -151,7 +151,7 @@
               [class.hover:border-gray-300]="selectedMealsPerDay !== option"
               [attr.data-testid]="'meals-per-day-' + option"
             >
-              {{ option }} meals
+              {{ option }} <span i18n="@@preferences.meals">repas</span>
             </button>
           }
         </div>
@@ -159,9 +159,9 @@
 
       <!-- Plan Length Section -->
       <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
-        <h3 class="text-lg font-semibold text-gray-900 mb-2">Plan Length</h3>
-        <p class="text-sm text-gray-500 mb-4">
-          Choose how long your meal plan should be.
+        <h3 class="text-lg font-semibold text-gray-900 mb-2" i18n="@@preferences.planLength">Durée du plan</h3>
+        <p class="text-sm text-gray-500 mb-4" i18n="@@preferences.planLengthDesc">
+          Choisissez la durée de votre plan de repas.
         </p>
 
         <div class="flex gap-3" data-testid="plan-length-options">
@@ -178,7 +178,7 @@
               [class.hover:border-gray-300]="selectedPlanLength !== option"
               [attr.data-testid]="'plan-length-' + option"
             >
-              {{ option === 1 ? '1 week' : '2 weeks' }}
+              {{ option === 1 ? '1 semaine' : '2 semaines' }}
             </button>
           }
         </div>
@@ -186,13 +186,13 @@
 
       <!-- Toggles Section -->
       <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
-        <h3 class="text-lg font-semibold text-gray-900 mb-4">Additional Options</h3>
+        <h3 class="text-lg font-semibold text-gray-900 mb-4" i18n="@@preferences.additionalOptions">Options supplémentaires</h3>
 
         <!-- Leftovers Toggle -->
         <div class="flex items-center justify-between py-3 border-b border-gray-100">
           <div id="leftovers-label">
-            <p class="font-medium text-gray-900">Include Leftovers</p>
-            <p class="text-sm text-gray-500">Plan meals that use leftovers from previous days</p>
+            <p class="font-medium text-gray-900" i18n="@@preferences.includeLeftovers">Inclure les restes</p>
+            <p class="text-sm text-gray-500" i18n="@@preferences.leftoversDesc">Planifier des repas qui utilisent les restes des jours précédents</p>
           </div>
           <button
             type="button"
@@ -218,8 +218,8 @@
         <!-- Auto-generate Shopping List Toggle -->
         <div class="flex items-center justify-between py-3">
           <div id="auto-shopping-label">
-            <p class="font-medium text-gray-900">Auto-generate Shopping List</p>
-            <p class="text-sm text-gray-500">Automatically create a shopping list when you plan meals</p>
+            <p class="font-medium text-gray-900" i18n="@@preferences.autoGenerate">Génération automatique de la liste de courses</p>
+            <p class="text-sm text-gray-500" i18n="@@preferences.autoGenerateDesc">Créer automatiquement une liste de courses lorsque vous planifiez des repas</p>
           </div>
           <button
             type="button"
@@ -245,9 +245,9 @@
 
       <!-- Excluded Ingredients Section -->
       <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
-        <h3 class="text-lg font-semibold text-gray-900 mb-2">Excluded Ingredients</h3>
-        <p class="text-sm text-gray-500 mb-4">
-          Add ingredients you want to exclude from recipe suggestions.
+        <h3 class="text-lg font-semibold text-gray-900 mb-2" i18n="@@preferences.excludedIngredients">Ingrédients exclus</h3>
+        <p class="text-sm text-gray-500 mb-4" i18n="@@preferences.excludedIngredientsDesc">
+          Ajoutez les ingrédients que vous souhaitez exclure des suggestions de recettes.
         </p>
 
         <!-- Add Ingredient Input -->
@@ -256,7 +256,8 @@
             type="text"
             [(ngModel)]="newExcludedIngredient"
             (keyup.enter)="addExcludedIngredient()"
-            placeholder="Enter an ingredient..."
+            placeholder="Entrez un ingrédient..."
+            i18n-placeholder="@@preferences.enterIngredient"
             class="flex-1 px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary"
             data-testid="excluded-ingredient-input"
           />
@@ -265,9 +266,10 @@
             (click)="addExcludedIngredient()"
             class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors flex items-center gap-2"
             data-testid="add-excluded-ingredient-btn"
+            i18n="@@preferences.add"
           >
             <lucide-icon [img]="Plus" class="w-4 h-4"></lucide-icon>
-            Add
+            Ajouter
           </button>
         </div>
 
@@ -291,7 +293,7 @@
             }
           </div>
         } @else {
-          <p class="text-sm text-gray-400 italic">No ingredients excluded yet.</p>
+          <p class="text-sm text-gray-400 italic" i18n="@@preferences.noExcluded">Aucun ingrédient exclu pour le moment.</p>
         }
       </div>
 
@@ -306,10 +308,10 @@
         >
           @if (isSaving()) {
             <lucide-icon [img]="Loader2" class="w-5 h-5 animate-spin"></lucide-icon>
-            Saving...
+            <span i18n="@@preferences.saving">Enregistrement...</span>
           } @else {
             <lucide-icon [img]="Save" class="w-5 h-5"></lucide-icon>
-            Save Preferences
+            <span i18n="@@preferences.savePreferences">Enregistrer les préférences</span>
           }
         </button>
       </div>

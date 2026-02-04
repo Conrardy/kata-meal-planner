@@ -7,8 +7,8 @@
     <!-- Header -->
     <div class="flex items-center justify-between p-4 border-b">
       <div>
-        <h2 class="text-lg font-semibold text-gray-900">Swap Meal</h2>
-        <p class="text-sm text-gray-500">Choose an alternative for {{ mealType() }}</p>
+        <h2 class="text-lg font-semibold text-gray-900" i18n="@@swapModal.title">Changer le repas</h2>
+        <p class="text-sm text-gray-500" i18n="@@swapModal.subtitle">Choisir une alternative pour {{ mealType() }}</p>
       </div>
       <button
         type="button"
@@ -37,8 +37,9 @@
         <div
           class="text-center text-gray-500 py-8"
           data-testid="no-suggestions"
+          i18n="@@swapModal.noAlternatives"
         >
-          No alternative recipes available.
+          Aucune recette alternative disponible.
         </div>
       } @else {
         <div class="space-y-3" data-testid="suggestions-list">

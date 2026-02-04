@@ -2,10 +2,10 @@
   <!-- Header (mobile only, hidden on desktop where sidebar is visible) -->
   <header class="bg-white shadow-sm sticky top-0 z-10 lg:hidden">
     <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-      <h1 class="text-2xl font-bold text-gray-900">MealPrep</h1>
+      <h1 class="text-2xl font-bold text-gray-900" i18n="@@dailyDigest.appTitle">MealPrep</h1>
       <nav class="flex gap-4">
-        <span class="text-primary font-medium">Today</span>
-        <a routerLink="/weekly-plan" class="text-gray-500 hover:text-gray-900 transition-colors">Weekly Plan</a>
+        <span class="text-primary font-medium" i18n="@@dailyDigest.today">Aujourd'hui</span>
+        <a routerLink="/weekly-plan" class="text-gray-500 hover:text-gray-900 transition-colors" i18n="@@dailyDigest.weeklyPlan">Plan hebdomadaire</a>
       </nav>
     </div>
   </header>
@@ -13,7 +13,7 @@
   <!-- Daily Digest Content -->
   <main class="max-w-7xl mx-auto px-4 py-6">
     <div class="mb-6">
-      <h2 class="text-xl font-semibold text-gray-900">Daily Digest</h2>
+      <h2 class="text-xl font-semibold text-gray-900" i18n="@@dailyDigest.title">Résumé du jour</h2>
       <p class="text-primary font-medium" data-testid="today-date">
         {{ today() | date : 'MMMM d, EEEE' }}
       </p>
@@ -22,7 +22,7 @@
     @if (isLoading()) {
       <div class="flex justify-center items-center py-12" data-testid="loading-spinner" role="status" aria-live="polite">
         <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary" aria-hidden="true"></div>
-        <span class="sr-only">Loading meals...</span>
+        <span class="sr-only" i18n="@@dailyDigest.loadingMeals">Chargement des repas...</span>
       </div>
     } @else if (error()) {
       <div
@@ -38,11 +38,11 @@
         data-testid="no-meals-message"
         role="status"
       >
-        <p class="text-lg font-medium mb-2">No meals planned for today</p>
-        <p>Start by adding some recipes to your meal plan!</p>
+        <p class="text-lg font-medium mb-2" i18n="@@dailyDigest.noMealsPlanned">Aucun repas planifié pour aujourd'hui</p>
+        <p i18n="@@dailyDigest.addRecipes">Commencez par ajouter des recettes à votre plan de repas !</p>
       </div>
     } @else {
-      <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3" data-testid="meals-grid" role="list" aria-label="Today's meals">
+      <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3" data-testid="meals-grid" role="list" i18n-aria-label="@@dailyDigest.todaysMeals" aria-label="Repas du jour">
         @for (meal of meals(); track meal.id) {
           <app-meal-card
             [meal]="meal"

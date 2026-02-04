@@ -3,8 +3,8 @@
     <div class="bg-white rounded-xl shadow-md p-8">
       <!-- Header -->
       <div class="text-center mb-8">
-        <h1 class="text-3xl font-bold text-gray-900">MealPrep</h1>
-        <p class="mt-2 text-gray-600">Sign in to your account</p>
+        <h1 class="text-3xl font-bold text-gray-900" i18n="@@login.brand">MealPrep</h1>
+        <p class="mt-2 text-gray-600" i18n="@@login.subtitle">Connectez-vous à votre compte</p>
       </div>
 
       <!-- Error Message -->
@@ -22,8 +22,8 @@
       <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="space-y-6">
         <!-- Username Field -->
         <div>
-          <label for="username" class="block text-sm font-medium text-gray-700 mb-1">
-            Username
+          <label for="username" class="block text-sm font-medium text-gray-700 mb-1" i18n="@@login.username">
+            Nom d'utilisateur
           </label>
           <input
             id="username"
@@ -36,20 +36,20 @@
             aria-describedby="username-error"
           />
           @if (hasError('username', 'required')) {
-            <p id="username-error" class="mt-1 text-sm text-red-600">Username is required</p>
+            <p id="username-error" class="mt-1 text-sm text-red-600" i18n="@@login.usernameRequired">Le nom d'utilisateur est requis</p>
           }
           @if (hasError('username', 'minlength')) {
-            <p id="username-error" class="mt-1 text-sm text-red-600">Username must be at least 2 characters</p>
+            <p id="username-error" class="mt-1 text-sm text-red-600" i18n="@@login.usernameMinLength">Le nom d'utilisateur doit comporter au moins 2 caractères</p>
           }
           @if (hasError('username', 'maxlength')) {
-            <p id="username-error" class="mt-1 text-sm text-red-600">Username must not exceed 50 characters</p>
+            <p id="username-error" class="mt-1 text-sm text-red-600" i18n="@@login.usernameMaxLength">Le nom d'utilisateur ne doit pas dépasser 50 caractères</p>
           }
         </div>
 
         <!-- Password Field -->
         <div>
-          <label for="password" class="block text-sm font-medium text-gray-700 mb-1">
-            Password
+          <label for="password" class="block text-sm font-medium text-gray-700 mb-1" i18n="@@login.password">
+            Mot de passe
           </label>
           <input
             id="password"
@@ -62,7 +62,7 @@
             aria-describedby="password-error"
           />
           @if (hasError('password', 'required')) {
-            <p id="password-error" class="mt-1 text-sm text-red-600">Password is required</p>
+            <p id="password-error" class="mt-1 text-sm text-red-600" i18n="@@login.passwordRequired">Le mot de passe est requis</p>
           }
         </div>
 
@@ -79,10 +79,10 @@
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
-              Signing in...
+              <span i18n="@@login.signingIn">Connexion en cours...</span>
             </span>
           } @else {
-            Sign in
+            <span i18n="@@login.signIn">Se connecter</span>
           }
         </button>
       </form>

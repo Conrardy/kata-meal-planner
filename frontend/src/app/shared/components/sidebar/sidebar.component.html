@@ -1,7 +1,7 @@
-<aside class="hidden lg:flex flex-col w-64 bg-white border-r border-gray-200 h-screen sticky top-0" role="navigation" aria-label="Main navigation">
+<aside class="hidden lg:flex flex-col w-64 bg-white border-r border-gray-200 h-screen sticky top-0" role="navigation" i18n-aria-label="@@sidebar.mainNavigation" aria-label="Navigation principale">
   <!-- Logo -->
   <div class="px-6 py-4 border-b border-gray-200">
-    <h1 class="text-2xl font-bold text-gray-900">MealPrep</h1>
+    <h1 class="text-2xl font-bold text-gray-900" i18n="@@sidebar.appName">MealPrep</h1>
   </div>
 
   <!-- Navigation -->
@@ -15,7 +15,7 @@
         data-testid="nav-today"
       >
         <lucide-icon [img]="Home" class="w-5 h-5"></lucide-icon>
-        <span class="font-medium">Today</span>
+        <span class="font-medium" i18n="@@sidebar.today">Aujourd'hui</span>
       </a>
       <a
         routerLink="/weekly-plan"
@@ -24,7 +24,7 @@
         data-testid="nav-weekly-plan"
       >
         <lucide-icon [img]="Calendar" class="w-5 h-5"></lucide-icon>
-        <span class="font-medium">Weekly Plan</span>
+        <span class="font-medium" i18n="@@sidebar.weeklyPlan">Plan hebdomadaire</span>
       </a>
       <a
         routerLink="/recipes"
@@ -33,7 +33,7 @@
         data-testid="nav-recipes"
       >
         <lucide-icon [img]="Search" class="w-5 h-5"></lucide-icon>
-        <span class="font-medium">Discover Recipes</span>
+        <span class="font-medium" i18n="@@sidebar.discoverRecipes">Découvrir des recettes</span>
       </a>
       <a
         routerLink="/shopping-list"
@@ -42,7 +42,7 @@
         data-testid="nav-shopping-list"
       >
         <lucide-icon [img]="ShoppingCart" class="w-5 h-5"></lucide-icon>
-        <span class="font-medium">Shopping List</span>
+        <span class="font-medium" i18n="@@sidebar.shoppingList">Liste de courses</span>
       </a>
       <a
         routerLink="/preferences"
@@ -51,7 +51,7 @@
         data-testid="nav-preferences"
       >
         <lucide-icon [img]="Settings" class="w-5 h-5"></lucide-icon>
-        <span class="font-medium">Preferences</span>
+        <span class="font-medium" i18n="@@sidebar.preferences">Préférences</span>
       </a>
       @if (isAdmin()) {
         <a
@@ -61,44 +61,47 @@
           data-testid="nav-admin-users"
         >
           <lucide-icon [img]="Users" class="w-5 h-5"></lucide-icon>
-          <span class="font-medium">Admin Users</span>
+          <span class="font-medium" i18n="@@sidebar.adminUsers">Gestion des utilisateurs</span>
         </a>
       }
     </div>
 
     <!-- Quick Actions -->
     <div class="mt-8">
-      <h2 class="px-3 mb-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Quick Actions</h2>
-      <div class="space-y-2" role="group" aria-label="Quick actions">
+      <h2 class="px-3 mb-3 text-xs font-semibold text-gray-500 uppercase tracking-wider" i18n="@@sidebar.quickActions">Actions rapides</h2>
+      <div class="space-y-2" role="group" i18n-aria-label="@@sidebar.quickActionsGroup" aria-label="Actions rapides">
         <button
           type="button"
           (click)="onAddRecipe()"
           class="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-gray-700 hover:bg-orange-50 hover:text-primary transition-colors"
           data-testid="quick-action-add-recipe"
-          aria-label="Add a new recipe"
+          i18n-aria-label="@@sidebar.addRecipeLabel"
+          aria-label="Ajouter une nouvelle recette"
         >
           <lucide-icon [img]="Plus" class="w-5 h-5" aria-hidden="true"></lucide-icon>
-          <span class="font-medium">Add Recipe</span>
+          <span class="font-medium" i18n="@@sidebar.addRecipe">Ajouter une recette</span>
         </button>
         <button
           type="button"
           (click)="onCreatePlan()"
           class="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-gray-700 hover:bg-orange-50 hover:text-primary transition-colors"
           data-testid="quick-action-create-plan"
-          aria-label="Create a new meal plan"
+          i18n-aria-label="@@sidebar.createPlanLabel"
+          aria-label="Créer un nouveau plan de repas"
         >
           <lucide-icon [img]="CalendarDays" class="w-5 h-5" aria-hidden="true"></lucide-icon>
-          <span class="font-medium">Create Meal Plan</span>
+          <span class="font-medium" i18n="@@sidebar.createMealPlan">Créer un plan de repas</span>
         </button>
         <button
           type="button"
           (click)="onGenerateList()"
           class="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-gray-700 hover:bg-orange-50 hover:text-primary transition-colors"
           data-testid="quick-action-generate-list"
-          aria-label="Generate shopping list from meal plan"
+          i18n-aria-label="@@sidebar.generateListLabel"
+          aria-label="Générer la liste de courses à partir du plan de repas"
         >
           <lucide-icon [img]="ShoppingCart" class="w-5 h-5" aria-hidden="true"></lucide-icon>
-          <span class="font-medium">Generate Shopping List</span>
+          <span class="font-medium" i18n="@@sidebar.generateShoppingList">Générer la liste de courses</span>
         </button>
       </div>
     </div>
@@ -118,8 +121,10 @@
         (click)="onLogout()"
         class="p-2 rounded-lg text-gray-500 hover:bg-gray-100 hover:text-gray-700 transition-colors"
         data-testid="logout-button"
-        aria-label="Sign out"
-        title="Sign out"
+        i18n-aria-label="@@sidebar.signOutLabel"
+        aria-label="Se déconnecter"
+        i18n-title="@@sidebar.signOutTitle"
+        title="Se déconnecter"
       >
         <lucide-icon [img]="LogOut" class="w-5 h-5" aria-hidden="true"></lucide-icon>
       </button>
