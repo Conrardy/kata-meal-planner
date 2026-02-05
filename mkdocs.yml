@@ -81,5 +81,13 @@ nav:
       - Variables d'environnement: ENVIRONMENT_VARIABLES.md
       - Base de donnees: DATABASE_MIGRATIONS.md
       - SSL/TLS: SSL_TLS_CONFIGURATION.md
+  - READMEs:
+      - Vue d'ensemble: readmes/index.md
+      - Projet (racine): readmes/root.md
+      - Frontend: readmes/frontend.md
+      - Issues: readmes/docs--issues.md
+      - Regles: readmes/docs--rules.md
+      - AIDD Prompts: readmes/aidd--prompts.md
+      - AIDD Templates: readmes/aidd--prompts--templates.md
   - Guides:
       - Regles de dev: rules.md

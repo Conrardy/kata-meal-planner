@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "docs:serve": "python -m mkdocs serve",
-    "docs:build": "python -m mkdocs build"
+    "docs:aggregate": "node scripts/aggregate-readmes.cjs",
+    "docs:serve": "node scripts/aggregate-readmes.cjs && python -m mkdocs serve",
+    "docs:build": "node scripts/aggregate-readmes.cjs && python -m mkdocs build"
   }
 }
