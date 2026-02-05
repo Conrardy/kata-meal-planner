@@ -1,0 +1,85 @@
+site_name: MealPlanner Documentation
+site_description: Documentation for the MealPlanner application - Angular 19 + .NET 9
+site_url: ""
+
+docs_dir: docs
+site_dir: site
+
+theme:
+  name: material
+  language: fr
+  palette:
+    - scheme: default
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/brightness-7
+        name: Passer en mode sombre
+    - scheme: slate
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/brightness-4
+        name: Passer en mode clair
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+
+extra_css:
+  - stylesheets/extra.css
+
+plugins:
+  - search:
+      lang:
+        - fr
+        - en
+
+markdown_extensions:
+  - tables
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.tabbed:
+      alternate_style: true
+  - attr_list
+  - md_in_html
+  - toc:
+      permalink: true
+
+nav:
+  - Accueil: index.md
+  - Projet:
+      - Vision & Domaine: memory-bank/PROJECT_BRIEF.md
+      - Stack Technique: memory-bank/STACK.md
+      - Structure du Code: memory-bank/CODEBASE_STRUCTURE.md
+  - Architecture:
+      - Vue d'ensemble: memory-bank/common/ARCHITECTURE.md
+      - Standards de Code: memory-bank/common/CODING_ASSERTIONS.md
+      - Tests: memory-bank/common/TESTING.md
+  - Backend:
+      - Conventions .NET: memory-bank/backend/CONVENTIONS.md
+      - Migration Mediator: memory-bank/backend/MEDIATOR_MIGRATION.md
+  - Frontend:
+      - Conventions Angular: memory-bank/frontend/CONVENTIONS.md
+      - Design System: memory-bank/frontend/DESIGN.md
+  - Infrastructure:
+      - Deployment & Docker: memory-bank/infra/DEPLOYMENT.md
+      - Variables d'environnement: ENVIRONMENT_VARIABLES.md
+      - Base de donnees: DATABASE_MIGRATIONS.md
+      - SSL/TLS: SSL_TLS_CONFIGURATION.md
+  - Guides:
+      - Regles de dev: rules.md

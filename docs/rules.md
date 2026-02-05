@@ -8,13 +8,13 @@ This directory contains comprehensive guidelines for software development follow
 
 ##### Core Files
 
-- **[ddd.md](./ddd.md)** - Domain-Driven Design tactical patterns
+- **[ddd.md](rules/ddd.md)** - Domain-Driven Design tactical patterns
   - Value Objects, Entities, Aggregates
   - Domain Events, Repositories, Services
   - CQRS principles
   - Decision guidelines and anti-patterns
 
-- **[craft.md](./craft.md)** - Software craftsmanship principles
+- **[craft.md](rules/craft.md)** - Software craftsmanship principles
   - Naming conventions
   - Function design
   - Error handling and null safety
@@ -22,34 +22,34 @@ This directory contains comprehensive guidelines for software development follow
   - Immutability and state management
   - Tell Don't Ask, Law of Demeter
 
-- **[functional.md](./functional.md)** - Functional programming principles
+- **[functional.md](rules/functional.md)** - Functional programming principles
   - Pure functions
   - Immutability
   - Function composition
   - Higher-order functions
   - Monads for error handling
 
-- **[performance.md](./performance.md)** - Performance optimization
+- **[performance.md](rules/performance.md)** - Performance optimization
   - Algorithmic complexity
   - Database patterns
   - Memory management
   - Caching strategies
   - Profiling and monitoring
 
-- **[api-design.md](./api-design.md)** - API design best practices
+- **[api-design.md](rules/api-design.md)** - API design best practices
   - Resource-oriented design
   - HTTP methods and status codes
   - Versioning and pagination
   - Security and rate limiting
   - Error handling
 
-- **[observability.md](./observability.md)** - Logging, metrics, and tracing
+- **[observability.md](rules/observability.md)** - Logging, metrics, and tracing
   - Structured logging
   - The four golden signals
   - Distributed tracing
   - Health checks and alerting
 
-- **[concurrency.md](./concurrency.md)** - Thread safety and concurrency
+- **[concurrency.md](rules/concurrency.md)** - Thread safety and concurrency
   - Avoiding shared mutable state
   - Synchronization patterns
   - Deadlock prevention
@@ -170,7 +170,7 @@ Keep rules:
 
 #### See Also
 
-- [AGENTS.md](../../AGENTS.md) - Project-specific guidelines
+- CLAUDE.md - Project-specific guidelines (see project root)
 - Architecture Decision Records (ADRs)
 - Team coding standards
 

@@ -1,0 +1,9 @@
+{
+  "name": "kata-meal-planner",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "docs:serve": "python -m mkdocs serve",
+    "docs:build": "python -m mkdocs build"
+  }
+}

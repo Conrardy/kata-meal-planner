@@ -170,6 +170,6 @@ Keep rules:
 
 ## See Also
 
-- [AGENTS.md](../../AGENTS.md) - Project-specific guidelines
+- CLAUDE.md - Project-specific guidelines (see project root)
 - Architecture Decision Records (ADRs)
 - Team coding standards
