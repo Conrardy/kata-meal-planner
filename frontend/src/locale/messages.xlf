@@ -471,6 +471,20 @@
           <context context-type="linenumber">271,273</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="preferences.language" datatype="html">
+        <source>Langue</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/preferences/preferences.component.html</context>
+          <context context-type="linenumber">30</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="preferences.languageDesc" datatype="html">
+        <source>Choisissez la langue de l'application. Le changement rechargera la page.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/preferences/preferences.component.html</context>
+          <context context-type="linenumber">32,34</context>
+        </context-group>
+      </trans-unit>
       <trans-unit id="preferences.noExcluded" datatype="html">
         <source>No ingredients excluded yet.</source>
         <context-group purpose="location">

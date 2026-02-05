@@ -22,6 +22,36 @@
       <h2 class="text-xl font-semibold text-gray-900" i18n="@@preferences.preferences">Préférences</h2>
     </div>
 
+    <!-- Language Selector Section -->
+    <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
+      <div class="flex items-center gap-2 mb-2">
+        <lucide-icon [img]="Globe" class="w-5 h-5 text-primary"></lucide-icon>
+        <h3 class="text-lg font-semibold text-gray-900" i18n="@@preferences.language">Langue</h3>
+      </div>
+      <p class="text-sm text-gray-500 mb-4" i18n="@@preferences.languageDesc">
+        Choisissez la langue de l'application. Le changement rechargera la page.
+      </p>
+
+      <div class="flex gap-3" data-testid="language-options">
+        @for (locale of localeService.availableLocales; track locale.code) {
+          <button
+            type="button"
+            (click)="onLanguageChange(locale.code)"
+            class="flex-1 flex items-center justify-center px-4 py-3 rounded-lg border-2 font-medium transition-colors"
+            [class.border-primary]="localeService.currentLocale === locale.code"
+            [class.bg-primary]="localeService.currentLocale === locale.code"
+            [class.text-white]="localeService.currentLocale === locale.code"
+            [class.border-gray-200]="localeService.currentLocale !== locale.code"
+            [class.text-gray-700]="localeService.currentLocale !== locale.code"
+            [class.hover:border-gray-300]="localeService.currentLocale !== locale.code"
+            [attr.data-testid]="'language-' + locale.code"
+          >
+            {{ locale.label }}
+          </button>
+        }
+      </div>
+    </div>
+
     @if (isLoading()) {
       <div class="flex justify-center items-center py-12" data-testid="loading-spinner">
         <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>

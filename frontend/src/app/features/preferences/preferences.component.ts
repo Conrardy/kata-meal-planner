@@ -9,9 +9,11 @@ import {
   Check,
   X,
   Plus,
+  Globe,
 } from 'lucide-angular';
 import { PreferencesService } from '../../core/services/preferences.service';
 import { UserPreferences } from '../../core/models/preferences.model';
+import { LocaleService } from '../../core/services/locale.service';
 
 @Component({
   selector: 'app-preferences',
@@ -21,6 +23,7 @@ import { UserPreferences } from '../../core/models/preferences.model';
 })
 export class PreferencesComponent implements OnInit {
   private readonly preferencesService = inject(PreferencesService);
+  readonly localeService = inject(LocaleService);
 
   readonly preferences = signal<UserPreferences | null>(null);
   readonly isLoading = signal(true);
@@ -43,6 +46,7 @@ export class PreferencesComponent implements OnInit {
   readonly Check = Check;
   readonly X = X;
   readonly Plus = Plus;
+  readonly Globe = Globe;
 
   ngOnInit(): void {
     this.loadPreferences();
@@ -122,6 +126,12 @@ export class PreferencesComponent implements OnInit {
   removeExcludedIngredient(ingredient: string): void {
     this.excludedIngredients = this.excludedIngredients.filter((i) => i !== ingredient);
     this.successMessage.set(null);
+  }
+
+  onLanguageChange(localeCode: string): void {
+    if (localeCode !== this.localeService.currentLocale) {
+      this.localeService.switchLocale(localeCode);
+    }
   }
 
   onSavePreferences(): void {

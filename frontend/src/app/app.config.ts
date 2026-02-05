@@ -6,6 +6,7 @@ import { routes } from './app.routes';
 import { correlationIdInterceptor } from './core/interceptors/correlation-id.interceptor';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
 import { httpErrorInterceptor } from './core/interceptors/http-error.interceptor';
+import { acceptLanguageInterceptor } from './core/interceptors/accept-language.interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -13,6 +14,7 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes, withPreloading(PreloadAllModules)),
     provideHttpClient(
       withInterceptors([
+        acceptLanguageInterceptor,
         correlationIdInterceptor,
         authInterceptor,
         httpErrorInterceptor,

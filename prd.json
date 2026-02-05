@@ -211,7 +211,8 @@
         "La langue sélectionnée est envoyée à l'API via Accept-Language"
       ],
       "priority": 3,
-      "passes": false,
+      "passes": true,
+      "completionNotes": "Completed by agent",
       "labels": [
         "frontend",
         "i18n"
@@ -313,6 +314,6 @@
   "metadata": {
     "createdAt": "2026-01-31T10:00:00.000Z",
     "version": "3.0.0",
-    "updatedAt": "2026-02-04T12:57:03.528Z"
+    "updatedAt": "2026-02-05T06:30:28.969Z"
   }
 }
