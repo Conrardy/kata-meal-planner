@@ -287,7 +287,7 @@
       "dependsOn": [
         "US-031"
       ],
-      "completionNotes": "Documentation already exists in docs/api/ with endpoints.md (23 endpoints documented), architecture.md (flow diagrams), and getting-started.md (developer guide). All files integrated in mkdocs.yml."
+      "completionNotes": "Completed by agent"
     },
     {
       "id": "US-033",
@@ -303,7 +303,8 @@
         "Le test échoue si un endpoint documenté n'existe plus dans le code"
       ],
       "priority": 4,
-      "passes": false,
+      "passes": true,
+      "completionNotes": "Implemented endpoint synchronization tests in backend/tests/Api/MealPlanner.Api.Tests/Documentation/. Tests: EndpointDocumentationParser (parses endpoints.md), EndpointCodeExtractor (extracts from Program.cs), EndpointSynchronizer (compares both), DocumentationSkeletonGenerator (generates docs for new endpoints). All tests run in CI via dotnet test. Added documentation in docs/api/getting-started.md.",
       "labels": [
         "documentation",
         "testing",
@@ -317,6 +318,6 @@
   "metadata": {
     "createdAt": "2026-01-31T10:00:00.000Z",
     "version": "3.0.0",
-    "updatedAt": "2026-02-06T13:23:23.911Z"
+    "updatedAt": "2026-02-06T13:28:31.068Z"
   }
 }

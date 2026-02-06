@@ -249,6 +249,64 @@ graph TD
 - [ ] `npm run test` passe (tous les tests)
 - [ ] Pas de code dupliqué
 - [ ] Pas de code commenté
+- [ ] Documentation API synchronisée avec le code (voir ci-dessous)
+
+---
+
+## Tests de synchronisation documentation/code
+
+Le projet inclut des tests automatisés qui vérifient que la documentation API (`docs/api/endpoints.md`) est synchronisée avec les endpoints définis dans `Program.cs`.
+
+### Tests exécutés en CI
+
+Les tests suivants s'exécutent automatiquement dans la CI pipeline :
+
+| Test | Description |
+|------|-------------|
+| `AllDocumentedEndpoints_ShouldExistInCode` | Vérifie que tous les endpoints documentés existent dans le code |
+| `AllCodeEndpoints_ShouldBeDocumented` | Vérifie que tous les endpoints du code sont documentés |
+| `Documentation_ShouldBeSynchronizedWithCode` | Test combiné qui échoue si la doc est désynchronisée |
+
+### Exécuter les tests localement
+
+```bash
+# Exécuter tous les tests backend (inclut les tests de synchronisation)
+dotnet test backend/MealPlanner.sln
+
+# Exécuter uniquement les tests de documentation
+dotnet test backend/MealPlanner.sln --filter "FullyQualifiedName~Documentation"
+```
+
+### Générer un squelette pour les nouveaux endpoints
+
+Si vous ajoutez un nouvel endpoint et que les tests échouent, utilisez le générateur de squelette :
+
+```bash
+# Le test GenerateSkeletonForUndocumentedEndpoints génère automatiquement
+# un squelette markdown pour les endpoints non documentés
+dotnet test backend/MealPlanner.sln --filter "GenerateSkeletonForUndocumentedEndpoints" --logger "console;verbosity=detailed"
+```
+
+Le squelette généré peut être copié et personnalisé dans `docs/api/endpoints.md`.
+
+### Que faire si les tests échouent ?
+
+1. **Endpoint documenté mais absent du code** : L'endpoint a été supprimé. Retirer la documentation correspondante de `endpoints.md`.
+
+2. **Endpoint dans le code mais non documenté** : Nouvel endpoint ajouté. Ajouter la documentation en utilisant le squelette généré.
+
+### Structure des tests
+
+```
+backend/tests/Api/MealPlanner.Api.Tests/Documentation/
+├── EndpointInfo.cs                      # Modèle d'endpoint
+├── EndpointDocumentationParser.cs       # Parse endpoints.md
+├── EndpointCodeExtractor.cs             # Extrait endpoints de Program.cs
+├── EndpointSynchronizer.cs              # Compare les deux sources
+├── EndpointSynchronizationReport.cs     # Génère le rapport
+├── DocumentationSkeletonGenerator.cs    # Génère squelette markdown
+└── EndpointSynchronizationTests.cs      # Tests xUnit
+```
 
 ---
 
