@@ -257,13 +257,14 @@
         "Les fichiers memory-bank sont intégrés comme référence"
       ],
       "priority": 4,
-      "passes": false,
+      "passes": true,
       "labels": [
         "documentation"
       ],
       "dependsOn": [
         "US-030"
-      ]
+      ],
+      "completionNotes": "Completed by agent"
     },
     {
       "id": "US-032",
@@ -279,13 +280,14 @@
         "Getting Started guide pour les nouveaux développeurs"
       ],
       "priority": 4,
-      "passes": false,
+      "passes": true,
       "labels": [
         "documentation"
       ],
       "dependsOn": [
         "US-031"
-      ]
+      ],
+      "completionNotes": "Documentation already exists in docs/api/ with endpoints.md (23 endpoints documented), architecture.md (flow diagrams), and getting-started.md (developer guide). All files integrated in mkdocs.yml."
     },
     {
       "id": "US-033",
@@ -315,6 +317,6 @@
   "metadata": {
     "createdAt": "2026-01-31T10:00:00.000Z",
     "version": "3.0.0",
-    "updatedAt": "2026-02-05T06:51:17.656Z"
+    "updatedAt": "2026-02-06T13:23:23.911Z"
   }
 }

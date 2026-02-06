@@ -70,6 +70,10 @@ nav:
       - Vue d'ensemble: memory-bank/common/ARCHITECTURE.md
       - Standards de Code: memory-bank/common/CODING_ASSERTIONS.md
       - Tests: memory-bank/common/TESTING.md
+  - API:
+      - Getting Started: api/getting-started.md
+      - Endpoints: api/endpoints.md
+      - Architecture des flux: api/architecture.md
   - Backend:
       - Conventions .NET: memory-bank/backend/CONVENTIONS.md
       - Migration Mediator: memory-bank/backend/MEDIATOR_MIGRATION.md
