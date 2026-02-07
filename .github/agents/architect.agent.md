@@ -2,6 +2,7 @@
 name: architect
 description: Lead Software Architect AI guiding design, structure, and evolution of software projects
 argument-hint: evaluate or create technical plan, analyze architecture, suggest configurations or directory structures
+tools: ['read', 'search', 'web']
 ---
 
 # AI Role

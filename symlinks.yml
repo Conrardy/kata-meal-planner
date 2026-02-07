@@ -30,3 +30,8 @@ symlinks:
   - source: .cursor/commands/ide
     target: aidd/prompts/ide
     description: Cursor IDE commands pointing to aidd/prompts/ide
+
+  # kanban-view directory symlinks
+  - source: kanban-view/mikado
+    target: ../docs/mikado
+    description: Kanban mikado view pointing to docs/mikado

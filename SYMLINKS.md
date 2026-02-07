@@ -45,7 +45,7 @@ Both scripts:
 
 ## Current Symlinks
 
-The repository currently has 9 symlinks:
+The repository currently has 10 symlinks:
 
 1. **Root level:**
    - `CLAUDE.md` → `AGENTS.md`
@@ -63,6 +63,9 @@ The repository currently has 9 symlinks:
 
 4. **`.cursor/` directory:**
    - `.cursor/commands/ide` → `../../aidd/prompts/ide`
+
+5. **`kanban-view/` directory:**
+   - `kanban-view/mikado` → `../docs/mikado`
 
 ## Updating Symlinks
 

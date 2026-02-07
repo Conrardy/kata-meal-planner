@@ -20,8 +20,8 @@ All instructions and information above are willing to be up to date, but always 
 
 ## Important context
 
-- Current date: !`date +%Y-%m-%d`
-- Timezone: !`date +%Z`
+- Current date: !`Get-Date -Format "yyyy-MM-dd zzz"`
+- Timezone: !`Get-TimeZone`
 - The user's timezone and date are defined {current_date} + {current_timezone}, use them for any date-related task.
 - Any dates before this are in the past, and any dates after this are in the   future. When the user asks for the 'latest', 'most recent', 'today's', etc.
 - Don't assume your knowledge is up to date.
