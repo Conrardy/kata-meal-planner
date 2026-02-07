@@ -5,6 +5,7 @@ const path = require("path");
 const port = Number(process.env.PORT) || 5173;
 const staticRoot = __dirname;
 const mikadoDir = process.env.MIKADO_DIR || path.join(__dirname, "mikado");
+const statusOptions = ["todo", "doing", "in-progress", "blocked", "done"];
 
 const contentTypes = {
   ".html": "text/html; charset=utf-8",
@@ -66,12 +67,108 @@ function listGraphs() {
   });
 }
 
+function resolveGraphPath(graphName) {
+  if (!graphName || !/^[a-z0-9-_]+$/i.test(graphName)) return null;
+  const filePath = path.join(mikadoDir, `${graphName}.json`);
+  console.log(`Resolving graph path: ${filePath}`);
+  if (!filePath.startsWith(mikadoDir)) return null;
+  return filePath;
+}
+
+function updateGraphStatus(graphName, nodeId, status) {
+  return new Promise((resolve) => {
+    const filePath = resolveGraphPath(graphName);
+    if (!filePath) {
+      resolve({ ok: false, statusCode: 400, message: "Invalid graph name." });
+      return;
+    }
+
+    fs.readFile(filePath, "utf-8", (readError, content) => {
+      if (readError) {
+        resolve({ ok: false, statusCode: 404, message: readError.message });
+        return;
+      }
+
+      let parsed;
+      try {
+        parsed = JSON.parse(content);
+      } catch (parseError) {
+        resolve({ ok: false, statusCode: 400, message: "Invalid JSON." });
+        return;
+      }
+
+      const wrapped = !!parsed.mikado_graph;
+      const graph = parsed.mikado_graph || parsed;
+      if (!graph || !graph.nodes || !graph.nodes[nodeId]) {
+        resolve({ ok: false, statusCode: 404, message: "Node not found." });
+        return;
+      }
+
+      const now = new Date().toISOString();
+      graph.nodes[nodeId].status = status;
+      graph.nodes[nodeId].updated_at = now;
+      graph.updated_at = now;
+
+      const payload = wrapped ? { ...parsed, mikado_graph: graph } : graph;
+      const output = JSON.stringify(payload, null, 2);
+      fs.writeFile(filePath, output, "utf-8", (writeError) => {
+        if (writeError) {
+          resolve({ ok: false, statusCode: 500, message: writeError.message });
+          return;
+        }
+        resolve({ ok: true, graph });
+      });
+    });
+  });
+}
+
 const server = http.createServer(async (req, res) => {
   const urlPath = (req.url || "/").split("?")[0];
 
   if (urlPath === "/api/graphs") {
     const payload = await listGraphs();
     sendJson(res, 200, payload);
+    return;
+  }
+
+  const updateMatch = urlPath.match(/^\/api\/graphs\/([^/]+)\/nodes\/([^/]+)\/status$/);
+  if (updateMatch && req.method === "POST") {
+    const graphName = decodeURIComponent(updateMatch[1]);
+    const nodeId = decodeURIComponent(updateMatch[2]);
+
+    let body = "";
+    req.on("data", (chunk) => {
+      body += chunk;
+      if (body.length > 1_000_000) {
+        res.writeHead(413);
+        res.end("Payload too large");
+        req.destroy();
+      }
+    });
+
+    req.on("end", async () => {
+      let payload;
+      try {
+        payload = JSON.parse(body || "{}");
+      } catch (error) {
+        sendJson(res, 400, { error: "Invalid JSON" });
+        return;
+      }
+
+      const status = payload.status;
+      if (!statusOptions.includes(status)) {
+        sendJson(res, 400, { error: "Invalid status" });
+        return;
+      }
+
+      const result = await updateGraphStatus(graphName, nodeId, status);
+      if (!result.ok) {
+        sendJson(res, result.statusCode || 500, { error: result.message || "Update failed" });
+        return;
+      }
+
+      sendJson(res, 200, { ok: true, graph: result.graph });
+    });
     return;
   }
 

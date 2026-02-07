@@ -1,5 +1,6 @@
 const fileInput = document.getElementById("fileInput");
 const loadSample = document.getElementById("loadSample");
+const downloadJson = document.getElementById("downloadJson");
 const board = document.getElementById("board");
 const errorBox = document.getElementById("error");
 const tabs = document.getElementById("tabs");
@@ -82,6 +83,84 @@ function normalizeGraphSafe(data, fileName) {
   return { ok: true, graph };
 }
 
+function setDownloadState(entry) {
+  if (!downloadJson) return;
+  if (!entry) {
+    downloadJson.hidden = true;
+    return;
+  }
+
+  downloadJson.hidden = false;
+  downloadJson.textContent = entry.source === "server" ? "Download JSON" : "Download updated JSON";
+}
+
+function downloadGraph(entry) {
+  if (!entry || !entry.graph) return;
+  const payload = JSON.stringify({ mikado_graph: entry.graph }, null, 2);
+  const blob = new Blob([payload], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `${entry.name}.json`;
+  link.click();
+  URL.revokeObjectURL(url);
+}
+
+async function persistStatusChange(entry, nodeId, status) {
+  if (!entry || entry.source !== "server") return true;
+
+  try {
+    const response = await fetch(
+      `/api/graphs/${encodeURIComponent(entry.name)}/nodes/${encodeURIComponent(nodeId)}/status`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status })
+      }
+    );
+
+    if (!response.ok) {
+      showError(`Failed to update ${nodeId} (${response.status})`);
+      return false;
+    }
+
+    const payload = await response.json();
+    if (payload && payload.graph) {
+      entry.graph = payload.graph;
+    }
+    return true;
+  } catch (error) {
+    showError(`Failed to update ${nodeId}: ${error.message || "network error"}`);
+    return false;
+  }
+}
+
+function getActiveEntry() {
+  if (activeIndex < 0) return null;
+  return loadedGraphs[activeIndex] || null;
+}
+
+function isNodeBlocked(node, nodeMap) {
+  return node.depends_on.some((dep) => nodeMap.get(dep)?.status !== "done");
+}
+
+async function updateNodeStatus(nodeId, status) {
+  const entry = getActiveEntry();
+  if (!entry || !entry.graph || !entry.graph.nodes) return;
+
+  const node = entry.graph.nodes[nodeId];
+  if (!node || node.status === status) return;
+
+  const didPersist = await persistStatusChange(entry, nodeId, status);
+  if (!didPersist) return;
+
+  const now = new Date().toISOString();
+  node.status = status;
+  node.updated_at = now;
+  entry.graph.updated_at = now;
+  renderBoard(entry.graph);
+}
+
 function buildColumns(nodes) {
   const statusSet = new Set(nodes.map((node) => node.status || "todo"));
   const ordered = statusOrder.filter((status) => statusSet.has(status));
@@ -127,6 +206,7 @@ function selectGraph(index) {
   if (!loadedGraphs[index]) return;
   activeIndex = index;
   renderTabs();
+  setDownloadState(loadedGraphs[index]);
   renderBoard(loadedGraphs[index].graph);
 }
 
@@ -149,13 +229,11 @@ function renderBoard(graph) {
   const totals = nodes.length;
   const doneCount = nodes.filter((node) => node.status === "done").length;
   const blockedCount = nodes.filter((node) => {
-    const unmet = node.depends_on.filter((dep) => nodeMap.get(dep)?.status !== "done");
-    return unmet.length > 0;
+    return isNodeBlocked(node, nodeMap);
   }).length;
   const readyCount = nodes.filter((node) => {
     if (node.status === "done") return false;
-    const unmet = node.depends_on.filter((dep) => nodeMap.get(dep)?.status !== "done");
-    return unmet.length === 0;
+    return !isNodeBlocked(node, nodeMap);
   }).length;
 
   updateSummary(graph, {
@@ -223,7 +301,27 @@ function renderBoard(graph) {
       meta.className = "meta";
       meta.textContent = formatDate(node.updated_at || node.created_at);
 
-      card.append(cardTitle, cardDesc, tagList, meta);
+      const actions = document.createElement("div");
+      actions.className = "status-actions";
+
+      if (isNodeBlocked(node, nodeMap)) {
+        const blockedNote = document.createElement("span");
+        blockedNote.className = "status-blocked";
+        blockedNote.textContent = "blocked by deps";
+        actions.appendChild(blockedNote);
+      } else {
+        statusOrder.forEach((statusOption) => {
+          const button = document.createElement("button");
+          button.type = "button";
+          button.className =
+            statusOption === node.status ? "status-button active" : "status-button";
+          button.textContent = statusOption.replace(/-/g, " ");
+          button.addEventListener("click", () => updateNodeStatus(node.id, statusOption));
+          actions.appendChild(button);
+        });
+      }
+
+      card.append(cardTitle, cardDesc, tagList, meta, actions);
       column.appendChild(card);
     });
 
@@ -247,9 +345,10 @@ async function tryAutoLoad() {
       return;
     }
 
-    loadedGraphs = graphs;
+    loadedGraphs = graphs.map((entry) => ({ ...entry, source: "server" }));
     activeIndex = 0;
     renderTabs();
+    setDownloadState(loadedGraphs[0]);
     renderBoard(loadedGraphs[0].graph);
 
     if (errors.length > 0) {
@@ -279,6 +378,7 @@ function readFileAsJson(file) {
 async function handleFiles(fileList) {
   clearError();
   resetSummary();
+  setDownloadState(null);
   loadedGraphs = [];
   activeIndex = -1;
   board.innerHTML = "";
@@ -303,7 +403,8 @@ async function handleFiles(fileList) {
       if (normalized.ok) {
         validGraphs.push({
           name: result.file.name.replace(/\.json$/i, ""),
-          graph: normalized.graph
+          graph: normalized.graph,
+          source: "local"
         });
       } else {
         invalidGraphs.push(result.file.name);
@@ -324,6 +425,7 @@ async function handleFiles(fileList) {
   loadedGraphs = validGraphs;
   activeIndex = 0;
   renderTabs();
+  setDownloadState(loadedGraphs[0]);
   renderBoard(loadedGraphs[0].graph);
 }
 
@@ -333,11 +435,16 @@ fileInput.addEventListener("change", (event) => {
 
 loadSample.addEventListener("click", () => {
   clearError();
-  loadedGraphs = [{ name: "sample", graph: normalizeGraph(sampleData) }];
+  loadedGraphs = [{ name: "sample", graph: normalizeGraph(sampleData), source: "local" }];
   activeIndex = 0;
   renderTabs();
+  setDownloadState(loadedGraphs[0]);
   renderBoard(loadedGraphs[0].graph);
 });
+
+if (downloadJson) {
+  downloadJson.addEventListener("click", () => downloadGraph(getActiveEntry()));
+}
 
 window.addEventListener("DOMContentLoaded", () => {
   tryAutoLoad();
