@@ -19,6 +19,7 @@ public sealed class MealPlannerDbContext : IdentityDbContext<ApplicationUser, Id
     public DbSet<ShoppingListStateEntity> ShoppingListStates => Set<ShoppingListStateEntity>();
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
     public DbSet<DynamicUser> DynamicUsers => Set<DynamicUser>();
+    public DbSet<UserIdentityMap> UserIdentityMaps => Set<UserIdentityMap>();
 
     public MealPlannerDbContext(DbContextOptions<MealPlannerDbContext> options)
         : base(options)
@@ -35,6 +36,7 @@ public sealed class MealPlannerDbContext : IdentityDbContext<ApplicationUser, Id
         ConfigureShoppingListState(modelBuilder);
         ConfigureRefreshToken(modelBuilder);
         ConfigureDynamicUser(modelBuilder);
+        ConfigureUserIdentityMap(modelBuilder);
         ConfigureIdentityTables(modelBuilder);
     }
 
@@ -235,6 +237,21 @@ public sealed class MealPlannerDbContext : IdentityDbContext<ApplicationUser, Id
             entity.Property(u => u.CreatedAt).HasColumnName("created_at");
 
             entity.HasIndex(u => u.Username).IsUnique();
+        });
+    }
+
+    private static void ConfigureUserIdentityMap(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<UserIdentityMap>(entity =>
+        {
+            entity.ToTable("user_identity_map");
+            entity.HasKey(m => m.AspNetUserId);
+
+            entity.Property(m => m.AspNetUserId).HasColumnName("asp_net_user_id");
+            entity.Property(m => m.FirebaseUid).HasColumnName("firebase_uid").HasMaxLength(128).IsRequired();
+            entity.Property(m => m.CreatedAt).HasColumnName("created_at");
+
+            entity.HasIndex(m => m.FirebaseUid).IsUnique();
         });
     }
 
