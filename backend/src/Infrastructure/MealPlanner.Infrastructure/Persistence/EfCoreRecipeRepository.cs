@@ -1,5 +1,7 @@
 using MealPlanner.Domain.Recipes;
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
+using NpgsqlTypes;
 
 namespace MealPlanner.Infrastructure.Persistence;
 
@@ -36,22 +38,42 @@ public sealed class EfCoreRecipeRepository : IRecipeRepository
 
     public async Task<IReadOnlyList<Recipe>> SearchAsync(string? searchTerm, IReadOnlyList<string>? tags, CancellationToken cancellationToken = default)
     {
-        var query = _context.Recipes.AsNoTracking();
+        var conditions = new List<string>();
+        var parameters = new List<object>();
 
-        if (!string.IsNullOrWhiteSpace(searchTerm))
+        var searchTermParam = string.IsNullOrWhiteSpace(searchTerm) ? null : searchTerm.Trim();
+        if (!string.IsNullOrWhiteSpace(searchTermParam))
         {
-            var term = searchTerm.ToLower();
-            query = query.Where(r =>
-                EF.Functions.ILike(r.Name, $"%{term}%") ||
-                (r.Description != null && EF.Functions.ILike(r.Description, $"%{term}%")));
+            conditions.Add("(name ILIKE '%' || @search_term || '%' OR (description IS NOT NULL AND description ILIKE '%' || @search_term || '%'))");
+            parameters.Add(new NpgsqlParameter("search_term", searchTermParam));
         }
 
-        if (tags is { Count: > 0 })
+        var tagsParam = tags is { Count: > 0 }
+            ? tags
+                .Where(t => !string.IsNullOrWhiteSpace(t))
+                .Select(t => t.Trim())
+                .ToArray()
+            : Array.Empty<string>();
+
+        if (tagsParam.Length > 0)
         {
-            query = query.Where(r => r.Tags.Any(t => tags.Contains(t)));
+            conditions.Add("tags && @tags_param");
+            parameters.Add(new NpgsqlParameter("tags_param", NpgsqlDbType.Array | NpgsqlDbType.Text)
+            {
+                Value = tagsParam
+            });
         }
 
-        return await query.ToListAsync(cancellationToken);
+        var sql = "SELECT * FROM recipes";
+        if (conditions.Count > 0)
+        {
+            sql += " WHERE 1=1 AND " + string.Join(" AND ", conditions);
+        }
+
+        return await _context.Recipes
+            .FromSqlRaw(sql, parameters.ToArray())
+            .AsNoTracking()
+            .ToListAsync(cancellationToken);
     }
 
     public async Task<IReadOnlyList<string>> GetAllTagsAsync(CancellationToken cancellationToken = default)

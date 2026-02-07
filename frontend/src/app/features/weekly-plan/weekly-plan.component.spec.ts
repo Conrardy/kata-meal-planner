@@ -290,6 +290,23 @@ describe('WeeklyPlanComponent', () => {
   });
 
   it('should add recipe and update weekly plan on success', async () => {
+    const updatedPlan: WeeklyPlan = {
+      ...mockWeeklyPlan,
+      days: [
+        {
+          ...mockDayPlan,
+          dinner: {
+            id: 'new-meal-1',
+            recipeId: 'recipe-123',
+            recipeName: 'New Recipe',
+            imageUrl: null,
+          },
+        },
+      ],
+    };
+    weeklyPlanServiceMock.getWeeklyPlan
+      .mockReturnValueOnce(of(mockWeeklyPlan))
+      .mockReturnValueOnce(of(updatedPlan));
     mealPlanServiceMock.addRecipeToMealPlan.mockReturnValue(
       of({
         mealId: 'new-meal-1',
@@ -317,8 +334,8 @@ describe('WeeklyPlanComponent', () => {
     expect(component.addingRecipeDate()).toBeNull();
     expect(component.addingRecipeMealType()).toBeNull();
 
-    const updatedPlan = component.weeklyPlan();
-    const dinnerMeal = updatedPlan?.days[0]?.dinner;
+    const refreshedPlan = component.weeklyPlan();
+    const dinnerMeal = refreshedPlan?.days[0]?.dinner;
     expect(dinnerMeal?.id).toBe('new-meal-1');
     expect(dinnerMeal?.recipeName).toBe('New Recipe');
   });
@@ -377,7 +394,7 @@ describe('WeeklyPlanComponent', () => {
   });
 
   it('should update breakfast meal when adding to breakfast slot', async () => {
-    const updatedMockPlan: WeeklyPlan = {
+    const initialPlan: WeeklyPlan = {
       ...mockWeeklyPlan,
       days: [
         {
@@ -386,7 +403,23 @@ describe('WeeklyPlanComponent', () => {
         },
       ],
     };
-    weeklyPlanServiceMock.getWeeklyPlan.mockReturnValue(of(updatedMockPlan));
+    const updatedMockPlan: WeeklyPlan = {
+      ...initialPlan,
+      days: [
+        {
+          ...initialPlan.days[0],
+          breakfast: {
+            id: 'new-breakfast',
+            recipeId: 'recipe-456',
+            recipeName: 'Pancakes',
+            imageUrl: null,
+          },
+        },
+      ],
+    };
+    weeklyPlanServiceMock.getWeeklyPlan
+      .mockReturnValueOnce(of(initialPlan))
+      .mockReturnValueOnce(of(updatedMockPlan));
     mealPlanServiceMock.addRecipeToMealPlan.mockReturnValue(
       of({
         mealId: 'new-breakfast',
@@ -411,7 +444,7 @@ describe('WeeklyPlanComponent', () => {
   });
 
   it('should update lunch meal when adding to lunch slot', async () => {
-    const updatedMockPlan: WeeklyPlan = {
+    const initialPlan: WeeklyPlan = {
       ...mockWeeklyPlan,
       days: [
         {
@@ -420,7 +453,23 @@ describe('WeeklyPlanComponent', () => {
         },
       ],
     };
-    weeklyPlanServiceMock.getWeeklyPlan.mockReturnValue(of(updatedMockPlan));
+    const updatedMockPlan: WeeklyPlan = {
+      ...initialPlan,
+      days: [
+        {
+          ...initialPlan.days[0],
+          lunch: {
+            id: 'new-lunch',
+            recipeId: 'recipe-789',
+            recipeName: 'Salad',
+            imageUrl: null,
+          },
+        },
+      ],
+    };
+    weeklyPlanServiceMock.getWeeklyPlan
+      .mockReturnValueOnce(of(initialPlan))
+      .mockReturnValueOnce(of(updatedMockPlan));
     mealPlanServiceMock.addRecipeToMealPlan.mockReturnValue(
       of({
         mealId: 'new-lunch',

@@ -106,9 +106,9 @@ export class WeeklyPlanComponent implements OnInit {
     this.isAdding.set(true);
     this.mealPlanService.addRecipeToMealPlan(recipeId, date, mealType).subscribe({
       next: (result) => {
-        this.updatePlanWithNewMeal(date, mealType, result);
         this.onCloseAddModal();
         this.showToast(`${result.recipeName} added to ${mealType}`, 'success');
+        this.loadWeeklyPlan();
         this.isAdding.set(false);
       },
       error: (err) => {
@@ -125,41 +125,6 @@ export class WeeklyPlanComponent implements OnInit {
     setTimeout(() => {
       this.toastMessage.set(null);
     }, 3000);
-  }
-
-  private updatePlanWithNewMeal(
-    date: string,
-    mealType: string,
-    result: { mealId: string; recipeName: string; date: string; mealType: string }
-  ): void {
-    this.weeklyPlan.update((plan) => {
-      if (!plan) return plan;
-
-      return {
-        ...plan,
-        days: plan.days.map((day) => {
-          if (day.date !== date) return day;
-
-          const newMeal: WeeklyMeal = {
-            id: result.mealId,
-            recipeId: '', // Not provided in response, but not needed for display
-            recipeName: result.recipeName,
-            imageUrl: null,
-          };
-
-          switch (mealType) {
-            case 'Breakfast':
-              return { ...day, breakfast: newMeal };
-            case 'Lunch':
-              return { ...day, lunch: newMeal };
-            case 'Dinner':
-              return { ...day, dinner: newMeal };
-            default:
-              return day;
-          }
-        }),
-      };
-    });
   }
 
   onEditMeal(meal: WeeklyMeal | null, mealType: string, event: MouseEvent): void {
