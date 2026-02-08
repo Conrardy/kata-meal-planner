@@ -36,6 +36,7 @@
 - **Endpoints**: Minimal API mappings → @backend/src/Api/MealPlanner.Api/Program.cs
 - **Database**: PostgreSQL → @backend/src/Api/MealPlanner.Api/appsettings.json, @docker-compose.yml
 - **Caching**: Redis → @backend/src/Api/MealPlanner.Api/appsettings.json, @docker-compose.yml
+- **CQRS**: Custom Mediator (no external dependency) → @backend/src/Application/MealPlanner.Application/Common/Mediator
 - **Testing**: xUnit (solution tests) → @backend/tests
 
 #### Database
@@ -57,6 +58,7 @@ kata-meal-planner/
 ├── aidd/                        # AI-driven dev config
 ├── docker-compose.yml           # Local infra
 ├── docker-compose.override.yml  # Dev overrides
+├── mkdocs.yml                   # MkDocs config (Material theme)
 └── prd.json                     # Product requirements
 ```
 
@@ -77,7 +79,7 @@ kata-meal-planner/
 graph LR
   UI[Angular UI] --> Svc[Core Services (HttpClient)]
   Svc --> API[ASP.NET Core API /api/v1]
-  API --> Med[MediatR + Application]
+  API --> Med[Custom Mediator + Application]
   Med --> Infra[Infrastructure]
   Infra --> DB[(PostgreSQL)]
   Infra --> Cache[(Redis)]

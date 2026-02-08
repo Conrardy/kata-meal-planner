@@ -14,7 +14,10 @@ kata-meal-planner/
 │   ├── memory-bank/            # Shared context & decisions
 │   ├── rules/                  # Project rules & patterns
 │   ├── agents/                 # AI agent instructions
-│   └── issues/                 # Feature specifications
+│   ├── issues/                 # Feature specifications
+│   ├── api/                    # API documentation (endpoints, architecture, getting-started)
+│   └── migration-firstore/     # Firestore migration planning & ADRs
+├── kanban-view/                 # Standalone Kanban board viewer (HTML/JS)
 ├── aidd/                        # AI-driven development config
 ├── CLAUDE.md                    # Project instructions
 ├── README.md
@@ -67,6 +70,8 @@ backend/src/
 │   ├── ShoppingList/            # ShoppingItem, ItemCategory, IShoppingListStateRepository
 │   └── Preferences/             # DietaryPreference, Allergy, IUserPreferencesRepository
 ├── Application/MealPlanner.Application/
+│   ├── Common/
+│   │   └── Mediator/            # Custom mediator (IMediator, IRequest, IPipelineBehavior)
 │   ├── DailyDigest/             # GetDailyDigestQuery, DailyDigestDto
 │   ├── Meals/                   # SuggestionsDto
 │   ├── Recipes/                 # SearchRecipesQuery, GetRecipeDetailsQuery
@@ -79,6 +84,12 @@ backend/src/
     ├── Program.cs               # Route configuration, middleware
     ├── appsettings.json
     └── Properties/launchSettings.json
+
+backend/tests/
+├── Api/MealPlanner.Api.Tests/
+│   └── Documentation/           # Endpoint-to-docs sync tests
+└── Application/MealPlanner.Application.Tests/
+    └── Common/Mediator/         # Mediator unit tests
 ```
 
 ## Key Files

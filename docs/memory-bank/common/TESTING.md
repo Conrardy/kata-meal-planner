@@ -32,3 +32,36 @@ description: Cross-cutting testing strategy (frontend + backend)
 
 - Prefer minimal mocking; use framework-provided testing utilities (e.g., Angular HTTP testing) as documented in module conventions.
 - Do not mock functional components; follow Given-When-Then/Arrange-Act-Assert per module docs.
+
+## Documentation Synchronization Tests
+
+Tests in `@backend/tests/Api/MealPlanner.Api.Tests/Documentation/` verify that API endpoints match documentation.
+
+### Pattern: EndpointSynchronizationTests
+
+| Test | Purpose |
+|------|---------|
+| `AllDocumentedEndpoints_ShouldExistInCode` | Fails if docs/api/endpoints.md lists endpoints not in Program.cs |
+| `AllCodeEndpoints_ShouldBeDocumented` | Fails if Program.cs has endpoints missing from documentation |
+| `Documentation_ShouldBeSynchronizedWithCode` | Combined check for full sync |
+| `GenerateSkeletonForUndocumentedEndpoints` | Helper to generate doc templates for new endpoints |
+
+### Components
+
+| File | Purpose |
+|------|---------|
+| `EndpointDocumentationParser.cs` | Parses endpoints from docs/api/endpoints.md |
+| `EndpointCodeExtractor.cs` | Extracts endpoint definitions from Program.cs |
+| `EndpointSynchronizer.cs` | Compares documented vs. code endpoints |
+| `EndpointSynchronizationReport.cs` | Report with sync status and discrepancies |
+| `DocumentationSkeletonGenerator.cs` | Generates markdown templates for undocumented endpoints |
+
+### Usage
+
+```bash
+# Run sync tests
+dotnet test --filter "FullyQualifiedName~EndpointSynchronizationTests"
+
+# View generated skeleton for new endpoints
+dotnet test --filter "GenerateSkeletonForUndocumentedEndpoints" -- --logger "console;verbosity=detailed"
+```

@@ -11,18 +11,14 @@
 | Build | esbuild | - | Fast builds via Angular CLI |
 | Package Manager | npm | - | Dependency management |
 | State | Angular Signals | - | Local component state, fine-grained reactivity |
-| State | NgRx SignalStore | - | Global state with signal-based selectors |
 | Async | RxJS | 7 | Async streams, HTTP, WebSocket |
 | Styling | Tailwind CSS | 3 | Utility-first styling |
-| UI | Angular CDK | - | Accessible primitives (dialogs, overlays, drag-drop) |
 | Icons | Lucide Icons | - | Consistent iconography |
 | Forms | Reactive Forms | - | Type-safe form handling |
-| Validation | Zod | - | Runtime schema validation |
 | HTTP | HttpClient | - | HTTP requests with interceptors |
-| API Client | OpenAPI Generator | - | Type-safe API client generation |
+| i18n | @angular/localize | 19 | Internationalization (fr/en) |
 | Testing | Vitest | 2 | Test runner + framework |
 | Testing | @analogjs/vitest-angular | 1 | Angular Vitest integration |
-| Observability | OpenTelemetry JS | - | Distributed tracing |
 
 ## Backend (.NET)
 
@@ -30,22 +26,18 @@
 |----------|------------|---------|---------|
 | Framework | .NET | 9 | LTS, performance, native AOT support |
 | Language | C# | 13 | Primary expressions, collection expressions |
-| API Style | FastEndpoints | - | Endpoint-per-file, REPR pattern |
+| API Style | Minimal API | - | Route-based endpoints in Program.cs |
 | Package Manager | NuGet | - | Dependency management |
-| CQRS | MediatR | 14 | Command/Query dispatching |
-| Validation | FluentValidation | - | Request validation |
-| Error Handling | ErrorOr | - | Result monad for error handling |
+| CQRS | Custom Mediator | - | Internal dispatcher with pipeline behaviors |
+| Validation | FluentValidation | 11 | Request validation |
+| Error Handling | ErrorOr | 2 | Result monad for error handling |
 | ORM | EF Core | 9 | ORM, migrations, query optimization |
 | Database | PostgreSQL | 17 | Primary database |
 | Cache | Redis | 7 | Distributed caching |
-| Messaging | MassTransit | - | Message bus (RabbitMQ/Azure Service Bus) |
-| Docs | Scalar | - | OpenAPI documentation |
-| Logging | Serilog | - | Structured logging |
-| Metrics | Prometheus | - | Metrics export |
-| Tracing | OpenTelemetry .NET | - | Distributed tracing |
-| Tracing | Jaeger | - | Trace visualization |
+| Logging | Serilog | 9 | Structured logging |
 | Auth | ASP.NET Identity | - | User management |
-| Auth | JWT Bearer | - | API authentication |
+| Auth | JWT Bearer | 9 | API authentication |
+| i18n | Microsoft.Extensions.Localization | 10 | Backend message localization |
 | Testing | xUnit | - | Test framework |
 | Testing | FluentAssertions | - | Readable assertions |
 | Testing | Testcontainers | - | Integration tests with real DB |
@@ -57,11 +49,11 @@
 | Category | Technology | Purpose |
 |----------|------------|---------|
 | API Contract | OpenAPI 3.1 | API specification |
-| Validation | Zod (FE) + FluentValidation (BE) | Consistent validation |
+| Validation | FluentValidation (BE) | Request validation |
 | Containerization | Docker | Containerization |
 | Local Dev | Docker Compose | Local development |
+| Documentation | MkDocs + Material | Static documentation site |
 | CI/CD | GitHub Actions | CI/CD |
-| Orchestration | .NET Aspire | Cloud-native orchestration |
 
 ## Local Development Services
 
@@ -69,9 +61,6 @@
 # docker-compose.yml services
 - postgres:17
 - redis:7
-- rabbitmq:3-management
-- jaeger:latest
-- seq:latest (optional, for log viewing)
 ```
 
 ## Version Summary

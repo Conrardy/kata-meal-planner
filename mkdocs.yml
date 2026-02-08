@@ -85,10 +85,16 @@ nav:
       - Variables d'environnement: ENVIRONMENT_VARIABLES.md
       - Base de donnees: DATABASE_MIGRATIONS.md
       - SSL/TLS: SSL_TLS_CONFIGURATION.md
+  - Migration Firestore:
+      - ADR Architecture: migration-firstore/adr/2026_02_07_targeted_architecture_to_include_firestore.md
+      - Decision Matrix: migration-firstore/decision-matrix-ecrans.md
+      - Entity Mapping: migration-firstore/mapping-entites-firestore.md
+      - Schema & Indexes: migration-firstore/schema-firestore-et-indexes.md
   - READMEs:
       - Vue d'ensemble: readmes/index.md
       - Projet (racine): readmes/root.md
       - Frontend: readmes/frontend.md
+      - Kanban Viewer: readmes/kanban-view.md
       - Issues: readmes/docs--issues.md
       - Regles: readmes/docs--rules.md
       - AIDD Prompts: readmes/aidd--prompts.md

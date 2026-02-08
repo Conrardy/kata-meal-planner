@@ -5,6 +5,7 @@
   "scripts": {
     "docs:aggregate": "node scripts/aggregate-readmes.cjs",
     "docs:serve": "node scripts/aggregate-readmes.cjs && python -m mkdocs serve",
-    "docs:build": "node scripts/aggregate-readmes.cjs && python -m mkdocs build"
+    "docs:build": "node scripts/aggregate-readmes.cjs && python -m mkdocs build",
+    "kanban:serve": "cd kanban-view && node server.js"
   }
 }

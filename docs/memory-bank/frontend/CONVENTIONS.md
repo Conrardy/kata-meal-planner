@@ -83,6 +83,84 @@ frontend/
 - Generate TypeScript client from OpenAPI spec
 - Shared validation rules concept (not code)
 
+## Internationalization (i18n)
+
+### Configuration
+
+- **Package**: `@angular/localize` (included in polyfills)
+- **Source Locale**: French (`fr`) - default
+- **Target Locales**: English (`en`)
+- **Translation Files**: `src/locale/` (XLIFF format)
+
+### Marking Text for Translation
+
+Use the `i18n` attribute with a custom ID:
+
+```html
+<!-- Static text -->
+<h1 i18n="@@preferences.title">Preferences</h1>
+
+<!-- Attribute translation -->
+<input placeholder="Search..." i18n-placeholder="@@search.placeholder" />
+```
+
+### Translation Files
+
+| File | Purpose |
+|------|---------|
+| `src/locale/messages.xlf` | Source strings (French) |
+| `src/locale/messages.en.xlf` | English translations |
+
+### LocaleService
+
+Centralized service for locale management:
+
+```typescript
+import { LocaleService } from './locale.service';
+
+const localeService = inject(LocaleService);
+
+// Available locales
+localeService.availableLocales; // [{ code: 'fr', label: 'Francais' }, { code: 'en', label: 'English' }]
+
+// Current locale
+localeService.currentLocale; // 'fr' or 'en'
+
+// Switch locale (reloads page)
+localeService.switchLocale('en');
+
+// Get Accept-Language header for API calls
+localeService.getAcceptLanguageHeader(); // 'fr-FR' or 'en-US'
+```
+
+### Language Persistence
+
+- Stored in `localStorage` with key `mealplanner-locale`
+- Language selector available in Preferences page
+- Switching locale reloads the application
+
+### Build Commands
+
+```bash
+# Development (French only)
+npm start
+
+# Production builds per locale
+npm run build:fr          # French only
+npm run build:en          # English only
+npm run build:i18n        # All locales
+
+# Extract new translation strings
+npm run i18n:extract
+```
+
+### Adding New Translations
+
+1. Mark text with `i18n="@@unique.id"` attribute
+2. Run `npm run i18n:extract` to update `messages.xlf`
+3. Copy new `<trans-unit>` entries to `messages.en.xlf`
+4. Add `<target>` element with English translation
+
 ## Environment Configuration
 
 ### Environment Files

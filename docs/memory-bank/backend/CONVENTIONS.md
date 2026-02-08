@@ -44,9 +44,42 @@ public sealed record MealTime
 ## Application Layer Patterns (CQRS)
 
 - One handler per use case
-- Commands mutate, return `Result<Unit>` or ID
+- Commands mutate, return `ErrorOr<Unit>` or ID
 - Queries read, return DTOs directly
-- Pipeline behaviors for cross-cutting concerns (validation, logging)
+- Pipeline behaviors for cross-cutting concerns (validation, logging, transactions)
+
+### Custom Mediator
+
+Custom mediator implementation in `Application/Common/Mediator/` (replaces MediatR).
+
+**Core Interfaces:**
+| Interface | Purpose |
+|-----------|---------|
+| `IMediator` | Dispatch requests via `Send<TResponse>()` and notifications via `Publish()` |
+| `IRequest<TResponse>` | Marker for commands/queries |
+| `IRequestHandler<TRequest, TResponse>` | Handler with `Handle(request, cancellationToken)` |
+| `INotification` | Marker for domain events |
+| `INotificationHandler<T>` | Event handler |
+| `IPipelineBehavior<TRequest, TResponse>` | Cross-cutting behavior with `Handle(request, next, cancellationToken)` |
+| `ITransactionalRequest` | Marker for commands requiring transaction wrapping |
+
+**Registration:**
+```csharp
+// Program.cs - Assembly scanning for handlers
+services.AddMediator<ApplicationAssemblyMarker>();
+
+// Register behaviors in execution order
+services.AddMediatorBehavior(typeof(LoggingBehavior<,>));
+services.AddMediatorBehavior(typeof(ValidationBehavior<,>));
+services.AddMediatorBehavior(typeof(TransactionBehavior<,>));
+```
+
+**Pipeline Behaviors:**
+| Behavior | Purpose |
+|----------|---------|
+| `LoggingBehavior<,>` | Logs request start/end with duration |
+| `ValidationBehavior<,>` | Runs FluentValidation validators, throws `ValidationException` |
+| `TransactionBehavior<,>` | Wraps `ITransactionalRequest` in DB transaction via `IUnitOfWork` |
 
 ```csharp
 // Command example
@@ -55,15 +88,29 @@ public sealed record PlanMealCommand(
     DateOnly Date,
     MealTime MealTime,
     Guid RecipeId
-) : IRequest<ErrorOr<Unit>>;
+) : IRequest<ErrorOr<Unit>>, ITransactionalRequest;
 ```
 
 ## Infrastructure Layer Patterns
 
 - Repository pattern for aggregate persistence
-- Unit of Work via EF Core `DbContext`
+- Unit of Work via EF Core `DbContext` (implements `IUnitOfWork` for transaction control)
 - Outbox pattern for reliable event publishing
 - Read replicas for query optimization
+
+### UserIdentityMap (Firebase Migration)
+
+Table `user_identity_map` maps ASP.NET Identity users to Firebase UIDs for migration support.
+
+```csharp
+// Infrastructure/Identity/UserIdentityMap.cs
+public sealed class UserIdentityMap
+{
+    public Guid AspNetUserId { get; private set; }
+    public string FirebaseUid { get; private set; }  // max 128 chars, unique index
+    public DateTime CreatedAt { get; private set; }
+}
+```
 
 ## API Layer Patterns
 
@@ -98,6 +145,27 @@ public static class DomainErrors
     public static Error RecipeNotFound(Guid id) =>
         Error.NotFound("Recipe.NotFound", $"Recipe {id} not found");
 }
+```
+
+### API Localization
+
+Error messages are localized based on `Accept-Language` header (supports `fr`, `en`).
+
+**Files:**
+- `Api/Resources/SharedResource.resx` (default/fallback)
+- `Api/Resources/SharedResource.fr.resx`
+- `Api/Resources/SharedResource.en.resx`
+
+**Usage:**
+```csharp
+// Api/Localization/ErrorLocalizer.cs
+public string Localize(string errorCode, string fallbackMessage, params object[] args);
+```
+
+**Configuration** (Program.cs):
+```csharp
+builder.Services.AddLocalization();
+app.UseRequestLocalization(new RequestLocalizationOptions { ... });
 ```
 
 ## Testing Patterns
