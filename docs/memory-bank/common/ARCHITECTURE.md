@@ -77,12 +77,12 @@ kata-meal-planner/
 
 ```mermaid
 graph LR
-  UI[Angular UI] --> Svc[Core Services (HttpClient)]
-  Svc --> API[ASP.NET Core API /api/v1]
-  API --> Med[Custom Mediator + Application]
-  Med --> Infra[Infrastructure]
-  Infra --> DB[(PostgreSQL)]
-  Infra --> Cache[(Redis)]
+  UI["Angular UI"] --> Svc["Core Services (HttpClient)"]
+  Svc --> API["ASP.NET Core API /api/v1"]
+  API --> Med["Custom Mediator + Application"]
+  Med --> Infra["Infrastructure"]
+  Infra --> DB[("PostgreSQL")]
+  Infra --> Cache[("Redis")]
 ```
 
 ### External Services
