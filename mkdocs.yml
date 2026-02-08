@@ -62,42 +62,47 @@ markdown_extensions:
 
 nav:
   - Accueil: index.md
+  - Getting Started: getting-started.md
   - Projet:
-      - Vision & Domaine: memory-bank/PROJECT_BRIEF.md
-      - Stack Technique: memory-bank/STACK.md
-      - Structure du Code: memory-bank/CODEBASE_STRUCTURE.md
+      - Vision & Domaine: project/brief.md
+      - Migration Firestore:
+          - ADR Architecture: project/firestore-migration/adr/2026_02_07_targeted_architecture_to_include_firestore.md
+          - Decision Matrix: project/firestore-migration/decision-matrix.md
+          - Entity Mapping: project/firestore-migration/entity-mapping.md
+          - Schema & Indexes: project/firestore-migration/schema-indexes.md
+      - Migration Mediator: project/mediator-migration.md
   - Architecture:
-      - Vue d'ensemble: memory-bank/common/ARCHITECTURE.md
-      - Standards de Code: memory-bank/common/CODING_ASSERTIONS.md
-      - Tests: memory-bank/common/TESTING.md
+      - Vue d'ensemble: architecture/overview.md
+      - Stack Technique: architecture/stack.md
+      - Structure du Code: architecture/codebase-structure.md
+  - Conventions:
+      - Backend (.NET): conventions/backend.md
+      - Frontend (Angular): conventions/frontend.md
+      - Design System: conventions/design.md
+      - Tests: conventions/testing.md
+      - Standards de Code: conventions/coding-assertions.md
   - API:
-      - Getting Started: api/getting-started.md
       - Endpoints: api/endpoints.md
       - Architecture des flux: api/architecture.md
-  - Backend:
-      - Conventions .NET: memory-bank/backend/CONVENTIONS.md
-      - Migration Mediator: memory-bank/backend/MEDIATOR_MIGRATION.md
-  - Frontend:
-      - Conventions Angular: memory-bank/frontend/CONVENTIONS.md
-      - Design System: memory-bank/frontend/DESIGN.md
-  - Infrastructure:
-      - Deployment & Docker: memory-bank/infra/DEPLOYMENT.md
-      - Variables d'environnement: ENVIRONMENT_VARIABLES.md
-      - Base de donnees: DATABASE_MIGRATIONS.md
-      - SSL/TLS: SSL_TLS_CONFIGURATION.md
-  - Migration Firestore:
-      - ADR Architecture: migration-firstore/adr/2026_02_07_targeted_architecture_to_include_firestore.md
-      - Decision Matrix: migration-firstore/decision-matrix-ecrans.md
-      - Entity Mapping: migration-firstore/mapping-entites-firestore.md
-      - Schema & Indexes: migration-firstore/schema-firestore-et-indexes.md
+  - Deployment:
+      - Docker & Infrastructure: deployment/deployment.md
+  - Guides:
+      - Commits: guides/commit.md
+      - Migrations BDD: guides/database-migrations.md
+      - Variables d'environnement: guides/environment-variables.md
+      - SSL/TLS: guides/ssl-tls-configuration.md
+  - Rules:
+      - Overview: rules/README.md
+      - DDD: rules/ddd.md
+      - Craft: rules/craft.md
+      - Functional: rules/functional.md
+      - API Design: rules/api-design.md
+      - Concurrency: rules/concurrency.md
+      - Observability: rules/observability.md
+      - Performance: rules/performance.md
   - READMEs:
       - Vue d'ensemble: readmes/index.md
       - Projet (racine): readmes/root.md
-      - Frontend: readmes/frontend.md
       - Kanban Viewer: readmes/kanban-view.md
-      - Issues: readmes/docs--issues.md
-      - Regles: readmes/docs--rules.md
       - AIDD Prompts: readmes/aidd--prompts.md
       - AIDD Templates: readmes/aidd--prompts--templates.md
-  - Guides:
-      - Regles de dev: rules.md

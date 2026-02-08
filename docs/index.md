@@ -15,11 +15,11 @@ MealPlanner est une application de planification de repas permettant aux utilisa
 
 ## Liens rapides
 
-- [Vision & Domaine](memory-bank/PROJECT_BRIEF.md)
-- [Architecture](memory-bank/common/ARCHITECTURE.md)
-- [Conventions Backend](memory-bank/backend/CONVENTIONS.md)
-- [Conventions Frontend](memory-bank/frontend/CONVENTIONS.md)
-- [Deployment & Docker](memory-bank/infra/DEPLOYMENT.md)
+- [Vision & Domaine](project/brief.md)
+- [Architecture](architecture/overview.md)
+- [Conventions Backend](conventions/backend.md)
+- [Conventions Frontend](conventions/frontend.md)
+- [Deployment & Docker](deployment/deployment.md)
 
 ## Demarrage rapide
 

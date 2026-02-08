@@ -6,9 +6,11 @@ const path = require('path');
 // Project root is parent of scripts directory
 const PROJECT_ROOT = path.resolve(__dirname, '..');
 const DOCS_READMES_DIR = path.join(PROJECT_ROOT, 'docs', 'readmes');
+const DOCS_ROOT = path.join(PROJECT_ROOT, 'docs');
 const EXCLUDED_DIRS = new Set([
   'node_modules',
   'dist',
+  'docs',
   'site',
   '.git',
   'coverage',
@@ -88,6 +90,7 @@ function getSourcePath(readmePath) {
 function adjustRelativeLinks(content, sourcePath) {
   const sourceDir = path.dirname(sourcePath);
   const targetDir = 'docs/readmes';
+  const docsRoot = 'docs';
 
   // Regex patterns for markdown links: [text](path)
   // Matches both relative and absolute paths
@@ -109,8 +112,9 @@ function adjustRelativeLinks(content, sourcePath) {
       path.join(sourceDir, url)
     );
 
-    // Calculate relative path from target directory to resolved path
-    const relativePath = path.relative(targetDir, resolvedPath);
+    // Calculate relative path from target directory to docs-root mirror
+    const docsPath = path.join(docsRoot, resolvedPath);
+    const relativePath = path.relative(targetDir, docsPath);
 
     // Convert to forward slashes for markdown
     const adjustedUrl = relativePath.replace(/\\/g, '/');
@@ -118,6 +122,58 @@ function adjustRelativeLinks(content, sourcePath) {
     return `[${text}](${adjustedUrl})`;
   });
 }
+
+  /**
+   * Mirror markdown sources under docs/
+   */
+  function mirrorDocsTree() {
+    const mirrored = [];
+
+    function walk(currentDir) {
+      let entries;
+      try {
+        entries = fs.readdirSync(currentDir, { withFileTypes: true });
+      } catch (err) {
+        console.error(`Error reading directory ${currentDir}:`, err.message);
+        return;
+      }
+
+      for (const entry of entries) {
+        const fullPath = path.join(currentDir, entry.name);
+
+        if (shouldExclude(fullPath)) {
+          continue;
+        }
+
+        if (entry.isDirectory()) {
+          walk(fullPath);
+          continue;
+        }
+
+        if (path.extname(entry.name).toLowerCase() !== '.md') {
+          continue;
+        }
+
+        const relativePath = path.relative(PROJECT_ROOT, fullPath);
+        const targetPath = path.join(DOCS_ROOT, relativePath);
+        const targetDir = path.dirname(targetPath);
+
+        try {
+          fs.mkdirSync(targetDir, { recursive: true });
+          fs.copyFileSync(fullPath, targetPath);
+          mirrored.push(relativePath.replace(/\\/g, '/'));
+        } catch (err) {
+          console.error(`Error mirroring ${relativePath}:`, err.message);
+        }
+      }
+    }
+
+    walk(PROJECT_ROOT);
+
+    if (mirrored.length > 0) {
+      console.log(`Mirrored ${mirrored.length} markdown file(s) under docs/`);
+    }
+  }
 
 /**
  * Create the aggregated markdown file
@@ -197,6 +253,8 @@ The memory-bank files provide detailed project context and are also integrated i
  */
 function main() {
   console.log('Aggregating README files...\n');
+
+  mirrorDocsTree();
 
   // Clean directory
   if (fs.existsSync(DOCS_READMES_DIR)) {
