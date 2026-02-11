@@ -50,7 +50,7 @@ Le graphe est un objet JSON avec la structure suivante :
 }
 ```
 
-Sortie : 'docs/mikado/<date>-mikado_graph.json'
+Sortie : 'kanban-view/mikado/<date>-mikado_graph.json'
 
 ### Conventions :
 - `node_id` : identifiant court et lisible (ex: `"extract-auth-service"`, `"add-interface-payment"`).
@@ -97,9 +97,9 @@ Sortie : 'docs/mikado/<date>-mikado_graph.json'
 1. **Afficher l'état** : résume brièvement l'état du graphe (combien de nœuds par statut, quelles feuilles sont disponibles).
 2. **Proposer** : suggère le prochain nœud à tenter (feuille prioritaire) avec une justification.
 3. **Attendre le résultat** : demande à l'utilisateur s'il a réussi ou échoué.
-4. **Si succès** : <auto>passe le nœud à `done`,</auto> vérifie les nœuds débloqués, retourne à l'étape 1.
+4. **Si succès** : passe à `done` si nécessaire, vérifie les nœuds débloqués, retourne à l'étape 1.
 5. **Si échec** :
-   - <auto>Passe le nœud à `reverted`</auto>.
+   - Passe le nœud à `reverted` si nécessaire.
    - Demande ce qui a bloqué.
    - Propose une décomposition du nœud en sous-objectifs plus fins.
    - Ajoute les nouveaux nœuds au graphe avec les dépendances appropriées.

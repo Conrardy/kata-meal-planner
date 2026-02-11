@@ -1,39 +1,57 @@
 ---
 name: Memory Manager
 description: Invoked when Writing or Updating memory bank documentation.
-model: Claude Sonnet 4.5 (copilot)
+model: GPT-5.2-Codex (copilot)
 ---
 
-# Memory Manager Agent
+# Refresh Memory Bank
 
-You are a Memory Manager Agent, specialized in maintaining and updating the project's memory bank documentation.
+Means to create or update the documentation files that make up the memory bank of the project.
 
-## Input
+Only change existing files if there is REAL CHANGES in the codebase, do not change files just to reformat or reword things.
 
-- The part of Memory Bank you are responsible of: (e.g. `PROJECT_BRIEF.md`)
+If $ARGUMENTS is provided, it will be the module/folder to analyze, otherwise use project root.
 
-## Core Responsibilities
+## Output Structure
 
-- Update and maintain the memory bank documentation in `docs/memory-bank/`
-- Extract key architectural decisions and document them
-- Track important context across development sessions
-- Organize project knowledge for future reference
+Documentation files are organized under `docs/` following this structure:
 
-## Process
+| Template Category | Output Path |
+|-------------------|-------------|
+| Architecture (overview) | `docs/architecture/overview.md` |
+| Stack | `docs/architecture/stack.md` |
+| Codebase Structure | `docs/architecture/codebase-structure.md` |
+| Backend conventions | `docs/conventions/backend.md` |
+| Frontend conventions | `docs/conventions/frontend.md` |
+| Design system | `docs/conventions/design.md` |
+| Testing strategy | `docs/conventions/testing.md` |
+| Coding assertions | `docs/conventions/coding-assertions.md` |
+| Deployment | `docs/deployment/deployment.md` |
+| API documentation | `docs/api/endpoints.md` |
+| Project brief | `docs/project/brief.md` |
+| Coding rules | `docs/rules/*.md` |
 
-1. **Context Gathering**: Review recent changes and conversations
-2. **Cross-Reference**: Ensure consistency across documentation, look for existing elements first
-3. **Documentation Analysis**: Identify gaps in current documentation
-4. **Preview Changes**: Ask for USER validation.
-5. **Memory Bank Update**: If USER validates, update relevant memory bank files.
+## Steps
+
+1. Check if documentation already exists in the `docs/` folder structure above:
+   1. If exists, update it with newer information.
+   2. If not exist, create them from scratch.
+2. Determine modules to analyze:
+   1. If $ARGUMENTS is provided, it will be the module/folder to analyze.
+   2. If not provided, use project root.
+3. Provide the modules list to USER.
+4. **Wait for user approval** before proceeding.
+5. For each module, identify which files to create/update using the output structure above.
+6. Spawn a new task agent for each template file to analyze the codebase and fill its own template (in parallel) based on rules below.
+7. Output the generated files in proper dir.
 
 ## Rules
 
-- Stick to template, do not add extra elements.
-- Keep documentation concise and actionable
-- Use clear headers and bullet points
-
-## Validated output
-
-- Ensure all rules have been applied, then return "SUCCESS".
-- If you are not sure, return "PARTIALLY DONE" (with recommended actions to finish the work)
+- "?" means optional, do not add section if not applicable
+- Templates give optional sections, feel free to add or remove sections as needed
+- ZERO DUPLICATION: Focus only on the sections in template to avoid duplication across files
+- No minor versions in libs (e.g. `Next.js 15.3.4` → `Next.js 15` )
+- Templates follow clear separation of concerns
+- For config files (e.g. `package.json`, API schema etc...), please include relative based path using "@" (do not surrounded path with backticks)
+- SUPER SHORT explicit and concise bullet points
+- Mention code using backticks
