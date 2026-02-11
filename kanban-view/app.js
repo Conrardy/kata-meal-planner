@@ -2,8 +2,11 @@ const fileInput = document.getElementById("fileInput");
 const loadSample = document.getElementById("loadSample");
 const downloadJson = document.getElementById("downloadJson");
 const board = document.getElementById("board");
+const graphView = document.getElementById("graphView");
 const errorBox = document.getElementById("error");
 const tabs = document.getElementById("tabs");
+const viewKanbanBtn = document.getElementById("viewKanban");
+const viewGraphBtn = document.getElementById("viewGraph");
 
 const goalEl = document.getElementById("goal");
 const rootEl = document.getElementById("root");
@@ -13,6 +16,7 @@ const statsEl = document.getElementById("stats");
 const statusOrder = ["todo", "doing", "in-progress", "blocked", "done"];
 let loadedGraphs = [];
 let activeIndex = -1;
+let currentView = "kanban";
 const autoLoadUrl = "api/graphs";
 
 const sampleData = {
@@ -158,7 +162,7 @@ async function updateNodeStatus(nodeId, status) {
   node.status = status;
   node.updated_at = now;
   entry.graph.updated_at = now;
-  renderBoard(entry.graph);
+  renderCurrentView(entry.graph);
 }
 
 function buildColumns(nodes) {
@@ -202,12 +206,22 @@ function renderTabs() {
   tabs.hidden = false;
 }
 
+function renderCurrentView(graph) {
+  if (currentView === "graph") {
+    board.innerHTML = "";
+    renderGraphD3(graph);
+  } else {
+    graphView.innerHTML = "";
+    renderBoard(graph);
+  }
+}
+
 function selectGraph(index) {
   if (!loadedGraphs[index]) return;
   activeIndex = index;
   renderTabs();
   setDownloadState(loadedGraphs[index]);
-  renderBoard(loadedGraphs[index].graph);
+  renderCurrentView(loadedGraphs[index].graph);
 }
 
 function renderBoard(graph) {
@@ -349,7 +363,7 @@ async function tryAutoLoad() {
     activeIndex = 0;
     renderTabs();
     setDownloadState(loadedGraphs[0]);
-    renderBoard(loadedGraphs[0].graph);
+    renderCurrentView(loadedGraphs[0].graph);
 
     if (errors.length > 0) {
       showError(`Some files were skipped: ${errors.map((item) => item.file).join(", ")}`);
@@ -426,7 +440,7 @@ async function handleFiles(fileList) {
   activeIndex = 0;
   renderTabs();
   setDownloadState(loadedGraphs[0]);
-  renderBoard(loadedGraphs[0].graph);
+  renderCurrentView(loadedGraphs[0].graph);
 }
 
 fileInput.addEventListener("change", (event) => {
@@ -439,12 +453,255 @@ loadSample.addEventListener("click", () => {
   activeIndex = 0;
   renderTabs();
   setDownloadState(loadedGraphs[0]);
-  renderBoard(loadedGraphs[0].graph);
+  renderCurrentView(loadedGraphs[0].graph);
 });
 
 if (downloadJson) {
   downloadJson.addEventListener("click", () => downloadGraph(getActiveEntry()));
 }
+
+function escapeHtml(text) {
+  const div = document.createElement("div");
+  div.textContent = text;
+  return div.innerHTML;
+}
+
+function buildNodeHtml(node, isRoot, isLeaf) {
+  let marker = "";
+  if (isRoot) {
+    marker = '<div class="graph-root-marker">goal</div>';
+  } else if (isLeaf) {
+    marker = '<div class="graph-leaf-marker">leaf</div>';
+  }
+
+  const statusText = node.status.replace(/-/g, " ");
+  return `
+    <div class="graph-node" data-status="${escapeHtml(node.status)}">
+      ${marker}
+      <div class="graph-node-id">${escapeHtml(node.id)}</div>
+      <div class="graph-node-desc">${escapeHtml(node.description || "")}</div>
+      <span class="graph-node-status" data-status="${escapeHtml(node.status)}">${escapeHtml(statusText)}</span>
+    </div>
+  `;
+}
+
+function measureNodeHeights(nodes, graph, nodeWidth) {
+  const rootId = graph.root;
+  const measurer = document.createElement("div");
+  measurer.style.cssText = "position:absolute;visibility:hidden;pointer-events:none;";
+  document.body.appendChild(measurer);
+
+  const heights = new Map();
+
+  nodes.forEach((node) => {
+    const isRoot = node.id === rootId;
+    const isLeaf = node.depends_on.length === 0;
+    const wrapper = document.createElement("div");
+    wrapper.style.width = nodeWidth + "px";
+    wrapper.innerHTML = buildNodeHtml(node, isRoot, isLeaf);
+    measurer.appendChild(wrapper);
+    heights.set(node.id, wrapper.firstElementChild.offsetHeight);
+    measurer.removeChild(wrapper);
+  });
+
+  document.body.removeChild(measurer);
+  return heights;
+}
+
+function buildDagreGraph(graph) {
+  const g = new dagre.graphlib.Graph();
+  g.setGraph({ rankdir: "TB", nodesep: 40, ranksep: 60, marginx: 30, marginy: 30 });
+  g.setDefaultEdgeLabel(() => ({}));
+
+  const nodeWidth = 220;
+
+  const nodes = Object.values(graph.nodes).map((node) => ({
+    ...node,
+    status: node.status || "todo",
+    depends_on: Array.isArray(node.depends_on) ? node.depends_on : []
+  }));
+
+  const nodeMap = new Map(nodes.map((n) => [n.id, n]));
+  const heights = measureNodeHeights(nodes, graph, nodeWidth);
+
+  nodes.forEach((node) => {
+    const h = heights.get(node.id) || 90;
+    g.setNode(node.id, { width: nodeWidth, height: h, node });
+  });
+
+  // Edges: dependency → dependent (dep is source, node is target)
+  nodes.forEach((node) => {
+    node.depends_on.forEach((depId) => {
+      if (nodeMap.has(depId)) {
+        g.setEdge(depId, node.id);
+      }
+    });
+  });
+
+  dagre.layout(g);
+  return { dagreG: g, nodeMap, nodeWidth };
+}
+
+function renderEdges(container, dagreG, nodeMap) {
+  const lineGen = d3.line()
+    .x((d) => d.x)
+    .y((d) => d.y)
+    .curve(d3.curveBasis);
+
+  dagreG.edges().forEach((e) => {
+    const edge = dagreG.edge(e);
+    const depNode = nodeMap.get(e.v);
+    const isDone = depNode && depNode.status === "done";
+
+    const markerId = isDone ? "arrow-done" : "arrow-unmet";
+
+    container.append("path")
+      .attr("d", lineGen(edge.points))
+      .attr("fill", "none")
+      .attr("stroke", isDone ? "rgba(31,122,122,0.4)" : "rgba(224,92,43,0.3)")
+      .attr("stroke-width", isDone ? 2 : 1.5)
+      .attr("stroke-dasharray", isDone ? null : "6 4")
+      .attr("marker-end", `url(#${markerId})`);
+  });
+}
+
+function renderNodes(container, dagreG, graph, nodeWidth) {
+  const rootId = graph.root;
+  let index = 0;
+
+  dagreG.nodes().forEach((nodeId) => {
+    const dagNode = dagreG.node(nodeId);
+    const node = dagNode.node;
+    const isRoot = node.id === rootId;
+    const isLeaf = node.depends_on.length === 0;
+    const h = dagNode.height;
+
+    const fo = container.append("foreignObject")
+      .attr("x", dagNode.x - nodeWidth / 2)
+      .attr("y", dagNode.y - h / 2)
+      .attr("width", nodeWidth)
+      .attr("height", h)
+      .style("opacity", 0);
+
+    fo.html(buildNodeHtml(node, isRoot, isLeaf));
+
+    fo.transition()
+      .delay(index * 40)
+      .duration(300)
+      .style("opacity", 1);
+
+    index++;
+  });
+}
+
+function renderGraphD3(graph) {
+  if (!graph || !graph.nodes) return;
+
+  graphView.innerHTML = "";
+
+  const { dagreG, nodeMap, nodeWidth } = buildDagreGraph(graph);
+  const graphData = dagreG.graph();
+  const svgWidth = graphData.width || 800;
+  const svgHeight = graphData.height || 600;
+
+  // Compute stats
+  const nodes = Object.values(graph.nodes).map((n) => ({
+    ...n,
+    status: n.status || "todo",
+    depends_on: Array.isArray(n.depends_on) ? n.depends_on : []
+  }));
+  const nMap = new Map(nodes.map((n) => [n.id, n]));
+  const totals = nodes.length;
+  const done = nodes.filter((n) => n.status === "done").length;
+  const blocked = nodes.filter((n) => isNodeBlocked(n, nMap)).length;
+  const ready = nodes.filter((n) => n.status !== "done" && !isNodeBlocked(n, nMap)).length;
+  updateSummary(graph, { totals, done, blocked, ready });
+
+  const containerWidth = graphView.clientWidth || 800;
+  const containerHeight = Math.max(500, window.innerHeight - graphView.getBoundingClientRect().top - 40);
+
+  const svg = d3.select(graphView)
+    .append("svg")
+    .attr("class", "graph-d3-svg")
+    .attr("width", containerWidth)
+    .attr("height", containerHeight);
+
+  // Arrow markers
+  const defs = svg.append("defs");
+
+  defs.append("marker")
+    .attr("id", "arrow-done")
+    .attr("viewBox", "0 0 10 10")
+    .attr("refX", 10)
+    .attr("refY", 5)
+    .attr("markerWidth", 8)
+    .attr("markerHeight", 8)
+    .attr("orient", "auto")
+    .append("path")
+    .attr("d", "M 0 0 L 10 5 L 0 10 Z")
+    .attr("fill", "rgba(31,122,122,0.6)");
+
+  defs.append("marker")
+    .attr("id", "arrow-unmet")
+    .attr("viewBox", "0 0 10 10")
+    .attr("refX", 10)
+    .attr("refY", 5)
+    .attr("markerWidth", 8)
+    .attr("markerHeight", 8)
+    .attr("orient", "auto")
+    .append("path")
+    .attr("d", "M 0 0 L 10 5 L 0 10 Z")
+    .attr("fill", "rgba(224,92,43,0.5)");
+
+  // Zoom group
+  const zoomGroup = svg.append("g");
+
+  const zoom = d3.zoom()
+    .scaleExtent([0.3, 2])
+    .on("zoom", (event) => {
+      zoomGroup.attr("transform", event.transform);
+    });
+
+  svg.call(zoom);
+
+  // Render edges first (behind nodes)
+  const edgeGroup = zoomGroup.append("g").attr("class", "edges");
+  renderEdges(edgeGroup, dagreG, nodeMap);
+
+  // Render nodes on top
+  const nodeGroup = zoomGroup.append("g").attr("class", "nodes");
+  renderNodes(nodeGroup, dagreG, graph, nodeWidth);
+
+  // Fit to view
+  const padding = 40;
+  const scaleX = (containerWidth - padding * 2) / svgWidth;
+  const scaleY = (containerHeight - padding * 2) / svgHeight;
+  const scale = Math.min(scaleX, scaleY, 1);
+  const tx = (containerWidth - svgWidth * scale) / 2;
+  const ty = (containerHeight - svgHeight * scale) / 2;
+
+  svg.call(zoom.transform, d3.zoomIdentity.translate(tx, ty).scale(scale));
+}
+
+function setView(view) {
+  currentView = view;
+  viewKanbanBtn.classList.toggle("active", view === "kanban");
+  viewGraphBtn.classList.toggle("active", view === "graph");
+  board.hidden = view !== "kanban";
+  graphView.hidden = view !== "graph";
+
+  const entry = getActiveEntry();
+  if (entry && entry.graph) {
+    if (view === "kanban") {
+      renderBoard(entry.graph);
+    } else {
+      renderGraphD3(entry.graph);
+    }
+  }
+}
+
+viewKanbanBtn.addEventListener("click", () => setView("kanban"));
+viewGraphBtn.addEventListener("click", () => setView("graph"));
 
 window.addEventListener("DOMContentLoaded", () => {
   tryAutoLoad();

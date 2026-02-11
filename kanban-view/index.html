@@ -54,15 +54,23 @@
         </div>
       </section>
 
+      <div class="view-toggle">
+        <button id="viewKanban" class="view-button active" type="button">Kanban</button>
+        <button id="viewGraph" class="view-button" type="button">Graph</button>
+      </div>
+
       <section id="error" class="error" hidden></section>
 
       <section id="board" class="board"></section>
+      <section id="graphView" class="graph-view" hidden></section>
     </main>
 
     <footer class="page-footer">
       <span>Tip: dependencies are listed on each card. Unmet deps are highlighted.</span>
     </footer>
 
+    <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dagre@0.8.5/dist/dagre.min.js"></script>
     <script src="app.js"></script>
   </body>
 </html>

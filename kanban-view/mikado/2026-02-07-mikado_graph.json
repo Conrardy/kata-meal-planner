@@ -3,7 +3,7 @@
     "version": "1.0",
     "goal": "Utiliser Firebase comme persistance pour remplacer PostgreSQL",
     "created_at": "2026-02-07T10:19:39.3312612+01:00",
-    "updated_at": "2026-02-10T20:17:24.135Z",
+    "updated_at": "2026-02-11T12:51:57.436Z",
     "nodes": {
       "migration-firebase": {
         "id": "migration-firebase",
@@ -76,36 +76,36 @@
       "mode-read-legacy-write-dual": {
         "id": "mode-read-legacy-write-dual",
         "description": "Ajouter un mode Read Legacy / Write Dual dans le backend",
-        "status": "in-progress",
+        "status": "doing",
         "depends_on": [
           "archi-cible-validee"
         ],
         "notes": "Dual-write controle: ecriture DB actuelle + Firestore.",
         "created_at": "2026-02-07T10:23:10.0000000+01:00",
-        "updated_at": "2026-02-10T20:14:19.025Z"
+        "updated_at": "2026-02-11T12:51:57.436Z"
       },
       "auth-coexistence-tokens": {
         "id": "auth-coexistence-tokens",
         "description": "Backend accepte JWT interne + Firebase ID token, middleware unifie identite",
-        "status": "in-progress",
+        "status": "todo",
         "depends_on": [
           "table-liaison-useridentitymap"
         ],
         "notes": "Livrable attendu: diagramme d’identite et flux auth unifie.",
         "created_at": "2026-02-07T10:23:10.0000000+01:00",
-        "updated_at": "2026-02-10T20:17:24.135Z"
+        "updated_at": "2026-02-11T12:51:56.748Z"
       },
       "batch-initial-copie": {
         "id": "batch-initial-copie",
         "description": "Executer un batch initial de copie vers Firestore",
-        "status": "in-progress",
+        "status": "todo",
         "depends_on": [
           "schema-firestore-et-indexes",
           "table-liaison-useridentitymap"
         ],
         "notes": "",
         "created_at": "2026-02-07T10:23:10.0000000+01:00",
-        "updated_at": "2026-02-10T20:17:22.653Z"
+        "updated_at": "2026-02-11T12:51:42.788Z"
       },
       "dual-write-features-pilotes": {
         "id": "dual-write-features-pilotes",
