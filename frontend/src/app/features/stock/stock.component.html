@@ -91,6 +91,7 @@
                 <li
                   class="px-4 py-3 flex items-center gap-3 hover:bg-gray-50 cursor-pointer"
                   [attr.data-testid]="'stock-item-' + item.id"
+                  [class.opacity-50]="isDepleted(item)"
                   (click)="openEditModal(item)"
                 >
                   <!-- Item Name -->
@@ -98,8 +99,21 @@
                     {{ item.ingredientName }}
                   </span>
 
+                  <!-- Depleted Indicator -->
+                  @if (isDepleted(item)) {
+                    <span
+                      class="flex items-center gap-1 text-xs font-medium text-gray-500 bg-gray-100 px-2 py-1 rounded-full"
+                      data-testid="depleted-badge"
+                      i18n-title="@@stock.depletedTooltip"
+                      title="Épuisé"
+                    >
+                      <lucide-icon [img]="Ban" class="w-3 h-3" aria-hidden="true"></lucide-icon>
+                      <span i18n="@@stock.depleted">Épuisé</span>
+                    </span>
+                  }
+
                   <!-- Low Stock Indicator -->
-                  @if (isLowStock(item)) {
+                  @if (isLowStock(item) && !isDepleted(item)) {
                     <span
                       class="flex items-center gap-1 text-xs font-medium text-amber-600 bg-amber-50 px-2 py-1 rounded-full"
                       data-testid="low-stock-badge"
@@ -134,13 +148,36 @@
                     </span>
                   }
 
-                  <!-- Quantity -->
-                  <span
-                    class="text-sm font-medium text-gray-500 flex-shrink-0"
-                    [attr.data-testid]="'quantity-' + item.id"
-                  >
-                    {{ formatQuantity(item) }}
-                  </span>
+                  <!-- Quantity Adjustment -->
+                  <div class="flex items-center gap-1 flex-shrink-0" (click)="$event.stopPropagation()">
+                    <button
+                      type="button"
+                      (click)="adjustQuantity(item, -1, $event)"
+                      [disabled]="isDepleted(item)"
+                      class="w-7 h-7 flex items-center justify-center rounded-full border border-gray-200 text-gray-500 hover:bg-gray-100 hover:text-gray-700 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                      [attr.data-testid]="'decrease-' + item.id"
+                      i18n-aria-label="@@stock.decreaseQuantity"
+                      aria-label="Diminuer la quantité"
+                    >
+                      <lucide-icon [img]="Minus" class="w-3.5 h-3.5"></lucide-icon>
+                    </button>
+                    <span
+                      class="text-sm font-medium text-gray-500 min-w-[3.5rem] text-center"
+                      [attr.data-testid]="'quantity-' + item.id"
+                    >
+                      {{ formatQuantity(item) }}
+                    </span>
+                    <button
+                      type="button"
+                      (click)="adjustQuantity(item, 1, $event)"
+                      class="w-7 h-7 flex items-center justify-center rounded-full border border-gray-200 text-gray-500 hover:bg-gray-100 hover:text-gray-700 transition-colors"
+                      [attr.data-testid]="'increase-' + item.id"
+                      i18n-aria-label="@@stock.increaseQuantity"
+                      aria-label="Augmenter la quantité"
+                    >
+                      <lucide-icon [img]="Plus" class="w-3.5 h-3.5"></lucide-icon>
+                    </button>
+                  </div>
                 </li>
               }
             </ul>

@@ -9,6 +9,8 @@ import {
   AlertTriangle,
   Clock,
   Plus,
+  Minus,
+  Ban,
 } from 'lucide-angular';
 import { StockService } from '../../core/services/stock.service';
 import { StockItem } from '../../core/models/stock.model';
@@ -42,6 +44,8 @@ export class StockComponent implements OnInit {
   readonly AlertTriangle = AlertTriangle;
   readonly Clock = Clock;
   readonly Plus = Plus;
+  readonly Minus = Minus;
+  readonly Ban = Ban;
 
   readonly categoryOrder = ['Produce', 'Dairy', 'Meat', 'Pantry'];
 
@@ -105,6 +109,30 @@ export class StockComponent implements OnInit {
     this.editingItem.set(null);
     this.showSuccessMessage(wasEditing ? 'Article modifié avec succès.' : 'Article ajouté avec succès.');
     this.loadStock();
+  }
+
+  isDepleted(item: StockItem): boolean {
+    return item.quantity === 0;
+  }
+
+  adjustQuantity(item: StockItem, adjustment: number, event: Event): void {
+    event.stopPropagation();
+    const previousQuantity = item.quantity;
+    const newQuantity = Math.max(0, item.quantity + adjustment);
+    if (newQuantity === previousQuantity) return;
+
+    this.stockItems.update(items =>
+      items.map(i => i.id === item.id ? { ...i, quantity: newQuantity } : i)
+    );
+
+    this.stockService.adjustQuantity(item.id, adjustment).subscribe({
+      error: () => {
+        this.stockItems.update(items =>
+          items.map(i => i.id === item.id ? { ...i, quantity: previousQuantity } : i)
+        );
+        this.showSuccessMessage('Erreur lors de la mise à jour. Quantité restaurée.');
+      },
+    });
   }
 
   isLowStock(item: StockItem): boolean {
