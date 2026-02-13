@@ -1,0 +1,230 @@
+<div
+  class="modal-backdrop fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+  (click)="onBackdropClick($event)"
+  data-testid="stock-item-form-modal"
+>
+  <div class="bg-white rounded-xl shadow-xl max-w-lg w-full max-h-[90vh] overflow-hidden">
+    <!-- Header -->
+    <div class="flex items-center justify-between p-4 border-b">
+      <h2 class="text-lg font-semibold text-gray-900" data-testid="modal-title">
+        @if (isEditMode) {
+          <span i18n="@@stockForm.editTitle">Modifier l'article</span>
+        } @else {
+          <span i18n="@@stockForm.addTitle">Ajouter un article</span>
+        }
+      </h2>
+      <button
+        type="button"
+        (click)="onClose()"
+        class="p-2 text-gray-400 hover:text-gray-600 transition-colors"
+        data-testid="close-modal-button"
+      >
+        <lucide-icon [img]="XIcon" class="w-5 h-5"></lucide-icon>
+      </button>
+    </div>
+
+    <!-- Content -->
+    <div class="p-4 overflow-y-auto max-h-[70vh]">
+      <!-- Error Message -->
+      @if (errorMessage()) {
+        <div
+          class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4"
+          data-testid="form-error"
+        >
+          {{ errorMessage() }}
+        </div>
+      }
+
+      <!-- Delete Confirmation -->
+      @if (showDeleteConfirm()) {
+        <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-4" data-testid="delete-confirm">
+          <p class="text-red-700 font-medium mb-3" i18n="@@stockForm.deleteConfirmMessage">
+            Supprimer cet article du stock ?
+          </p>
+          <div class="flex gap-3">
+            <button
+              type="button"
+              (click)="onConfirmDelete()"
+              [disabled]="isDeleting()"
+              class="px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 disabled:opacity-50 transition-colors"
+              data-testid="confirm-delete-button"
+              i18n="@@stockForm.confirmDelete"
+            >
+              Supprimer
+            </button>
+            <button
+              type="button"
+              (click)="onCancelDelete()"
+              class="px-4 py-2 border border-gray-300 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-50 transition-colors"
+              data-testid="cancel-delete-button"
+              i18n="@@stockForm.cancelDelete"
+            >
+              Annuler
+            </button>
+          </div>
+        </div>
+      }
+
+      <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-4">
+        <!-- Ingredient Name -->
+        <div>
+          <label for="ingredientName" class="block text-sm font-medium text-gray-700 mb-1" i18n="@@stockForm.ingredientName">
+            Nom de l'ingrédient
+          </label>
+          <input
+            id="ingredientName"
+            type="text"
+            formControlName="ingredientName"
+            class="w-full px-3 py-2 border rounded-lg text-gray-900 focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-colors"
+            [class.border-red-300]="hasError('ingredientName')"
+            [class.border-gray-300]="!hasError('ingredientName')"
+            data-testid="input-ingredient-name"
+            i18n-placeholder="@@stockForm.ingredientNamePlaceholder"
+            placeholder="Ex: Tomates, Lait, Poulet..."
+          />
+          @if (hasError('ingredientName')) {
+            <p class="text-red-500 text-xs mt-1" data-testid="error-ingredient-name" i18n="@@stockForm.ingredientNameRequired">
+              Le nom de l'ingrédient est requis.
+            </p>
+          }
+        </div>
+
+        <!-- Quantity and Unit -->
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label for="quantity" class="block text-sm font-medium text-gray-700 mb-1" i18n="@@stockForm.quantity">
+              Quantité
+            </label>
+            <input
+              id="quantity"
+              type="number"
+              formControlName="quantity"
+              min="0"
+              step="0.1"
+              class="w-full px-3 py-2 border rounded-lg text-gray-900 focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-colors"
+              [class.border-red-300]="hasError('quantity')"
+              [class.border-gray-300]="!hasError('quantity')"
+              data-testid="input-quantity"
+            />
+            @if (hasError('quantity')) {
+              <p class="text-red-500 text-xs mt-1" data-testid="error-quantity" i18n="@@stockForm.quantityInvalid">
+                La quantité doit être positive.
+              </p>
+            }
+          </div>
+
+          <div>
+            <label for="unit" class="block text-sm font-medium text-gray-700 mb-1" i18n="@@stockForm.unit">
+              Unité
+            </label>
+            <select
+              id="unit"
+              formControlName="unit"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 bg-white focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-colors"
+              data-testid="select-unit"
+            >
+              @for (u of units; track u) {
+                <option [value]="u">{{ u }}</option>
+              }
+            </select>
+          </div>
+        </div>
+
+        <!-- Category -->
+        <div>
+          <label for="category" class="block text-sm font-medium text-gray-700 mb-1" i18n="@@stockForm.category">
+            Catégorie
+          </label>
+          <select
+            id="category"
+            formControlName="category"
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 bg-white focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-colors"
+            data-testid="select-category"
+          >
+            @for (cat of categories; track cat) {
+              <option [value]="cat">{{ cat }}</option>
+            }
+          </select>
+        </div>
+
+        <!-- Expiration Date -->
+        <div>
+          <label for="expirationDate" class="block text-sm font-medium text-gray-700 mb-1" i18n="@@stockForm.expirationDate">
+            Date de péremption
+          </label>
+          <input
+            id="expirationDate"
+            type="date"
+            formControlName="expirationDate"
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-colors"
+            data-testid="input-expiration-date"
+          />
+          <p class="text-xs text-gray-400 mt-1" i18n="@@stockForm.expirationDateHint">Optionnel</p>
+        </div>
+
+        <!-- Low Stock Threshold -->
+        <div>
+          <label for="lowStockThreshold" class="block text-sm font-medium text-gray-700 mb-1" i18n="@@stockForm.lowStockThreshold">
+            Seuil d'alerte
+          </label>
+          <input
+            id="lowStockThreshold"
+            type="number"
+            formControlName="lowStockThreshold"
+            min="0"
+            step="0.1"
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-colors"
+            data-testid="input-low-stock-threshold"
+            i18n-placeholder="@@stockForm.lowStockThresholdPlaceholder"
+            placeholder="Ex: 2"
+          />
+          <p class="text-xs text-gray-400 mt-1" i18n="@@stockForm.lowStockThresholdHint">Optionnel - alerte quand la quantité est basse</p>
+        </div>
+
+        <!-- Actions -->
+        <div class="flex items-center justify-between pt-2">
+          @if (isEditMode) {
+            <button
+              type="button"
+              (click)="onDeleteClick()"
+              [disabled]="isDeleting() || isSaving()"
+              class="flex items-center gap-2 px-4 py-2 text-red-600 hover:bg-red-50 text-sm font-medium rounded-lg disabled:opacity-50 transition-colors"
+              data-testid="delete-button"
+            >
+              <lucide-icon [img]="Trash2Icon" class="w-4 h-4"></lucide-icon>
+              <span i18n="@@stockForm.delete">Supprimer</span>
+            </button>
+          } @else {
+            <div></div>
+          }
+
+          <div class="flex gap-3">
+            <button
+              type="button"
+              (click)="onClose()"
+              class="px-4 py-2 border border-gray-300 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-50 transition-colors"
+              data-testid="cancel-button"
+              i18n="@@stockForm.cancel"
+            >
+              Annuler
+            </button>
+            <button
+              type="submit"
+              [disabled]="isSaving()"
+              class="px-4 py-2 bg-primary text-white text-sm font-medium rounded-lg hover:bg-orange-600 disabled:opacity-50 transition-colors"
+              data-testid="save-button"
+            >
+              @if (isSaving()) {
+                <span i18n="@@stockForm.saving">Enregistrement...</span>
+              } @else if (isEditMode) {
+                <span i18n="@@stockForm.save">Enregistrer</span>
+              } @else {
+                <span i18n="@@stockForm.add">Ajouter</span>
+              }
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

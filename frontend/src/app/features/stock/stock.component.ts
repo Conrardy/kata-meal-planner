@@ -8,9 +8,11 @@ import {
   Beef,
   AlertTriangle,
   Clock,
+  Plus,
 } from 'lucide-angular';
 import { StockService } from '../../core/services/stock.service';
 import { StockItem } from '../../core/models/stock.model';
+import { StockItemFormModalComponent } from './components/stock-item-form-modal/stock-item-form-modal.component';
 
 interface StockCategoryGroup {
   category: string;
@@ -20,7 +22,7 @@ interface StockCategoryGroup {
 @Component({
   selector: 'app-stock',
   standalone: true,
-  imports: [RouterLink, LucideAngularModule],
+  imports: [RouterLink, LucideAngularModule, StockItemFormModalComponent],
   templateUrl: './stock.component.html',
 })
 export class StockComponent implements OnInit {
@@ -29,6 +31,9 @@ export class StockComponent implements OnInit {
   readonly stockItems = signal<StockItem[]>([]);
   readonly isLoading = signal(true);
   readonly error = signal<string | null>(null);
+  readonly showFormModal = signal(false);
+  readonly editingItem = signal<StockItem | null>(null);
+  readonly successMessage = signal<string | null>(null);
 
   readonly Package = Package;
   readonly Apple = Apple;
@@ -36,6 +41,7 @@ export class StockComponent implements OnInit {
   readonly Beef = Beef;
   readonly AlertTriangle = AlertTriangle;
   readonly Clock = Clock;
+  readonly Plus = Plus;
 
   readonly categoryOrder = ['Produce', 'Dairy', 'Meat', 'Pantry'];
 
@@ -62,7 +68,7 @@ export class StockComponent implements OnInit {
     this.loadStock();
   }
 
-  private loadStock(): void {
+  loadStock(): void {
     this.isLoading.set(true);
     this.error.set(null);
 
@@ -76,6 +82,29 @@ export class StockComponent implements OnInit {
         this.isLoading.set(false);
       },
     });
+  }
+
+  openAddModal(): void {
+    this.editingItem.set(null);
+    this.showFormModal.set(true);
+  }
+
+  openEditModal(item: StockItem): void {
+    this.editingItem.set(item);
+    this.showFormModal.set(true);
+  }
+
+  onModalClose(): void {
+    this.showFormModal.set(false);
+    this.editingItem.set(null);
+  }
+
+  onModalSaved(): void {
+    const wasEditing = this.editingItem() !== null;
+    this.showFormModal.set(false);
+    this.editingItem.set(null);
+    this.showSuccessMessage(wasEditing ? 'Article modifié avec succès.' : 'Article ajouté avec succès.');
+    this.loadStock();
   }
 
   isLowStock(item: StockItem): boolean {
@@ -126,5 +155,10 @@ export class StockComponent implements OnInit {
       default:
         return 'bg-amber-100 text-amber-700';
     }
+  }
+
+  private showSuccessMessage(message: string): void {
+    this.successMessage.set(message);
+    setTimeout(() => this.successMessage.set(null), 3000);
   }
 }

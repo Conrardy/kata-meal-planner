@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { StockItem, StockList } from '../models/stock.model';
+import { StockItem, StockList, CreateStockItemRequest, UpdateStockItemRequest } from '../models/stock.model';
 import { ApiConfigService } from './api-config.service';
 
 @Injectable({
@@ -14,6 +14,18 @@ export class StockService {
 
   getStockItems(): Observable<StockList> {
     return this.http.get<StockList>(`${this.baseUrl}/stock`);
+  }
+
+  createStockItem(request: CreateStockItemRequest): Observable<StockItem> {
+    return this.http.post<StockItem>(`${this.baseUrl}/stock`, request);
+  }
+
+  updateStockItem(id: string, request: UpdateStockItemRequest): Observable<StockItem> {
+    return this.http.put<StockItem>(`${this.baseUrl}/stock/${id}`, request);
+  }
+
+  deleteStockItem(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/stock/${id}`);
   }
 
   adjustQuantity(id: string, adjustment: number): Observable<StockItem> {
