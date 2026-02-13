@@ -1,6 +1,7 @@
 using System.Text.Json;
 using MealPlanner.Domain.Meals;
 using MealPlanner.Domain.Recipes;
+using MealPlanner.Domain.Stock;
 using MealPlanner.Infrastructure.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -20,6 +21,7 @@ public sealed class MealPlannerDbContext : IdentityDbContext<ApplicationUser, Id
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
     public DbSet<DynamicUser> DynamicUsers => Set<DynamicUser>();
     public DbSet<UserIdentityMap> UserIdentityMaps => Set<UserIdentityMap>();
+    public DbSet<StockItem> StockItems => Set<StockItem>();
 
     public MealPlannerDbContext(DbContextOptions<MealPlannerDbContext> options)
         : base(options)
@@ -37,6 +39,7 @@ public sealed class MealPlannerDbContext : IdentityDbContext<ApplicationUser, Id
         ConfigureRefreshToken(modelBuilder);
         ConfigureDynamicUser(modelBuilder);
         ConfigureUserIdentityMap(modelBuilder);
+        ConfigureStockItem(modelBuilder);
         ConfigureIdentityTables(modelBuilder);
     }
 
@@ -252,6 +255,33 @@ public sealed class MealPlannerDbContext : IdentityDbContext<ApplicationUser, Id
             entity.Property(m => m.CreatedAt).HasColumnName("created_at");
 
             entity.HasIndex(m => m.FirebaseUid).IsUnique();
+        });
+    }
+
+    private static void ConfigureStockItem(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<StockItem>(entity =>
+        {
+            entity.ToTable("stock_items");
+            entity.HasKey(s => s.Id);
+
+            entity.Property(s => s.Id).HasColumnName("id");
+            entity.Property(s => s.IngredientName).HasColumnName("ingredient_name").HasMaxLength(200).IsRequired();
+            entity.Property(s => s.Quantity).HasColumnName("quantity").HasColumnType("numeric(18,4)");
+            entity.Property(s => s.Unit).HasColumnName("unit").HasMaxLength(50).IsRequired();
+
+            entity.Property(s => s.Category)
+                .HasColumnName("category")
+                .HasMaxLength(20)
+                .HasConversion(
+                    v => v.Value,
+                    v => StockCategory.FromString(v));
+
+            entity.Property(s => s.ExpirationDate).HasColumnName("expiration_date");
+            entity.Property(s => s.LowStockThreshold).HasColumnName("low_stock_threshold").HasColumnType("numeric(18,4)");
+            entity.Property(s => s.UserId).HasColumnName("user_id");
+
+            entity.HasIndex(s => s.UserId);
         });
     }
 

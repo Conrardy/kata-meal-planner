@@ -1,4 +1,6 @@
 using System.Globalization;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
 using System.Threading.RateLimiting;
@@ -20,6 +22,7 @@ using MealPlanner.Application.Meals;
 using MealPlanner.Application.Preferences;
 using MealPlanner.Application.Recipes;
 using MealPlanner.Application.ShoppingList;
+using MealPlanner.Application.Stock;
 using MealPlanner.Application.WeeklyPlan;
 using MealPlanner.Infrastructure;
 using MealPlanner.Infrastructure.Identity;
@@ -616,6 +619,81 @@ app.MapPut("/api/v1/preferences", async (UpdatePreferencesRequest request, IMedi
 .WithOpenApi()
 .RequireAuthorization();
 
+// Stock endpoints
+app.MapGet("/api/v1/stock", async (HttpContext httpContext, IMediator mediator) =>
+{
+    var userId = GetUserId(httpContext);
+    var query = new GetStockItemsQuery(userId);
+    var result = await mediator.Send(query);
+    return Results.Ok(result);
+})
+.WithName("GetStockItems")
+.WithOpenApi()
+.RequireAuthorization();
+
+app.MapPost("/api/v1/stock", async (HttpContext httpContext, CreateStockItemRequest request, IMediator mediator) =>
+{
+    var userId = GetUserId(httpContext);
+    var command = new CreateStockItemCommand(
+        userId,
+        request.IngredientName,
+        request.Quantity,
+        request.Unit,
+        request.Category,
+        request.ExpirationDate,
+        request.LowStockThreshold
+    );
+    var result = await mediator.Send(command);
+    return result.MatchResult(
+        httpContext,
+        item => Results.Created($"/api/v1/stock/{item.Id}", item));
+})
+.WithName("CreateStockItem")
+.WithOpenApi()
+.RequireAuthorization();
+
+app.MapPut("/api/v1/stock/{id}", async (HttpContext httpContext, Guid id, UpdateStockItemRequest request, IMediator mediator) =>
+{
+    var userId = GetUserId(httpContext);
+    var command = new UpdateStockItemCommand(
+        id,
+        userId,
+        request.IngredientName,
+        request.Quantity,
+        request.Unit,
+        request.Category,
+        request.ExpirationDate,
+        request.LowStockThreshold
+    );
+    var result = await mediator.Send(command);
+    return result.MatchResult(httpContext, item => Results.Ok(item));
+})
+.WithName("UpdateStockItem")
+.WithOpenApi()
+.RequireAuthorization();
+
+app.MapDelete("/api/v1/stock/{id}", async (HttpContext httpContext, Guid id, IMediator mediator) =>
+{
+    var userId = GetUserId(httpContext);
+    var command = new DeleteStockItemCommand(id, userId);
+    var result = await mediator.Send(command);
+    return result.MatchResult(httpContext, _ => Results.NoContent());
+})
+.WithName("DeleteStockItem")
+.WithOpenApi()
+.RequireAuthorization();
+
+app.MapPatch("/api/v1/stock/{id}/quantity", async (HttpContext httpContext, Guid id, AdjustStockQuantityRequest request, IMediator mediator) =>
+{
+    var userId = GetUserId(httpContext);
+    var command = new AdjustStockQuantityCommand(id, userId, request.Adjustment);
+    var result = await mediator.Send(command);
+    return result.MatchResult(httpContext, item => Results.Ok(item));
+})
+.WithName("AdjustStockQuantity")
+.WithOpenApi()
+.RequireAuthorization();
+
     Log.Information("Initialization complete. Starting web host");
     app.Run();
 }
@@ -657,6 +735,17 @@ static Task WriteHealthCheckResponse(HttpContext context, HealthReport report)
     return context.Response.WriteAsJsonAsync(response, options);
 }
 
+static Guid GetUserId(HttpContext httpContext)
+{
+    var userIdClaim = httpContext.User.FindFirstValue(JwtRegisteredClaimNames.Sub)
+        ?? httpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+    if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out var userId))
+        throw new UnauthorizedAccessException("User ID not found in token.");
+
+    return userId;
+}
+
 public record SwapMealRequest(Guid NewRecipeId);
 public record AddRecipeToMealPlanRequest(Guid RecipeId, string Date, string MealType);
 public record ToggleItemRequest(bool IsChecked);
@@ -675,3 +764,23 @@ public record CreateAdminUserRequest(string Username, string Password);
 
 public record UsernameLoginRequest(string Username, string Password);
 public record UsernameRefreshTokenRequest(string RefreshToken);
+
+public record CreateStockItemRequest(
+    string IngredientName,
+    decimal Quantity,
+    string Unit,
+    string Category,
+    DateOnly? ExpirationDate,
+    decimal? LowStockThreshold
+);
+
+public record UpdateStockItemRequest(
+    string IngredientName,
+    decimal Quantity,
+    string Unit,
+    string Category,
+    DateOnly? ExpirationDate,
+    decimal? LowStockThreshold
+);
+
+public record AdjustStockQuantityRequest(decimal Adjustment);

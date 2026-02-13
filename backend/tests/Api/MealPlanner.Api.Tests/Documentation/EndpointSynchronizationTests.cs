@@ -141,8 +141,8 @@ public sealed class EndpointSynchronizationTests
             _output.WriteLine($"  - {endpoint}");
         }
 
-        endpoints.Count.Should().Be(23,
-            "the documentation states there are 23 endpoints (check 'Total : 23 endpoints' in endpoints.md)");
+        endpoints.Count.Should().Be(28,
+            "the documentation states there are 28 endpoints (check 'Total : 28 endpoints' in endpoints.md)");
     }
 
     [Fact]

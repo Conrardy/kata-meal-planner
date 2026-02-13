@@ -21,8 +21,9 @@ Reference complète de tous les endpoints de l'API MealPlanner.
 | [Recipes](#recipes) | 3 | Bearer JWT |
 | [Shopping List](#shopping-list) | 4 | Bearer JWT |
 | [Preferences](#preferences) | 2 | Bearer JWT |
+| [Stock](#stock) | 5 | Bearer JWT |
 
-**Total : 23 endpoints**
+**Total : 28 endpoints**
 
 ---
 
@@ -1116,6 +1117,225 @@ curl -X PUT http://localhost:5000/api/v1/preferences \
     "mealsPerDay": 3,
     "planLength": 14
   }'
+```
+
+---
+
+## Stock
+
+### GET `/api/v1/stock` - Liste du stock
+
+Récupère tous les articles du stock de l'utilisateur connecté.
+
+**Authentification** : Bearer JWT
+
+**Réponse** `200 OK` :
+
+```json
+{
+  "items": [
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440000",
+      "ingredientName": "Flour",
+      "quantity": 2.5,
+      "unit": "kg",
+      "category": "Pantry",
+      "expirationDate": "2026-06-15",
+      "lowStockThreshold": 1.0
+    }
+  ]
+}
+```
+
+**Codes d'erreur** :
+
+| Code | Description |
+|------|-------------|
+| `200` | Stock récupéré |
+| `401` | Token manquant ou invalide |
+
+```bash
+curl http://localhost:5000/api/v1/stock \
+  -H "Authorization: Bearer <token>"
+```
+
+---
+
+### POST `/api/v1/stock` - Ajouter un article au stock
+
+Ajoute un nouvel article au stock de l'utilisateur.
+
+**Authentification** : Bearer JWT
+
+**Corps de la requête** :
+
+```json
+{
+  "ingredientName": "Flour",
+  "quantity": 2.5,
+  "unit": "kg",
+  "category": "Pantry",
+  "expirationDate": "2026-06-15",
+  "lowStockThreshold": 1.0
+}
+```
+
+| Champ | Type | Requis | Description |
+|-------|------|--------|-------------|
+| `ingredientName` | `string` | Oui | Nom de l'ingrédient (max 200 car.) |
+| `quantity` | `decimal` | Oui | Quantité (>= 0) |
+| `unit` | `string` | Oui | Unité de mesure (max 50 car.) |
+| `category` | `string` | Oui | Catégorie : Produce, Dairy, Meat, Pantry |
+| `expirationDate` | `DateOnly` | Non | Date de péremption |
+| `lowStockThreshold` | `decimal` | Non | Seuil d'alerte de stock bas (>= 0) |
+
+**Réponse** `201 Created` :
+
+```json
+{
+  "id": "550e8400-e29b-41d4-a716-446655440000",
+  "ingredientName": "Flour",
+  "quantity": 2.5,
+  "unit": "kg",
+  "category": "Pantry",
+  "expirationDate": "2026-06-15",
+  "lowStockThreshold": 1.0
+}
+```
+
+**Header** : `Location: /api/v1/stock/{id}`
+
+**Codes d'erreur** :
+
+| Code | Description |
+|------|-------------|
+| `201` | Article créé |
+| `400` | Erreur de validation |
+| `401` | Token manquant ou invalide |
+
+```bash
+curl -X POST http://localhost:5000/api/v1/stock \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <token>" \
+  -d '{"ingredientName": "Flour", "quantity": 2.5, "unit": "kg", "category": "Pantry"}'
+```
+
+---
+
+### PUT `/api/v1/stock/{id}` - Modifier un article du stock
+
+Met à jour un article existant dans le stock.
+
+**Authentification** : Bearer JWT
+
+**Paramètres de chemin** :
+
+| Paramètre | Type | Description |
+|-----------|------|-------------|
+| `id` | `Guid` | Identifiant de l'article |
+
+**Corps de la requête** :
+
+```json
+{
+  "ingredientName": "Flour",
+  "quantity": 3.0,
+  "unit": "kg",
+  "category": "Pantry",
+  "expirationDate": "2026-06-15",
+  "lowStockThreshold": 1.0
+}
+```
+
+**Réponse** `200 OK` : Retourne l'article mis à jour (même format que POST).
+
+**Codes d'erreur** :
+
+| Code | Description |
+|------|-------------|
+| `200` | Article mis à jour |
+| `400` | Erreur de validation |
+| `401` | Token manquant ou invalide |
+| `404` | Article non trouvé |
+
+```bash
+curl -X PUT http://localhost:5000/api/v1/stock/550e8400-e29b-41d4-a716-446655440000 \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <token>" \
+  -d '{"ingredientName": "Flour", "quantity": 3.0, "unit": "kg", "category": "Pantry"}'
+```
+
+---
+
+### DELETE `/api/v1/stock/{id}` - Supprimer un article du stock
+
+Supprime un article du stock.
+
+**Authentification** : Bearer JWT
+
+**Paramètres de chemin** :
+
+| Paramètre | Type | Description |
+|-----------|------|-------------|
+| `id` | `Guid` | Identifiant de l'article |
+
+**Réponse** : `204 No Content`
+
+**Codes d'erreur** :
+
+| Code | Description |
+|------|-------------|
+| `204` | Article supprimé |
+| `401` | Token manquant ou invalide |
+| `404` | Article non trouvé |
+
+```bash
+curl -X DELETE http://localhost:5000/api/v1/stock/550e8400-e29b-41d4-a716-446655440000 \
+  -H "Authorization: Bearer <token>"
+```
+
+---
+
+### PATCH `/api/v1/stock/{id}/quantity` - Ajuster la quantité
+
+Ajuste rapidement la quantité d'un article (+/-).
+
+**Authentification** : Bearer JWT
+
+**Paramètres de chemin** :
+
+| Paramètre | Type | Description |
+|-----------|------|-------------|
+| `id` | `Guid` | Identifiant de l'article |
+
+**Corps de la requête** :
+
+```json
+{
+  "adjustment": -1.0
+}
+```
+
+| Champ | Type | Requis | Description |
+|-------|------|--------|-------------|
+| `adjustment` | `decimal` | Oui | Valeur d'ajustement (positif pour ajouter, négatif pour retirer) |
+
+**Réponse** `200 OK` : Retourne l'article mis à jour.
+
+**Codes d'erreur** :
+
+| Code | Description |
+|------|-------------|
+| `200` | Quantité ajustée |
+| `400` | Erreur de validation (résultat négatif, ajustement nul) |
+| `401` | Token manquant ou invalide |
+| `404` | Article non trouvé |
+
+```bash
+curl -X PATCH http://localhost:5000/api/v1/stock/550e8400-e29b-41d4-a716-446655440000/quantity \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <token>" \
+  -d '{"adjustment": -1.0}'
 ```
 
 ---

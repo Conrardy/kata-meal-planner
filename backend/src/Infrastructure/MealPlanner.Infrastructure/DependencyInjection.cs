@@ -6,6 +6,7 @@ using MealPlanner.Domain.Meals;
 using MealPlanner.Domain.Preferences;
 using MealPlanner.Domain.Recipes;
 using MealPlanner.Domain.ShoppingList;
+using MealPlanner.Domain.Stock;
 using MealPlanner.Infrastructure.Auth;
 using MealPlanner.Infrastructure.Admin;
 using MealPlanner.Infrastructure.Identity;
@@ -64,6 +65,7 @@ public static class DependencyInjection
         services.AddScoped<IPlannedMealRepository, EfCorePlannedMealRepository>();
         services.AddScoped<IShoppingListStateRepository, EfCoreShoppingListStateRepository>();
         services.AddScoped<IUserPreferencesRepository, EfCoreUserPreferencesRepository>();
+        services.AddScoped<IStockItemRepository, EfCoreStockItemRepository>();
         services.AddScoped<DatabaseSeeder>();
 
         services.AddSingleton<IShoppingListSyncService, InMemoryShoppingListSyncService>();
