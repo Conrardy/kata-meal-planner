@@ -66,6 +66,15 @@ export const routes: Routes = [
     canActivate: [authGuard],
   },
   {
+    path: 'stock',
+    loadComponent: () =>
+      import('./features/stock/stock.component').then(
+        (m) => m.StockComponent
+      ),
+    title: 'Stock',
+    canActivate: [authGuard],
+  },
+  {
     path: 'preferences',
     loadComponent: () =>
       import('./features/preferences/preferences.component').then(

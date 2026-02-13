@@ -1,6 +1,6 @@
 import { Component, inject, output } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
-import { LucideAngularModule, Plus, CalendarDays, ShoppingCart, Home, Calendar, Search, Settings, LogOut, Users } from 'lucide-angular';
+import { LucideAngularModule, Plus, CalendarDays, ShoppingCart, Home, Calendar, Search, Settings, LogOut, Users, Package } from 'lucide-angular';
 import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
@@ -26,6 +26,7 @@ export class SidebarComponent {
   readonly Settings = Settings;
   readonly LogOut = LogOut;
   readonly Users = Users;
+  readonly Package = Package;
 
   readonly currentUser = this.authService.currentUser;
   readonly isAdmin = this.authService.isAdmin;

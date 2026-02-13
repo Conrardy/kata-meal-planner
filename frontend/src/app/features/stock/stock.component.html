@@ -1,0 +1,132 @@
+<section class="min-h-screen bg-gray-50 pb-8">
+  <!-- Header (mobile only) -->
+  <header class="bg-white shadow-sm sticky top-0 z-10 lg:hidden">
+    <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+      <h1 class="text-2xl font-bold text-gray-900" i18n="@@stock.mealprep">MealPrep</h1>
+      <nav class="flex gap-4">
+        <a routerLink="/" class="text-gray-500 hover:text-gray-900 transition-colors" i18n="@@stock.today">Aujourd'hui</a>
+        <span class="text-primary font-medium" i18n="@@stock.stock">Stock</span>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Stock Content -->
+  <main class="max-w-3xl mx-auto px-4 py-6">
+    <!-- Page Header -->
+    <div class="flex items-center justify-between mb-6">
+      <div class="flex items-center gap-3">
+        <lucide-icon [img]="Package" class="w-6 h-6 text-primary"></lucide-icon>
+        <h2 class="text-xl font-semibold text-gray-900" i18n="@@stock.title">Mon stock</h2>
+      </div>
+    </div>
+
+    @if (isLoading()) {
+      <div class="flex justify-center items-center py-12" data-testid="loading-spinner">
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
+    } @else if (error()) {
+      <div
+        class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg"
+        data-testid="error-message"
+      >
+        {{ error() }}
+      </div>
+    } @else if (totalItems() === 0) {
+      <!-- Empty State -->
+      <div class="bg-white rounded-xl shadow-sm p-8 text-center" data-testid="empty-stock">
+        <lucide-icon [img]="Package" class="w-12 h-12 text-gray-300 mx-auto mb-4"></lucide-icon>
+        <p class="text-gray-500" i18n="@@stock.emptyTitle">Votre stock est vide.</p>
+        <p class="text-sm text-gray-400 mt-1" i18n="@@stock.emptyDescription">Ajoutez des articles pour suivre vos ingrédients disponibles.</p>
+      </div>
+    } @else {
+      <!-- Summary -->
+      <p class="text-sm text-gray-600 mb-4" data-testid="total-items">
+        {{ totalItems() }} <span i18n="@@stock.articles">articles</span>
+      </p>
+
+      <!-- Categories -->
+      <div class="space-y-4" data-testid="stock-categories">
+        @for (group of groupedByCategory(); track group.category) {
+          <div
+            class="bg-white rounded-xl shadow-sm overflow-hidden"
+            [attr.data-testid]="'category-' + group.category.toLowerCase()"
+          >
+            <!-- Category Header -->
+            <div class="px-4 py-3 border-b border-gray-100 flex items-center gap-3">
+              <div
+                class="w-8 h-8 rounded-lg flex items-center justify-center"
+                [class]="getCategoryColor(group.category)"
+              >
+                <lucide-icon
+                  [img]="getCategoryIcon(group.category)"
+                  class="w-4 h-4"
+                ></lucide-icon>
+              </div>
+              <h3 class="font-semibold text-gray-900">{{ group.category }}</h3>
+              <span class="text-sm text-gray-500">({{ group.items.length }})</span>
+            </div>
+
+            <!-- Items List -->
+            <ul class="divide-y divide-gray-50">
+              @for (item of group.items; track item.id) {
+                <li
+                  class="px-4 py-3 flex items-center gap-3 hover:bg-gray-50"
+                  [attr.data-testid]="'stock-item-' + item.id"
+                >
+                  <!-- Item Name -->
+                  <span class="flex-grow text-gray-900">
+                    {{ item.ingredientName }}
+                  </span>
+
+                  <!-- Low Stock Indicator -->
+                  @if (isLowStock(item)) {
+                    <span
+                      class="flex items-center gap-1 text-xs font-medium text-amber-600 bg-amber-50 px-2 py-1 rounded-full"
+                      data-testid="low-stock-badge"
+                      i18n-title="@@stock.lowStockTooltip"
+                      title="Stock bas"
+                    >
+                      <lucide-icon [img]="AlertTriangle" class="w-3 h-3" aria-hidden="true"></lucide-icon>
+                      <span i18n="@@stock.lowStock">Stock bas</span>
+                    </span>
+                  }
+
+                  <!-- Expiring Soon Indicator -->
+                  @if (isExpiringSoon(item)) {
+                    <span
+                      class="flex items-center gap-1 text-xs font-medium text-red-600 bg-red-50 px-2 py-1 rounded-full"
+                      data-testid="expiring-soon-badge"
+                      i18n-title="@@stock.expiringSoonTooltip"
+                      title="Péremption proche"
+                    >
+                      <lucide-icon [img]="Clock" class="w-3 h-3" aria-hidden="true"></lucide-icon>
+                      <span i18n="@@stock.expiringSoon">Expire bientôt</span>
+                    </span>
+                  }
+
+                  <!-- Expiration Date -->
+                  @if (item.expirationDate) {
+                    <span
+                      class="text-xs text-gray-400 flex-shrink-0"
+                      [attr.data-testid]="'expiration-' + item.id"
+                    >
+                      {{ formatExpirationDate(item.expirationDate) }}
+                    </span>
+                  }
+
+                  <!-- Quantity -->
+                  <span
+                    class="text-sm font-medium text-gray-500 flex-shrink-0"
+                    [attr.data-testid]="'quantity-' + item.id"
+                  >
+                    {{ formatQuantity(item) }}
+                  </span>
+                </li>
+              }
+            </ul>
+          </div>
+        }
+      </div>
+    }
+  </main>
+</section>
